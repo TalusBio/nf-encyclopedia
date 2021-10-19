@@ -40,4 +40,4 @@ experiment-bucket/
 metadata-bucket/
 mzml-bucket/
 work/
-nextflow.config
+benchling.config
