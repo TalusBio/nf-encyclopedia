@@ -40,3 +40,9 @@ experiment-bucket/
 metadata-bucket/
 mzml-bucket/
 work/
+data/
+results/
+.DS_Store
+testing/
+testing*
+*.pyc
