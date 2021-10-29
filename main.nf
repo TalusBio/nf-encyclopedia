@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl = 2
 
-// to use s3, params.outDir needs to be s3 path
+// In order to use s3, params.outDir needs to be s3 path
 s3_prefix = params.use_aws ? "s3://talus-data-pipeline-" : ""
 params.experimentBucket = s3_prefix+"experiment-bucket"
 params.metadataBucket = s3_prefix+"metadata-bucket"
