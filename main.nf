@@ -2,8 +2,6 @@
 
 nextflow.enable.dsl = 2
 
-// params.experimentName = "orange-marmot"
-params.experimentName = "green-walnut"
 // to use s3, params.outDir needs to be s3 path
 s3_prefix = params.use_aws ? "s3://talus-data-pipeline-" : ""
 params.experimentBucket = s3_prefix+"experiment-bucket"
@@ -11,10 +9,11 @@ params.metadataBucket = s3_prefix+"metadata-bucket"
 params.mzmlBucket = s3_prefix+"mzml-bucket"
 
 params.memory = "-Xmx24G"
-params.encyclopedia_version = "0.9.5"
-params.narrow_output_postfix = "chr"
-params.wide_output_postfix = "quant"
-params.filter = "NO_FILE"
+
+ENCYCLOPEDIA_VERSION = "0.9.5"
+NARROW_OUTPUT_POSTFIX = "chr"
+WIDE_OUTPUT_POSTFIX = "quant"
+FILTER = "NO_FILE"
 
 process gunzip {
     echo true
@@ -42,10 +41,10 @@ process run_encyclopedia_local {
 
     script:
     // if no library file is given, there were no narrow files and we use walnut
-    def walnut_flag = library_file.name == params.filter ? "-walnut" : "-l ${library_file}"
+    def walnut_flag = library_file.name == FILTER ? "-walnut" : "-l ${library_file}"
     """
     java -Djava.awt.headless=true ${params.memory} \\
-        -jar /code/encyclopedia-${params.encyclopedia_version}-executable.jar \\
+        -jar /code/encyclopedia-${params.ENCYCLOPEDIA_VERSION}-executable.jar \\
         -i ${mzml_file} \\
         -f ${fasta_file} \\
         ${walnut_flag}
@@ -68,10 +67,10 @@ process run_encyclopedia_global {
 
     script:
     // if no library file is given, there were no narrow files and we use walnut
-    def walnut_flag = library_file.name == params.filter ? "-walnut" : "-l ${library_file}"
+    def walnut_flag = library_file.name == FILTER ? "-walnut" : "-l ${library_file}"
     """
     java -Djava.awt.headless=true ${params.memory} \\
-        -jar /code/encyclopedia-${params.encyclopedia_version}-executable.jar \\
+        -jar /code/encyclopedia-${params.ENCYCLOPEDIA_VERSION}-executable.jar \\
         -libexport \\
         -o result-${output_postfix}.elib \\
         -i ./ \\
@@ -93,7 +92,7 @@ workflow encyclopedia_narrow {
             | flatten
             | collect 
             | set { narrow_local_files }
-        run_encyclopedia_global(narrow_local_files, unzipped_mzml | collect, fasta, dlib, params.narrow_output_postfix)
+        run_encyclopedia_global(narrow_local_files, unzipped_mzml | collect, fasta, dlib, params.NARROW_OUTPUT_POSTFIX)
             | flatten
             | filter { it.name =~ /.*elib$/ }
             | set { narrow_elib }
@@ -114,7 +113,7 @@ workflow encyclopedia_wide {
             | flatten
             | collect 
             | set { wide_local_files }
-        run_encyclopedia_global(wide_local_files, unzipped_mzml | collect, fasta, elib, params.wide_output_postfix)
+        run_encyclopedia_global(wide_local_files, unzipped_mzml | collect, fasta, elib, params.WIDE_OUTPUT_POSTFIX)
             | flatten
             | filter { it.name =~ /.*elib$/ }
             | set { wide_elib }
@@ -123,40 +122,25 @@ workflow encyclopedia_wide {
 }
 
 workflow {
-    input_files = Channel.of(
-        ["210308_talus_01","Wide DIA"],
-        ["210308_talus_02","Wide DIA"],
-        // ["210308_talus_04","Narrow DIA"],
-        // ["210308_talus_05","Narrow DIA"],
-    )
+    // Get .fasta and .dlib from metadata-bucket
+    fasta = Channel.fromPath("${params.metadataBucket}/${params.fasta}", checkIfExists: true)
+    dlib = Channel.fromPath("${params.metadataBucket}/${params.dlib}", checkIfExists: true)
 
-    fasta = Channel.fromPath("${params.metadataBucket}/uniprot_human_25apr2019.fasta", checkIfExists: true)
-    dlib = Channel.fromPath("${params.metadataBucket}/uniprot_human_25apr2019.fasta.z2_nce33.dlib", checkIfExists: true)
-
-    // Create separate channels for narrow and wide files
-    input_files
+    // Get input paths and create separate channels for narrow and wide files
+    input_paths = Channel.of(params.input_paths)
+    input_paths
         .filter { it[1] == "Narrow DIA" }
-        .map { file("${params.mzmlBucket}/narrow/${it[0].split('_')[0]}_MLLtx/${it[0]}.mzML.gz") }
         .set { narrow }
-    input_files
+    input_paths
         .filter { it[1] == "Wide DIA" }
-        .map { file("${params.mzmlBucket}/wide/${it[0].split('_')[0]}_MLLtx/${it[0]}.mzML.gz") }
         .set { wide }
-    // input_files
-    //     .filter { it[1] == "Narrow DIA" }
-    //     .map { file("${params.mzmlBucket}/${it[0].split('_')[0]}/${it[0]}.mzML.gz") }
-    //     .set { narrow }
-    // input_files
-    //     .filter { it[1] == "Wide DIA" }
-    //     .map { file("${params.mzmlBucket}/${it[0].split('_')[0]}/${it[0]}.mzML.gz") }
-    //     .set { wide }
 
     // Run encyclopedia
     encyclopedia_narrow(narrow, fasta, dlib)
     // If no narrow files are given the output chr-elib will be empty 
     // and we use walnut instead.
     encyclopedia_narrow.out
-        .ifEmpty(file("${params.metadataBucket}/${params.filter}"))
+        .ifEmpty(file("${params.metadataBucket}/${FILTER}"))
         .set { chr_elib }
     encyclopedia_wide(wide, fasta, chr_elib)
 }
