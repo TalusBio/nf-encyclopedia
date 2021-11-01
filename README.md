@@ -21,7 +21,14 @@ Problem:
 When creating the custom AMI, make sure to install the aws-cli outside of the /usr/ directory. During the docker mount it will overwrite it and render the docker image content unusable. 
 
 Solution: 
-Install the `aws` tool at `/home/ec2-user/bin/aws`. 
+Install the `aws` tool at `/home/ec2-user/bin/aws`:
+```
+# https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install -b /home/ec2-user/bin
+aws --version
+```
 
 Also mentioned here: https://github.com/nextflow-io/nextflow/issues/2322
 
