@@ -3,6 +3,18 @@
 Running Nextflow on AWS:
 https://t-neumann.github.io/pipelines/AWS-pipeline/
 
+# Release
+```
+# See existing tags
+git tag
+
+# Create a new tag
+git tag -a v0.0.1 -m "First version"
+
+# Push to new tag
+git push origin "v0.0.1"  
+```
+
 # Issues
 ## Command `aws` cannot be found
 Problem:

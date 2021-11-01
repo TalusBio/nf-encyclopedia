@@ -36,9 +36,6 @@ gradle.properties
 .dockerignore
 .launch.classpath
 plugins-prod
-experiment-bucket/
-metadata-bucket/
-mzml-bucket/
 work/
 data/
 results/
@@ -46,3 +43,7 @@ results/
 testing/
 testing*
 *.pyc
+experiment-bucket/
+metadata-bucket/
+mzml-bucket/
+raw-bucket/
