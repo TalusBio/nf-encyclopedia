@@ -12,7 +12,7 @@ git tag
 git tag -a v0.0.1 -m "First version"
 
 # Push to new tag
-git push origin "v0.0.1"  
+git push origin "v0.0.1"
 ```
 
 # Issues
