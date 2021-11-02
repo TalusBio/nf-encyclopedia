@@ -26,7 +26,7 @@ workflow msconvert {
         raw_files
     main:
         raw_files
-            | map { it -> [it, it.toRealPath().getParent().getBaseName()] }
+            | map { it -> [it, it.getParent().getBaseName()] }
             | run_msconvert
     emit:
         run_msconvert.out
@@ -36,7 +36,5 @@ workflow {
     // input_paths = Channel.fromPath("${params.rawBucket}/210308/*.raw")
     input_paths = Channel.of(params.input_paths)
 
-    input_paths
-        .splitCsv()
-        .msconvert()
+    msconvert(input_paths | splitCsv | map { file(it[0]) })
 }
