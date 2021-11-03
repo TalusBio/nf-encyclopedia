@@ -18,8 +18,6 @@ process run_encyclopedia_local {
         tuple file("*.elib"), file("*.dia"), file("*{features,encyclopedia,decoy}.txt")
 
     script:
-    // if no library file is given, there were no narrow files and we use walnut
-    def walnut_flag = library_file.name == FILTER ? "-walnut" : "-l ${library_file}"
     def mzml_file = mzml_gz_file.name.replaceAll(/\.gz/, "")
     """
     gzip -d ${mzml_gz_file}
@@ -27,7 +25,7 @@ process run_encyclopedia_local {
         -jar /code/encyclopedia-${params.encyclopedia.version}-executable.jar \\
         -i ${mzml_file} \\
         -f ${fasta_file} \\
-        ${walnut_flag} \\
+        -l ${library_file} \\
         ${params.encyclopedia.local_options}
     """
 }
@@ -47,8 +45,6 @@ process run_encyclopedia_global {
         tuple file("*.elib"), file("*{peptides,proteins}.txt")
 
     script:
-    // if no library file is given, there were no narrow files and we use walnut
-    def walnut_flag = library_file.name == FILTER ? "-walnut" : "-l ${library_file}"
     """
     find . -type f -name '*.gz' -exec gzip -d {} \\;
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
@@ -57,7 +53,7 @@ process run_encyclopedia_global {
         -o result-${output_postfix}.elib \\
         -i ./ \\
         -f ${fasta_file} \\
-        ${walnut_flag} \\
+        -l ${library_file} \\
         ${params.encyclopedia.global_options}
     """
 }
@@ -138,7 +134,7 @@ workflow {
     // // If no narrow files are given the output chr-elib will be empty 
     // // and we use walnut instead.
     encyclopedia_narrow.out
-        .ifEmpty(file("${params.metadataBucket}/${FILTER}"))
+        .ifEmpty(dlib)
         .set { chr_elib }
     encyclopedia_wide(mzml_gz_files.wide, chr_elib, fasta)
 }
