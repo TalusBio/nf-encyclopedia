@@ -131,8 +131,7 @@ workflow {
 
     // Run encyclopedia
     encyclopedia_narrow(mzml_gz_files.narrow, dlib, fasta)
-    // // If no narrow files are given the output chr-elib will be empty 
-    // // and we use walnut instead.
+    // If no narrow files are given the output chr-elib will be empty and we use the dlib instead.
     encyclopedia_narrow.out
         .ifEmpty(dlib)
         .set { chr_elib }
