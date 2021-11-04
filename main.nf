@@ -99,24 +99,25 @@ workflow {
     fasta = Channel.fromPath("${params.metadataBucket}/${params.encyclopedia.fasta}", checkIfExists: true)
     dlib = Channel.fromPath("${params.metadataBucket}/${params.encyclopedia.dlib}", checkIfExists: true)
 
-    // Get input paths and create separate channels for narrow and wide files
-    input_paths = Channel.of(params.input_paths)
-    // Create a mapping from file_key to file_type
-    input_paths
-        .splitCsv()
-        .tap { raw_files }
-        | map { raw_file, file_type ->
-            def file_key = raw_file.tokenize("/")[-1].tokenize(".")[0]
-            return tuple(file_key, file_type)
-        }
-        | set { file_key_types }
-    // Convert all files using msconvert and get the original
-    // file types back by merging it with the file_key_types.
-    // Finally split the set of files into narrow and wide.
-    raw_files
-        | map { file_name, file_type -> file(file_name) }
-        | msconvert
+    // Use msconvert on raw files, pass through if mzml .gz files are given
+    if (params.raw_files) {
+        raw_files = Channel.fromList(params.raw_files) | map { file(it) }
+        raw_files
+            | msconvert
+            | set { mzml_gz_files }
+    } else if (params.mzml_gz_files) {
+        mzml_gz_files = Channel.fromList(params.mzml_gz_files) | map { file(it) }
+    } else {
+        error "No .raw or .mzML files given. Nothing to do."
+    }
+
+    // Join the file keys to get the file type and plit the set of files into narrow and wide.
+    // Get the mapping from file_key to file_type
+    file_key_types = Channel.of(params.file_key_types) | splitCsv
+    mzml_gz_files
         | map { mzml_gz_file ->
+            // Create a file_key based off of the file path
+            // E.g. mzml-bucket/210308/210308_talus_01.mzML.gz --> 210308_talus_01
             def file_key = mzml_gz_file.getBaseName().tokenize(".")[0]
             return tuple(file_key, mzml_gz_file)
         }
@@ -127,13 +128,13 @@ workflow {
             wide: file_type == "Wide DIA"
                 return mzml_gz_file
         }
-        | set { mzml_gz_files }
+        | set { run_files }
 
     // Run encyclopedia
-    encyclopedia_narrow(mzml_gz_files.narrow, dlib, fasta)
+    encyclopedia_narrow(run_files.narrow, dlib, fasta)
     // If no narrow files are given the output chr-elib will be empty and we use the dlib instead.
     encyclopedia_narrow.out
         .ifEmpty(file("${params.metadataBucket}/${params.encyclopedia.dlib}"))
         .set { chr_elib }
-    encyclopedia_wide(mzml_gz_files.wide, chr_elib, fasta)
+    encyclopedia_wide(run_files.wide, chr_elib, fasta)
 }
