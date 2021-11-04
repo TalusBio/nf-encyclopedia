@@ -133,7 +133,7 @@ workflow {
     encyclopedia_narrow(mzml_gz_files.narrow, dlib, fasta)
     // If no narrow files are given the output chr-elib will be empty and we use the dlib instead.
     encyclopedia_narrow.out
-        .ifEmpty(dlib)
+        .ifEmpty(file(dlib))
         .set { chr_elib }
     encyclopedia_wide(mzml_gz_files.wide, chr_elib, fasta)
 }
