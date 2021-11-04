@@ -31,10 +31,3 @@ workflow msconvert {
     emit:
         run_msconvert.out
 }
-
-workflow {
-    // input_paths = Channel.fromPath("${params.rawBucket}/210308/*.raw")
-    input_paths = Channel.of(params.input_paths)
-
-    msconvert(input_paths | splitCsv | map { file(it[0]) })
-}
