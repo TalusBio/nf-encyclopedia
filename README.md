@@ -1,7 +1,5 @@
-# Talus Data Pipeline - Encyclopedia
-
-Running Nextflow on AWS:
-https://t-neumann.github.io/pipelines/AWS-pipeline/
+# Nextflow - Encyclopedia
+This repository contains the nextflow pipeline for Encyclopedia.
 
 # Release
 ```
@@ -46,3 +44,7 @@ RUN apt-get update && \
 
 Also mentioned here:
 https://github.com/replikation/What_the_Phage/issues/89
+
+# Resources
+- Running Nextflow on AWS - https://t-neumann.github.io/pipelines/AWS-pipeline/
+- Getting started with Nextflow - https://carpentries-incubator.github.io/workflows-nextflow/aio/index.html

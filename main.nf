@@ -22,7 +22,7 @@ process run_encyclopedia_local {
     """
     gzip -d ${mzml_gz_file}
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
-        -jar /code/encyclopedia-${params.encyclopedia.version}-executable.jar \\
+        -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -i ${mzml_file} \\
         -f ${fasta_file} \\
         -l ${library_file} \\
@@ -48,7 +48,7 @@ process run_encyclopedia_global {
     """
     find . -type f -name '*.gz' -exec gzip -d {} \\;
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
-        -jar /code/encyclopedia-${params.encyclopedia.version}-executable.jar \\
+        -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -libexport \\
         -o result-${output_postfix}.elib \\
         -i ./ \\
