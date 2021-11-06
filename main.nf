@@ -10,12 +10,12 @@ process run_encyclopedia_local {
     publishDir "${params.experimentBucket}/${params.experimentName}/encyclopedia", mode: "copy"
 
     input:
-        file mzml_gz_file
-        each file(library_file)
-        each file(fasta_file)
+        path mzml_gz_file
+        each path(library_file)
+        each path(fasta_file)
 
     output:
-        tuple file("*.elib"), file("*.dia"), file("*{features,encyclopedia,decoy}.txt")
+        tuple path("*.elib"), path("*.dia"), path("*{features,encyclopedia,decoy}.txt")
 
     script:
     def mzml_file = mzml_gz_file.name.replaceAll(/\.gz/, "")
@@ -35,14 +35,14 @@ process run_encyclopedia_global {
     publishDir "${params.experimentBucket}/${params.experimentName}/encyclopedia", mode: "copy"
 
     input:
-        file local_files
-        file mzml_gz_files
-        file library_file
-        file fasta_file
+        path local_files
+        path mzml_gz_files
+        path library_file
+        path fasta_file
         val output_postfix
 
     output:
-        tuple file("*.elib"), file("*{peptides,proteins}.txt")
+        tuple path("*.elib"), path("*{peptides,proteins}.txt")
 
     script:
     """
