@@ -7,9 +7,9 @@ process run_msconvert {
     publishDir "${params.mzmlBucket}/${outputDir}", mode: "copy"
 
     input:
-        tuple file(raw_input), val(outputDir)
+        tuple path(raw_input), val(outputDir)
     output:
-        file("*.gz")
+        path("*.gz")
     script:
     """
     wine msconvert \\

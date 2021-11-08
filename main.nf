@@ -1,5 +1,6 @@
 #!/usr/bin/env nextflow
 include { msconvert } from "./modules/msconvert.nf"
+include { unique_peptides_proteins } from "./modules/post_processing.nf"
 
 nextflow.enable.dsl = 2
 
@@ -66,7 +67,7 @@ workflow encyclopedia_narrow {
     main:
         run_encyclopedia_local(mzml_gz_files, dlib, fasta)
             | flatten
-            | collect 
+            | collect
             | set { narrow_local_files }
         run_encyclopedia_global(narrow_local_files, mzml_gz_files | collect, dlib, fasta, params.encyclopedia.narrow_lib_postfix)
             | flatten
@@ -82,14 +83,20 @@ workflow encyclopedia_wide {
         elib
         fasta
     main:
+        // Run encyclopedia for all local files
         run_encyclopedia_local(mzml_gz_files, elib, fasta)
             | flatten
             | collect 
             | set { wide_local_files }
+        // Use the local .elib's as an input to the global run
         run_encyclopedia_global(wide_local_files, mzml_gz_files | collect, elib, fasta, params.encyclopedia.wide_lib_postfix)
             | flatten
             | filter { it.name =~ /.*elib$/ }
             | set { wide_elib }
+        // Retrieve the unique peptides and proteins found in each local .mzML.elib
+        wide_local_files
+            | filter { it.name =~ /.*mzML.elib$/ }
+            | unique_peptides_proteins
     emit:
         wide_elib
 }
@@ -137,4 +144,20 @@ workflow {
         .ifEmpty(file("${params.metadataBucket}/${params.encyclopedia.dlib}"))
         .set { chr_elib }
     encyclopedia_wide(run_files.wide, chr_elib, fasta)
+}
+
+workflow.onComplete {
+    sendMail( 
+        to: params.email,
+        subject: "Success: ${params.experimentName} succeeded.",
+        body: "Experiment run ${params.experimentName} using Encyclopedia succeeded.",
+    )
+}
+
+workflow.onError {
+    sendMail( 
+        to: params.email,
+        subject: "Error: ${params.experimentName} failed.",
+        body: "Experiment run ${params.experimentName} using Encyclopedia failed.",
+    )
 }
