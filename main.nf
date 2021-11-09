@@ -86,12 +86,12 @@ workflow encyclopedia_wide {
         // Run encyclopedia for all local files
         run_encyclopedia_local(mzml_gz_files, elib, fasta)
             | flatten
-            | collect 
             .tap { wide_local_files }
             | filter { it.name =~ /.*mzML.elib$/ }
+            | collect
             | unique_peptides_proteins
         // Use the local .elib's as an input to the global run
-        run_encyclopedia_global(wide_local_files, mzml_gz_files | collect, elib, fasta, params.encyclopedia.wide_lib_postfix)
+        run_encyclopedia_global(wide_local_files | collect, mzml_gz_files | collect, elib, fasta, params.encyclopedia.wide_lib_postfix)
             | flatten
             | filter { it.name =~ /.*elib$/ }
             | set { wide_elib }

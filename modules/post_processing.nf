@@ -17,6 +17,6 @@ process unique_peptides_proteins {
 }
 
 workflow {
-    files = Channel.fromPath("experiment-bucket/blue-sparrow/encyclopedia/*.mzML.elib")
-    files | collect | unique_peptides_proteins | view
+    files = Channel.fromPath("experiment-bucket/blue-sparrow/encyclopedia/*")
+    files | flatten | filter { it.name =~ /.*mzML.elib$/ } | collect | unique_peptides_proteins | view
 }
