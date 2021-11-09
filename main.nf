@@ -85,7 +85,7 @@ workflow encyclopedia_wide {
     main:
         // Run encyclopedia for all local files
         run_encyclopedia_local(mzml_gz_files, elib, fasta)
-            | flatten
+            .flatten()
             .tap { wide_local_files }
             | filter { it.name =~ /.*mzML.elib$/ }
             | collect
