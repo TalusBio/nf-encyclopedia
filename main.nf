@@ -106,12 +106,12 @@ workflow {
 
     // Use msconvert on raw files, pass through if mzml .gz files are given
     if (params.raw_files) {
-        raw_files = Channel.fromList(params.raw_files) | map { file(it) }
+        raw_files = Channel.fromList(params.raw_files) | map { file("${params.rawBucket}/${it}") }
         raw_files
             | msconvert
             | set { mzml_gz_files }
     } else if (params.mzml_gz_files) {
-        mzml_gz_files = Channel.fromList(params.mzml_gz_files) | map { file(it) }
+        mzml_gz_files = Channel.fromList(params.mzml_gz_files) | map { file("${params.mzmlBucket}/${it}") }
     } else {
         error "No .raw or .mzML files given. Nothing to do."
     }
