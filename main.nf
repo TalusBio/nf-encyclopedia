@@ -16,7 +16,12 @@ process run_encyclopedia_local {
         each path(fasta_file)
 
     output:
-        tuple path("*.elib"), path("*.dia"), path("*{features,encyclopedia,decoy}.txt")
+        tuple(
+            path("*.elib"),
+            path("*.dia"),
+            path("*{features,encyclopedia,decoy}.txt"),
+            path("*.log"),
+        )
 
     script:
     def mzml_file = mzml_gz_file.name.replaceAll(/\.gz/, "")
@@ -27,7 +32,8 @@ process run_encyclopedia_local {
         -i ${mzml_file} \\
         -f ${fasta_file} \\
         -l ${library_file} \\
-        ${params.encyclopedia.local_options}
+        ${params.encyclopedia.local_options} \\
+    &> ${mzml_gz_file}.local.log
     """
 }
 
@@ -43,7 +49,7 @@ process run_encyclopedia_global {
         val output_postfix
 
     output:
-        tuple path("*.elib"), path("*{peptides,proteins}.txt")
+        tuple path("*.elib"), path("*{peptides,proteins}.txt"), path("*.log")
 
     script:
     """
@@ -55,7 +61,8 @@ process run_encyclopedia_global {
         -i ./ \\
         -f ${fasta_file} \\
         -l ${library_file} \\
-        ${params.encyclopedia.global_options}
+        ${params.encyclopedia.global_options} \\
+    &> ${output_postfix}.global.log
     """
 }
 
