@@ -52,9 +52,9 @@ process run_encyclopedia_global {
 
     output:
         tuple(
-            path("${output_postfix}*.elib"), 
-            path("${output_postfix}*{peptides,proteins}.txt"), 
-            path("${output_postfix}*.log")
+            path("result-${output_postfix}*.elib"), 
+            path("result-${output_postfix}*{peptides,proteins}.txt"), 
+            path("result-${output_postfix}*.log")
         )
 
     script:
