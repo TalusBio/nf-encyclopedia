@@ -51,7 +51,11 @@ process run_encyclopedia_global {
         val output_postfix
 
     output:
-        tuple path("*.elib"), path("*{peptides,proteins}.txt"), path("*.log")
+        tuple(
+            path("${output_postfix}*.elib"), 
+            path("${output_postfix}*{peptides,proteins}.txt"), 
+            path("${output_postfix}*.log")
+        )
 
     script:
     """
@@ -64,7 +68,7 @@ process run_encyclopedia_global {
         -f ${fasta_file} \\
         -l ${library_file} \\
         ${params.encyclopedia.global_options} \\
-    &> ${output_postfix}.global.log
+    &> result-${output_postfix}.global.log
     """
 }
 
