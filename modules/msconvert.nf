@@ -5,11 +5,12 @@ nextflow.enable.dsl = 2
 process run_msconvert {
     echo true
     publishDir "${params.mzmlBucket}/${outputDir}", mode: "copy"
+    storeDir "${params.cacheBucket}/${outputDir}"
 
     input:
         tuple path(raw_input), val(outputDir)
     output:
-        path("*.gz")
+        path("${raw_input.name.replaceAll(/\.raw/, '.mzML.gz')}")
     script:
     """
     wine msconvert \\

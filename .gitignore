@@ -47,3 +47,4 @@ experiment-bucket/
 metadata-bucket/
 mzml-bucket/
 raw-bucket/
+cache-bucket/

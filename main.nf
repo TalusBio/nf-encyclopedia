@@ -9,6 +9,7 @@ FILTER = "NO_FILE"
 process run_encyclopedia_local {
     echo true
     publishDir "${params.experimentBucket}/${params.experimentName}/encyclopedia", mode: "copy"
+    storeDir "${params.cacheBucket}/${params.experimentName}"
 
     input:
         path mzml_gz_file
@@ -17,29 +18,30 @@ process run_encyclopedia_local {
 
     output:
         tuple(
-            path("*.elib"),
-            path("*.dia"),
-            path("*{features,encyclopedia,decoy}.txt"),
-            path("*.log"),
+            path("${mzml_gz_file.name.replaceAll(/\.mzML\.gz/, "")}*.elib"),
+            path("${mzml_gz_file.name.replaceAll(/\.mzML\.gz/, "")}*.dia"),
+            path("${mzml_gz_file.name.replaceAll(/\.mzML\.gz/, "")}*{features,encyclopedia,decoy}.txt"),
+            path("${mzml_gz_file.name.replaceAll(/\.mzML\.gz/, "")}*.log"),
         )
 
     script:
     def mzml_file = mzml_gz_file.name.replaceAll(/\.gz/, "")
     """
-    gzip -d ${mzml_gz_file}
+    gzip -df ${mzml_gz_file}
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -i ${mzml_file} \\
         -f ${fasta_file} \\
         -l ${library_file} \\
         ${params.encyclopedia.local_options} \\
-    &> ${mzml_gz_file}.local.log
+    &> ${mzml_file}.local.log
     """
 }
 
 process run_encyclopedia_global {
     echo true
     publishDir "${params.experimentBucket}/${params.experimentName}/encyclopedia", mode: "copy"
+    storeDir "${params.cacheBucket}/${params.experimentName}"
 
     input:
         path local_files
@@ -49,11 +51,15 @@ process run_encyclopedia_global {
         val output_postfix
 
     output:
-        tuple path("*.elib"), path("*{peptides,proteins}.txt"), path("*.log")
+        tuple(
+            path("result-${output_postfix}*.elib"), 
+            path("result-${output_postfix}*{peptides,proteins}.txt"), 
+            path("result-${output_postfix}*.log")
+        )
 
     script:
     """
-    find . -type f -name '*.gz' -exec gzip -d {} \\;
+    find . -type f -name '*.gz' -exec gzip -df {} \\;
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -libexport \\
@@ -62,7 +68,7 @@ process run_encyclopedia_global {
         -f ${fasta_file} \\
         -l ${library_file} \\
         ${params.encyclopedia.global_options} \\
-    &> ${output_postfix}.global.log
+    &> result-${output_postfix}.global.log
     """
 }
 
