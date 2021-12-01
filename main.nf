@@ -9,6 +9,7 @@ FILTER = "NO_FILE"
 process run_encyclopedia_local {
     echo true
     publishDir "${params.experimentBucket}/${params.experimentName}/encyclopedia", mode: "copy"
+    storeDir "${params.cacheBucket}/${params.experimentName}"
 
     input:
         path mzml_gz_file
@@ -26,20 +27,21 @@ process run_encyclopedia_local {
     script:
     def mzml_file = mzml_gz_file.name.replaceAll(/\.gz/, "")
     """
-    gzip -d ${mzml_gz_file}
+    gzip -df ${mzml_gz_file}
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -i ${mzml_file} \\
         -f ${fasta_file} \\
         -l ${library_file} \\
         ${params.encyclopedia.local_options} \\
-    &> ${mzml_gz_file}.local.log
+    &> ${mzml_file}.local.log
     """
 }
 
 process run_encyclopedia_global {
     echo true
     publishDir "${params.experimentBucket}/${params.experimentName}/encyclopedia", mode: "copy"
+    storeDir "${params.cacheBucket}/${params.experimentName}"
 
     input:
         path local_files
@@ -53,7 +55,7 @@ process run_encyclopedia_global {
 
     script:
     """
-    find . -type f -name '*.gz' -exec gzip -d {} \\;
+    find . -type f -name '*.gz' -exec gzip -df {} \\;
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -libexport \\
