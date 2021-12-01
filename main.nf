@@ -18,10 +18,10 @@ process run_encyclopedia_local {
 
     output:
         tuple(
-            path("*.elib"),
-            path("*.dia"),
-            path("*{features,encyclopedia,decoy}.txt"),
-            path("*.log"),
+            path("${mzml_gz_file.name.replaceAll(/\.mzML\.gz/, "")}*.elib"),
+            path("${mzml_gz_file.name.replaceAll(/\.mzML\.gz/, "")}*.dia"),
+            path("${mzml_gz_file.name.replaceAll(/\.mzML\.gz/, "")}*{features,encyclopedia,decoy}.txt"),
+            path("${mzml_gz_file.name.replaceAll(/\.mzML\.gz/, "")}*.log"),
         )
 
     script:
