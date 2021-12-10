@@ -9,7 +9,7 @@ process run_msconvert {
     input:
         tuple path(raw_input), val(outputDir)
     output:
-        path("${raw_input.baseName}.mzML.gz")
+        path("${outputDir}/${raw_input.baseName}.mzML.gz")
 
     script:
     """
