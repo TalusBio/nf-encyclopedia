@@ -1,5 +1,6 @@
 #!/usr/bin/env nextflow
-include { msconvert } from "./modules/msconvert.nf"
+include { msconvert as msconvert_narrow } from "./modules/msconvert.nf"
+include { msconvert as msconvert_wide } from "./modules/msconvert.nf"
 include { unique_peptides_proteins } from "./modules/post_processing.nf"
 
 nextflow.enable.dsl = 2
@@ -143,8 +144,8 @@ workflow {
     }
 
     // Convert raw files to gzipped mzML.
-    narrow_files | msconvert | set { narrow_mzml_files }
-    wide_files | msconvert | set { wide_mzml_files }
+    narrow_files | msconvert_narrow | set { narrow_mzml_files }
+    wide_files | msconvert_wide | set { wide_mzml_files }
 
     // Build a chromatogram library with EncyclopeDIA
     encyclopedia_narrow(narrow_mzml_files, dlib, fasta)
