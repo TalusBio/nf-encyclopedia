@@ -138,7 +138,7 @@ workflow {
         .fromPath(params.wide_files, checkIfExists: true)
         .splitCsv()
 
-    if (narrow_files.isEmpty() && wide_files.isEmpty() ) {
+    if ( !narrow_files && !wide_files ) {
         error "No raw files were given. Nothing to do."
     }
 
