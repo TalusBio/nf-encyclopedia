@@ -9,7 +9,8 @@ process run_msconvert {
     input:
         tuple path(raw_input), val(outputDir)
     output:
-        path("${raw_input.name.replaceAll(/\.raw/, '.mzML.gz')}")
+        path("${raw_input.baseName}.mzML.gz")
+
     script:
     """
     wine msconvert \\
@@ -18,6 +19,11 @@ process run_msconvert {
         ${params.msconvert.gzip} \\
         ${params.msconvert.filters} \\
         ${raw_input}
+    """
+
+    stub:
+    """
+    touch ${raw_input.baseName}.mzML.gz
     """
 }
 

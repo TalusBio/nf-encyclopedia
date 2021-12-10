@@ -10,9 +10,15 @@ process unique_peptides_proteins {
         path elib_files
     output:
         path("unique_peptides_proteins.csv")
+
     script:
     """
     python3 /app/src/unique_peptides_proteins.py -g "./*.mzML.elib" -t encyclopedia
+    """
+
+    stub:
+    """
+    touch unique_peptides_proteins.csv
     """
 }
 

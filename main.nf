@@ -18,23 +18,32 @@ process run_encyclopedia_local {
 
     output:
         tuple(
-            path("${mzml_gz_file.name.replaceAll(/\.mzML\.gz/, "")}*.elib"),
-            path("${mzml_gz_file.name.replaceAll(/\.mzML\.gz/, "")}*.dia"),
-            path("${mzml_gz_file.name.replaceAll(/\.mzML\.gz/, "")}*{features,encyclopedia,decoy}.txt"),
-            path("${mzml_gz_file.name.replaceAll(/\.mzML\.gz/, "")}*.log"),
+            path("${mzml_gz_file.baseName}.elib"),
+            path("${mzml_gz_file.baseName}.dia"),
+            path("${mzml_gz_file.baseName}.{features,encyclopedia,decoy}.txt"),
+            path("${mzml_gz_file.baseName}.log"),
         )
 
     script:
-    def mzml_file = mzml_gz_file.name.replaceAll(/\.gz/, "")
     """
     gzip -df ${mzml_gz_file}
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
-        -i ${mzml_file} \\
+        -i ${mzml_gz_file.baseName} \\
         -f ${fasta_file} \\
         -l ${library_file} \\
         ${params.encyclopedia.local_options} \\
-    &> ${mzml_file}.local.log
+    &> ${mzml_file_gz_file.baseName}.local.log
+    """
+
+    stub:
+    """
+    touch ${mzml_gz_file.baseName}.elib
+    touch ${mzml_gz_file.baseName}.dia
+    touch ${mzml_gz_file.baseName}.features.txt
+    touch ${mzml_gz_file.baseName}.encyclopedia.txt
+    touch ${mzml_gz_file.baseName}.decoy.txt
+    touch ${mzml_gz_file.baseName}.log
     """
 }
 
@@ -68,6 +77,15 @@ process run_encyclopedia_global {
         -l ${library_file} \\
         ${params.encyclopedia.global_options} \\
     &> result-${output_postfix}.global.log
+    """
+
+    stub:
+    def stem = "result-${output_postfix}"
+    """
+    touch ${stem}.elib
+    touch ${stem}.peptides.txt
+    touch ${stem}.proteins.txt
+    touch ${stem}.global.log
     """
 }
 
@@ -134,10 +152,12 @@ workflow {
     narrow_files = Channel
         .fromPath(params.narrow_files, checkIfExists: true)
         .splitCsv()
+        .map { row -> file(row[0]) }
 
     wide_files = Channel
         .fromPath(params.wide_files, checkIfExists: true)
         .splitCsv()
+        .map { row -> file(row[0]) }
 
     if ( !narrow_files && !wide_files ) {
         error "No raw files were given. Nothing to do."
