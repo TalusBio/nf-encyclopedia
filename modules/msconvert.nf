@@ -4,12 +4,12 @@ nextflow.enable.dsl = 2
 
 process run_msconvert {
     echo true
-    publishDir params.mzml_dir, mode: "copy"
+    publishDir "${params.mzml_dir}/${outputDir}", mode: "copy"
 
     input:
         tuple path(raw_input), val(outputDir)
     output:
-        path("${outputDir}/${raw_input.baseName}.mzML.gz")
+        path("${raw_input.baseName}.mzML.gz")
 
     script:
     """

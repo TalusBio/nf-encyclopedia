@@ -19,8 +19,8 @@ process run_encyclopedia_local {
     output:
         tuple(
             path("${mzml_gz_file.baseName}.elib"),
-            path("${mzml_gz_file.baseName}.dia"),
-            path("${mzml_gz_file.baseName}.{features,encyclopedia,decoy}.txt"),
+            path("${file(mzml_gz_file.baseName).baseName}.dia"),
+            path("${mzml_gz_file.baseName}.{features,encyclopedia,encyclopedia.decoy}.txt"),
             path("${mzml_gz_file.baseName}.log"),
         )
 
@@ -39,10 +39,10 @@ process run_encyclopedia_local {
     stub:
     """
     touch ${mzml_gz_file.baseName}.elib
-    touch ${mzml_gz_file.baseName}.dia
+    touch ${file(mzml_gz_file.baseName).baseName}.dia
     touch ${mzml_gz_file.baseName}.features.txt
     touch ${mzml_gz_file.baseName}.encyclopedia.txt
-    touch ${mzml_gz_file.baseName}.decoy.txt
+    touch ${mzml_gz_file.baseName}.encyclopedia.decoy.txt
     touch ${mzml_gz_file.baseName}.log
     """
 }
@@ -61,7 +61,7 @@ process run_encyclopedia_global {
     output:
         tuple(
             path("result-${output_postfix}*.elib"), 
-            path("result-${output_postfix}*{peptides,proteins}.txt"), 
+            path("result-${output_postfix}*.{peptides,proteins}.txt"),
             path("result-${output_postfix}*.log")
         )
 
