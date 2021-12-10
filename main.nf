@@ -21,7 +21,7 @@ process run_encyclopedia_local {
             path("${mzml_gz_file.baseName}.elib"),
             path("${file(mzml_gz_file.baseName).baseName}.dia"),
             path("${mzml_gz_file.baseName}.{features,encyclopedia,encyclopedia.decoy}.txt"),
-            path("${mzml_gz_file.baseName}.log"),
+            path("${mzml_gz_file.baseName}.local.log"),
         )
 
     script:
@@ -62,7 +62,7 @@ process run_encyclopedia_global {
         tuple(
             path("result-${output_postfix}*.elib"), 
             path("result-${output_postfix}*.{peptides,proteins}.txt"),
-            path("result-${output_postfix}*.log")
+            path("result-${output_postfix}*.global.log")
         )
 
     script:
