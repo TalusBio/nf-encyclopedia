@@ -23,6 +23,8 @@ jobs:
         pip install pytest
         curl -s https://get.nextflow.io | bash
         chmod u+x nextflow
+        mkdir bin && mv nextflow bin
+        echo "$(pwd)/bin" >> $GITHUB_PATH
 
     - name: Run tests
       run: |
