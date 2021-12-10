@@ -43,7 +43,7 @@ process run_encyclopedia_local {
     touch ${mzml_gz_file.baseName}.features.txt
     touch ${mzml_gz_file.baseName}.encyclopedia.txt
     touch ${mzml_gz_file.baseName}.encyclopedia.decoy.txt
-    touch ${mzml_gz_file.baseName}.log
+    touch ${mzml_gz_file.baseName}.local.log
     """
 }
 
