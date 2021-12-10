@@ -4,8 +4,7 @@ nextflow.enable.dsl = 2
 
 process run_msconvert {
     echo true
-    publishDir "${params.mzmlBucket}/${outputDir}", mode: "copy"
-    storeDir "${params.cacheBucket}/${outputDir}"
+    publishDir params.mzml_dir, mode: "copy"
 
     input:
         tuple path(raw_input), val(outputDir)

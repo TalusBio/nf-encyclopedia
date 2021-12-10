@@ -8,8 +8,7 @@ FILTER = "NO_FILE"
 
 process run_encyclopedia_local {
     echo true
-    publishDir "${params.experimentBucket}/${params.experimentName}/encyclopedia", mode: "copy"
-    storeDir "${params.cacheBucket}/${params.experimentName}"
+    publishDir params.publish_dir, mode: "copy"
 
     input:
         path mzml_gz_file
@@ -40,8 +39,7 @@ process run_encyclopedia_local {
 
 process run_encyclopedia_global {
     echo true
-    publishDir "${params.experimentBucket}/${params.experimentName}/encyclopedia", mode: "copy"
-    storeDir "${params.cacheBucket}/${params.experimentName}"
+    publishDir params.publish_dir, mode: "copy"
 
     input:
         path local_files
@@ -82,7 +80,14 @@ workflow encyclopedia_narrow {
             | flatten
             | collect
             | set { narrow_local_files }
-        run_encyclopedia_global(narrow_local_files, mzml_gz_files | collect, dlib, fasta, params.encyclopedia.narrow_lib_postfix)
+
+        run_encyclopedia_global(
+            narrow_local_files,
+            mzml_gz_files | collect,
+            dlib,
+            fasta,
+            params.encyclopedia.narrow_lib_postfix,
+        )
             | flatten
             | filter { it.name =~ /.*elib$/ }
             | set { narrow_elib }
@@ -103,8 +108,15 @@ workflow encyclopedia_wide {
             | filter { it.name =~ /.*mzML.elib$/ }
             | collect
             | unique_peptides_proteins
+
         // Use the local .elib's as an input to the global run
-        run_encyclopedia_global(wide_local_files | collect, mzml_gz_files | collect, elib, fasta, params.encyclopedia.wide_lib_postfix)
+        run_encyclopedia_global(
+            wide_local_files | collect,
+            mzml_gz_files | collect,
+            elib,
+            fasta,
+            params.encyclopedia.wide_lib_postfix
+        )
             | flatten
             | filter { it.name =~ /.*elib$/ }
             | set { wide_elib }
@@ -114,47 +126,36 @@ workflow encyclopedia_wide {
 
 workflow {
     // Get .fasta and .dlib from metadata-bucket
-    fasta = Channel.fromPath("${params.metadataBucket}/${params.encyclopedia.fasta}", checkIfExists: true)
-    dlib = Channel.fromPath("${params.metadataBucket}/${params.encyclopedia.dlib}", checkIfExists: true)
+    fasta = Channel.fromPath(params.encyclopedia.fasta, checkIfExists: true)
+    dlib = Channel.fromPath(params.encyclopedia.dlib, checkIfExists: true)
 
-    // Use msconvert on raw files, pass through if mzml .gz files are given
-    if (params.raw_files) {
-        raw_files = Channel.fromList(params.raw_files) | map { file("${params.rawBucket}/${it}") }
-        raw_files
-            | msconvert
-            | set { mzml_gz_files }
-    } else if (params.mzml_gz_files) {
-        mzml_gz_files = Channel.fromList(params.mzml_gz_files) | map { file("${params.mzmlBucket}/${it}") }
-    } else {
-        error "No .raw or .mzML files given. Nothing to do."
+    // Get the narrow and wide files:
+    narrow_files = Channel
+        .fromPath(params.narrow_files, checkIfExists: true)
+        .splitCsv()
+
+    wide_files = Channel
+        .fromPath(params.wide_files, checkIfExists: true)
+        .splitCsv()
+
+    if (narrow_files.isEmpty() && wide_files.isEmpty() ) {
+        error "No raw files were given. Nothing to do."
     }
 
-    // Join the file keys to get the file type and plit the set of files into narrow and wide.
-    // Get the mapping from file_key to file_type
-    file_key_types = Channel.of(params.file_key_types) | splitCsv
-    mzml_gz_files
-        | map { mzml_gz_file ->
-            // Create a file_key based off of the file path
-            // E.g. mzml-bucket/210308/210308_talus_01.mzML.gz --> 210308_talus_01
-            def file_key = mzml_gz_file.getBaseName().tokenize(".")[0]
-            return tuple(file_key, mzml_gz_file)
-        }
-        | join(file_key_types)
-        | branch { file_key, mzml_gz_file, file_type ->
-            narrow: file_type == "Narrow DIA"
-                return mzml_gz_file
-            wide: file_type == "Wide DIA"
-                return mzml_gz_file
-        }
-        | set { run_files }
+    // Convert raw files to gzipped mzML.
+    narrow_files | msconvert | set { narrow_mzml_files }
+    wide_files | msconvert | set { wide_mzml_files }
 
-    // Run encyclopedia
-    encyclopedia_narrow(run_files.narrow, dlib, fasta)
-    // If no narrow files are given the output chr-elib will be empty and we use the dlib instead.
+    // Build a chromatogram library with EncyclopeDIA
+    encyclopedia_narrow(narrow_mzml_files, dlib, fasta)
+
+    // If no narrow file are given, use the dlib instead.
     encyclopedia_narrow.out
-        .ifEmpty(file("${params.metadataBucket}/${params.encyclopedia.dlib}"))
+        .ifEmpty(file(params.encyclopedia.dlib))
         .set { chr_elib }
-    encyclopedia_wide(run_files.wide, chr_elib, fasta)
+
+    // Perform quant runs on wide window files.
+    encyclopedia_wide(wide_mzml_files, chr_elib, fasta)
 }
 
 workflow.onComplete {
