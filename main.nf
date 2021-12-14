@@ -33,7 +33,7 @@ process run_encyclopedia_local {
         -f ${fasta_file} \\
         -l ${library_file} \\
         ${params.encyclopedia.local_options} \\
-    &> ${mzml_gz_file.baseName}.local.log
+    | tee ${mzml_gz_file.baseName}.local.log
     """
 
     stub:
@@ -76,7 +76,7 @@ process run_encyclopedia_global {
         -f ${fasta_file} \\
         -l ${library_file} \\
         ${params.encyclopedia.global_options} \\
-    &> result-${output_postfix}.global.log
+    | tee result-${output_postfix}.global.log
     """
 
     stub:
