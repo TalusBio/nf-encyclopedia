@@ -42,7 +42,7 @@ workflow msconvert {
             | set { staging }
 
         run_msconvert(staging.mzml_absent)
-            | concat(staging.mzml_present | map { it -> it[0] })
+            | concat(staging.mzml_present)
             | set { results }
 
         results.view()
