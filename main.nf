@@ -21,11 +21,12 @@ process run_encyclopedia_local {
             path("${mzml_gz_file.baseName}.elib"),
             path("${file(mzml_gz_file.baseName).baseName}.dia"),
             path("${mzml_gz_file.baseName}.{features,encyclopedia,encyclopedia.decoy}.txt"),
-            path("${mzml_gz_file.baseName}.local.log"),
+            path("logs/${mzml_gz_file.baseName}.local.log"),
         )
 
     script:
     """
+    mkdir logs
     gzip -df ${mzml_gz_file}
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
@@ -33,17 +34,18 @@ process run_encyclopedia_local {
         -f ${fasta_file} \\
         -l ${library_file} \\
         ${params.encyclopedia.local_options} \\
-    | tee ${mzml_gz_file.baseName}.local.log
+    | tee logs/${mzml_gz_file.baseName}.local.log
     """
 
     stub:
     """
+    mkdir logs
     touch ${mzml_gz_file.baseName}.elib
     touch ${file(mzml_gz_file.baseName).baseName}.dia
     touch ${mzml_gz_file.baseName}.features.txt
     touch ${mzml_gz_file.baseName}.encyclopedia.txt
     touch ${mzml_gz_file.baseName}.encyclopedia.decoy.txt
-    touch ${mzml_gz_file.baseName}.local.log
+    touch logs/${mzml_gz_file.baseName}.local.log
     """
 }
 
@@ -62,11 +64,12 @@ process run_encyclopedia_global {
         tuple(
             path("result-${output_postfix}*.elib"), 
             path("result-${output_postfix}*.{peptides,proteins}.txt"),
-            path("result-${output_postfix}*.global.log")
+            path("logs/result-${output_postfix}*.global.log")
         )
 
     script:
     """
+    mkdir logs
     find . -type f -name '*.gz' -exec gzip -df {} \\;
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
@@ -76,16 +79,17 @@ process run_encyclopedia_global {
         -f ${fasta_file} \\
         -l ${library_file} \\
         ${params.encyclopedia.global_options} \\
-    | tee result-${output_postfix}.global.log
+    | tee logs/result-${output_postfix}.global.log
     """
 
     stub:
     def stem = "result-${output_postfix}"
     """
+    mkdir logs
     touch ${stem}.elib
     touch ${stem}.peptides.txt
     touch ${stem}.proteins.txt
-    touch ${stem}.global.log
+    touch logs/${stem}.global.log
     """
 }
 
