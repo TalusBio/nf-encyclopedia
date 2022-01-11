@@ -21,7 +21,7 @@ def test_stubs(tmp_path):
 
 
 def test_already_converted(tmp_path):
-    """Test that already converted mzML files are cont conveted again."""
+    """Test that already converted mzML files are not converted again."""
     mzml_dir = (tmp_path / "mzml" / "experiment")
     mzml_dir.mkdir(parents=True)
     mzml = mzml_dir / "a.mzML.gz"

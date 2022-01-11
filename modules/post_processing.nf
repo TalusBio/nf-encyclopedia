@@ -24,9 +24,9 @@ process unique_peptides_proteins {
 
 workflow {
     files = Channel.fromPath("${params.publish_dir}/*")
-    | flatten
-    | filter { it.name =~ /.*mzML.elib$/ }
-    | collect
-    | unique_peptides_proteins
-    | view
+        | flatten
+        | filter { it.name =~ /.*mzML.elib$/ }
+        | collect
+        | unique_peptides_proteins
+        | view
 }
