@@ -48,3 +48,4 @@ metadata-bucket/
 mzml-bucket/
 raw-bucket/
 cache-bucket/
+input_folder/

@@ -21,12 +21,3 @@ process unique_peptides_proteins {
     touch unique_peptides_proteins.csv
     """
 }
-
-workflow {
-    files = Channel.fromPath("${params.publish_dir}/*")
-        | flatten
-        | filter { it.name =~ /.*mzML.elib$/ }
-        | collect
-        | unique_peptides_proteins
-        | view
-}

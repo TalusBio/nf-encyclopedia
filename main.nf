@@ -2,6 +2,7 @@
 include { msconvert as msconvert_narrow } from "./modules/msconvert.nf"
 include { msconvert as msconvert_wide } from "./modules/msconvert.nf"
 include { unique_peptides_proteins } from "./modules/unique_peptides_proteins.nf"
+include { msstats } from "./modules/msstats.nf"
 
 nextflow.enable.dsl = 2
 
@@ -70,7 +71,8 @@ process run_encyclopedia_global {
     script:
     """
     mkdir logs
-    find . -type f -name '*.gz' -exec gzip -df {} \\;
+    find . -name '*.gz' -exec gzip -df {} \\;
+    ls -al
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -libexport \\
@@ -141,7 +143,7 @@ workflow encyclopedia_wide {
             params.encyclopedia.wide_lib_postfix
         )
             | flatten
-            | filter { it.name =~ /.*{elib,txt}$/ }
+            | filter { it.name =~ /.*(elib|txt)$/ }
             | set { output_files }
     emit:
         output_files
@@ -152,24 +154,43 @@ workflow {
     fasta = Channel.fromPath(params.encyclopedia.fasta, checkIfExists: true)
     dlib = Channel.fromPath(params.encyclopedia.dlib, checkIfExists: true)
 
-    // Get the narrow and wide files:
-    narrow_files = Channel
-        .fromPath(params.narrow_files, checkIfExists: true)
-        .splitCsv()
-        .map { row -> file(row[0]) }
-
-    wide_files = Channel
-        .fromPath(params.wide_files, checkIfExists: true)
-        .splitCsv()
-        .map { row -> file(row[0]) }
-
-    if ( !narrow_files && !wide_files ) {
-        error "No raw files were given. Nothing to do."
+    // Get the narrow files
+    if (params.narrow_mzml_files) {
+        narrow_mzml_files = Channel
+            .fromPath(params.narrow_mzml_files, checkIfExists: true)
+            .splitCsv()
+            .map { row -> file(row[0]) }
+    } else if (params.narrow_files) {
+        narrow_files = Channel
+            .fromPath(params.narrow_files, checkIfExists: true)
+            .splitCsv()
+            .map { row -> file(row[0]) }
+        // Convert raw files to gzipped mzML.
+        narrow_files | msconvert_narrow | set { narrow_mzml_files }
+    } else {
+        narrow_mzml_files = Channel.empty()
     }
 
-    // Convert raw files to gzipped mzML.
-    narrow_files | msconvert_narrow | set { narrow_mzml_files }
-    wide_files | msconvert_wide | set { wide_mzml_files }
+    // Get the wide files
+    if (params.wide_mzml_files) {
+        wide_mzml_files = Channel
+            .fromPath(params.wide_mzml_files, checkIfExists: true)
+            .splitCsv()
+            .map { row -> file(row[0]) }
+    } else if (params.wide_files) {
+        wide_files = Channel
+            .fromPath(params.wide_files, checkIfExists: true)
+            .splitCsv()
+            .map { row -> file(row[0]) }
+        // Convert raw files to gzipped mzML.
+        wide_files | msconvert_wide | set { wide_mzml_files }
+    } else {
+        wide_mzml_files = Channel.empty()
+    }
+
+    if ( !narrow_mzml_files && !wide_mzml_files ) {
+        error "No files were given. Nothing to do."
+    }
 
     // Build a chromatogram library with EncyclopeDIA
     encyclopedia_narrow(narrow_mzml_files, dlib, fasta)
@@ -181,7 +202,12 @@ workflow {
 
     // Perform quant runs on wide window files.
     encyclopedia_wide(wide_mzml_files, chr_elib, fasta)
-        | view
+    
+    if (params.use_msstats) {
+        encyclopedia_wide.out
+            | filter { it.name =~ /.*quant.elib.peptides.txt$/ }
+            | msstats
+    }
 }
 
 workflow.onComplete {

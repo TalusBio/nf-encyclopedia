@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl = 2
 
-process msstats {
+process run_msstats {
     echo true
     publishDir params.publish_dir, mode: "copy"
 
@@ -10,13 +10,13 @@ process msstats {
         path quant_peptides
     output:
         tuple(
-            path("peptides_proteins_results.csv")
+            path("peptides_proteins_results.csv"),
             path("peptides_proteins_msstats.csv")
         )
 
     script:
     """
-    python3 /app/src/msstats.py -f ${quant_peptides} -t encyclopedia
+    python /app/src/msstats.py -f ${quant_peptides} -t encyclopedia
     """
 
     stub:
@@ -27,10 +27,7 @@ process msstats {
 }
 
 workflow {
-    files = Channel.fromPath("${params.publish_dir}/*")
-        | flatten
-        | filter { it.name =~ /.*mzML.elib$/ }
-        | collect
-        | msstats
+    files = Channel.fromPath("result-quant.elib.peptides.txt")
+        | run_msstats
         | view
 }
