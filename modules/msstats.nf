@@ -2,7 +2,7 @@
 
 nextflow.enable.dsl = 2
 
-process run_msstats {
+process msstats {
     echo true
     publishDir params.publish_dir, mode: "copy"
 
@@ -28,6 +28,6 @@ process run_msstats {
 
 workflow {
     files = Channel.fromPath("result-quant.elib.peptides.txt")
-        | run_msstats
+        | msstats
         | view
 }
