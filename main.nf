@@ -72,7 +72,6 @@ process run_encyclopedia_global {
     """
     mkdir logs
     find . -name '*.gz' -exec gzip -df {} \\;
-    ls -al
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -libexport \\
