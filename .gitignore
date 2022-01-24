@@ -37,7 +37,6 @@ gradle.properties
 .launch.classpath
 plugins-prod
 work/
-data/
 results/
 .DS_Store
 testing/
