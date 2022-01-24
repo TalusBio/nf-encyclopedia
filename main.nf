@@ -20,7 +20,7 @@ process run_encyclopedia_local {
     output:
         tuple(
             path("${mzml_gz_file.baseName}.elib"),
-            path("${file(mzml_gz_file.baseName).baseName}.dia"),
+            // path("${file(mzml_gz_file.baseName).baseName}.dia"),
             path("${mzml_gz_file.baseName}.{features,encyclopedia,encyclopedia.decoy}.txt"),
             path("logs/${mzml_gz_file.baseName}.local.log"),
         )
@@ -154,42 +154,22 @@ workflow {
     dlib = Channel.fromPath(params.encyclopedia.dlib, checkIfExists: true)
 
     // Get the narrow files
-    if (params.narrow_mzml_files) {
-        narrow_mzml_files = Channel
-            .fromPath(params.narrow_mzml_files, checkIfExists: true)
-            .splitCsv()
-            .map { row -> file(row[0]) }
-    } else if (params.narrow_files) {
-        narrow_files = Channel
-            .fromPath(params.narrow_files, checkIfExists: true)
-            .splitCsv()
-            .map { row -> file(row[0]) }
-        // Convert raw files to gzipped mzML.
-        narrow_files | msconvert_narrow | set { narrow_mzml_files }
-    } else {
-        narrow_mzml_files = Channel.empty()
-    }
+    narrow_files = Channel
+        .fromPath(params.narrow_files, checkIfExists: true)
+        .splitCsv()
+        .map { row -> file(row[0]) }
 
-    // Get the wide files
-    if (params.wide_mzml_files) {
-        wide_mzml_files = Channel
-            .fromPath(params.wide_mzml_files, checkIfExists: true)
-            .splitCsv()
-            .map { row -> file(row[0]) }
-    } else if (params.wide_files) {
-        wide_files = Channel
-            .fromPath(params.wide_files, checkIfExists: true)
-            .splitCsv()
-            .map { row -> file(row[0]) }
-        // Convert raw files to gzipped mzML.
-        wide_files | msconvert_wide | set { wide_mzml_files }
-    } else {
-        wide_mzml_files = Channel.empty()
-    }
+    wide_files = Channel
+        .fromPath(params.wide_files, checkIfExists: true)
+        .splitCsv()
+        .map { row -> file(row[0]) }
 
-    if ( !narrow_mzml_files && !wide_mzml_files ) {
-        error "No files were given. Nothing to do."
-    }
+    if ( !narrow_files && !wide_files ) {
+        error "No raw files were given. Nothing to do."
+
+    // Convert raw files to gzipped mzML.
+    narrow_files | msconvert_narrow | set { narrow_mzml_files }
+    wide_files | msconvert_wide | set { wide_mzml_files }
 
     // Build a chromatogram library with EncyclopeDIA
     encyclopedia_narrow(narrow_mzml_files, dlib, fasta)
