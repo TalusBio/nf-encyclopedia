@@ -153,7 +153,7 @@ workflow {
     fasta = Channel.fromPath(params.encyclopedia.fasta, checkIfExists: true)
     dlib = Channel.fromPath(params.encyclopedia.dlib, checkIfExists: true)
 
-    // Get the narrow files
+    // Get the narrow and wide files:
     narrow_files = Channel
         .fromPath(params.narrow_files, checkIfExists: true)
         .splitCsv()
@@ -166,6 +166,7 @@ workflow {
 
     if ( !narrow_files && !wide_files ) {
         error "No raw files were given. Nothing to do."
+    }
 
     // Convert raw files to gzipped mzML.
     narrow_files | msconvert_narrow | set { narrow_mzml_files }
