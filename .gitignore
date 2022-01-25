@@ -37,7 +37,6 @@ gradle.properties
 .launch.classpath
 plugins-prod
 work/
-data/
 results/
 .DS_Store
 testing/
@@ -48,3 +47,5 @@ metadata-bucket/
 mzml-bucket/
 raw-bucket/
 cache-bucket/
+input_folder/
+.pytest_cache/

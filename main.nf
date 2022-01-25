@@ -1,7 +1,8 @@
 #!/usr/bin/env nextflow
 include { msconvert as msconvert_narrow } from "./modules/msconvert.nf"
 include { msconvert as msconvert_wide } from "./modules/msconvert.nf"
-include { unique_peptides_proteins } from "./modules/post_processing.nf"
+include { unique_peptides_proteins } from "./modules/unique_peptides_proteins.nf"
+include { msstats } from "./modules/msstats.nf"
 
 nextflow.enable.dsl = 2
 
@@ -70,7 +71,7 @@ process run_encyclopedia_global {
     script:
     """
     mkdir logs
-    find . -type f -name '*.gz' -exec gzip -df {} \\;
+    find . -name '*.gz' -exec gzip -df {} \\;
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -libexport \\
@@ -141,10 +142,10 @@ workflow encyclopedia_wide {
             params.encyclopedia.wide_lib_postfix
         )
             | flatten
-            | filter { it.name =~ /.*elib$/ }
-            | set { wide_elib }
+            | filter { it.name =~ /.*(elib|txt)$/ }
+            | set { output_files }
     emit:
-        wide_elib
+        output_files
 }
 
 workflow {
@@ -181,6 +182,12 @@ workflow {
 
     // Perform quant runs on wide window files.
     encyclopedia_wide(wide_mzml_files, chr_elib, fasta)
+    
+    if (params.use_msstats) {
+        encyclopedia_wide.out
+            | filter { it.name =~ /.*quant.elib.peptides.txt$/ }
+            | msstats
+    }
 }
 
 workflow.onComplete {

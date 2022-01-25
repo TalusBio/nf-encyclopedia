@@ -35,7 +35,7 @@ workflow msconvert {
             | map { raw -> [raw, raw.getParent().getBaseName()] }
             | branch {
                 mzml_present: file("${params.mzml_dir}/${it[1]}/${it[0].baseName}.mzML.gz").exists()
-                    return "${params.mzml_dir}/${it[1]}/${it[0].baseName}.mzML.gz"
+                    return file("${params.mzml_dir}/${it[1]}/${it[0].baseName}.mzML.gz")
                 mzml_absent: !file("${params.mzml_dir}/${it[1]}/${it[0].baseName}.mzML.gz").exists()
                     return it
             }
@@ -44,9 +44,6 @@ workflow msconvert {
         run_msconvert(staging.mzml_absent)
             | concat(staging.mzml_present)
             | set { results }
-
-        results.view()
-
     emit:
         results
 }
