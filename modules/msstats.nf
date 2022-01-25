@@ -10,8 +10,8 @@ process msstats {
         path quant_peptides
     output:
         tuple(
-            path("peptides_proteins_results.csv"),
-            path("peptides_proteins_msstats.csv")
+            path("msstats_input.csv"),
+            path("msstats_feature_level_data.csv")
         )
 
     script:
@@ -21,8 +21,8 @@ process msstats {
 
     stub:
     """
-    touch peptides_proteins_results.csv
-    touch peptides_proteins_msstats.csv
+    touch msstats_input.csv
+    touch msstats_feature_level_data.csv
     """
 }
 
