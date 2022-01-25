@@ -48,3 +48,4 @@ mzml-bucket/
 raw-bucket/
 cache-bucket/
 input_folder/
+.pytest_cache/

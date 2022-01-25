@@ -20,7 +20,7 @@ process run_encyclopedia_local {
     output:
         tuple(
             path("${mzml_gz_file.baseName}.elib"),
-            // path("${file(mzml_gz_file.baseName).baseName}.dia"),
+            path("${file(mzml_gz_file.baseName).baseName}.dia"),
             path("${mzml_gz_file.baseName}.{features,encyclopedia,encyclopedia.decoy}.txt"),
             path("logs/${mzml_gz_file.baseName}.local.log"),
         )
