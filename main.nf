@@ -6,11 +6,10 @@ include { msstats } from "./modules/msstats.nf"
 
 nextflow.enable.dsl = 2
 
-FILTER = "NO_FILE"
-
 process run_encyclopedia_local {
     echo true
     publishDir params.publish_dir, mode: "copy"
+    storeDir params.store_dir
 
     input:
         path mzml_gz_file
@@ -53,6 +52,7 @@ process run_encyclopedia_local {
 process run_encyclopedia_global {
     echo true
     publishDir params.publish_dir, mode: "copy"
+    storeDir params.store_dir
 
     input:
         path local_files
@@ -63,7 +63,7 @@ process run_encyclopedia_global {
 
     output:
         tuple(
-            path("result-${output_postfix}*.elib"), 
+            path("result-${output_postfix}*.elib"),
             path("result-${output_postfix}*.{peptides,proteins}.txt"),
             path("logs/result-${output_postfix}*.global.log")
         )

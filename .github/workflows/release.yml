@@ -3,13 +3,15 @@ name: Release Nextflow Workflow
 on: 
   push:
     tags:
-    - '*'
+      - '*'
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: prod
     steps:
-    - uses: actions/checkout@v2
-    - uses: ncipollo/release-action@v1
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/checkout@v2
+      - uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
