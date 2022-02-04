@@ -5,6 +5,7 @@ nextflow.enable.dsl = 2
 process run_msconvert {
     echo true
     publishDir "${params.mzml_dir}/${outputDir}", mode: "copy"
+    storeDir params.store_dir
 
     input:
         tuple path(raw_input), val(outputDir)
