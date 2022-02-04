@@ -1,6 +1,9 @@
 # Nextflow - Encyclopedia
 This repository contains the nextflow pipeline for Encyclopedia.
 
+# Git Flow
+We use git flow for features, releases, fixes, etc. Here's an introductory article: https://jeffkreeftmeijer.com/git-flow/.
+
 # Release
 ```
 # See existing tags
