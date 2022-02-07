@@ -1,7 +1,7 @@
 include { MSCONVERT } from "../modules/msconvert.nf"
 
 
-workflow RUN_MSCONVERT {
+workflow CONVERT_TO_MZML {
     take:
     raw_files
 
@@ -9,9 +9,9 @@ workflow RUN_MSCONVERT {
     raw_files
     | map { raw -> [raw, file(raw), file(raw).getParent().getBaseName()] }
     | branch {
-        mzml_present: file("${params.mzml_dir}/${it[1]}/${it[1].simpleName}.mzML.gz").exists()
-        return tuple(it[0], file("${params.mzml_dir}/${it[1]}/${it[1].simpleName}.mzML.gz"))
-        mzml_absent: !file("${params.mzml_dir}/${it[1]}/${it[1].simpleName}.mzML.gz").exists()
+        mzml_present: file("${params.mzml_dir}/${it[2]}/${it[1].simpleName}.mzML.gz").exists()
+        return tuple(it[0], file("${params.mzml_dir}/${it[2]}/${it[1].simpleName}.mzML.gz"))
+        mzml_absent: !file("${params.mzml_dir}/${it[2]}/${it[1].simpleName}.mzML.gz").exists()
         return it
     }
     | set { staging }

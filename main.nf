@@ -3,7 +3,7 @@
 nextflow.enable.dsl = 2
 
 // Subworkflows:
-include { RUN_MSCONVERT } from "./subworkflows/msconvert"
+include { CONVERT_TO_MZML } from "./subworkflows/msconvert"
 include {
     BUILD_CHROMATOGRAM_LIBRARY;
     PERFORM_QUANT;
@@ -41,7 +41,7 @@ workflow {
     // Convert raw files to gzipped mzML and group them by experiment.
     // The chrlib and quant channels take the following form:
     // [[file_ids], [mzml_gz_files], is_chrlib, group]
-    RUN_MSCONVERT(ms_files.runs)
+    CONVERT_TO_MZML(ms_files.runs)
     | join(ms_files.meta)
     | groupTuple(by: [2, 3])
     | branch {
@@ -75,7 +75,6 @@ workflow {
     if ( params.aggregate ) {
         PERFORM_GLOBAL_QUANT(quant_results.local, dlib, fasta)
     }
-/**/
 }
 
 workflow.onComplete {

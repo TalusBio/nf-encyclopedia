@@ -6,9 +6,9 @@ import pytest
 def base_project(tmp_path):
     """A base project to use for testing"""
     # Create raw files
-    raw_dir = tmp_path / "raw_dir"
+    raw_dir = tmp_path / "subdir"
     raw_dir.mkdir()
-    raw_files = [raw_dir / f for f in "abcdefghijklm"]
+    raw_files = [raw_dir / f"{f}.raw" for f in "abcdefghijklm"]
     for raw_file in raw_files:
         raw_file.touch()
 
