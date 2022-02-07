@@ -27,8 +27,8 @@ workflow {
 
     // Get the narrow and wide files:
     ms_files = Channel
-        .fromPath(params.ms_file_csv, checkIfExists: true, strip: true)
-        .splitCsv(header: true)
+        .fromPath(params.ms_file_csv, checkIfExists: true)
+        .splitCsv(header: true, strip: true)
         .multiMap { it ->
             runs: it.file
             meta: tuple it.file, it.chrlib.toBoolean(), it.group
