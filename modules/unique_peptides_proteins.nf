@@ -1,15 +1,12 @@
-#!/usr/bin/env nextflow
-
-nextflow.enable.dsl = 2
-
-process unique_peptides_proteins {
+process UNIQUE_PEPTIDES_PROTEINS {
     echo true
-    publishDir params.publish_dir, mode: "copy"
+    publishDir "${params.publish_dir}/${group}", mode: "copy"
 
     input:
-        path elib_files
+    tuple val(group), path(elib_files)
+
     output:
-        path("unique_peptides_proteins.csv")
+    path("unique_peptides_proteins.csv")
 
     script:
     """
