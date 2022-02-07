@@ -68,6 +68,7 @@ workflow {
     // The output has two channels:
     // local -> [group, [local_elib_files], [mzml_gz_files]]
     // global -> [group, global_elib, peptides, proteins] or null
+    // msstats -> [group, input_csv, feature_csv]
     PERFORM_QUANT(quant_files, dlib, fasta, params.aggregate)
     | set { quant_results }
 

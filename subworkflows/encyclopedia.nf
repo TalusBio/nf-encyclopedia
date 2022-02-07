@@ -1,5 +1,6 @@
 include { ENCYCLOPEDIA_LOCAL; ENCYCLOPEDIA_GLOBAL } from "../modules/encyclopedia"
 include { UNIQUE_PEPTIDES_PROTEINS } from "../modules/unique_peptides_proteins"
+include { MSSTATS } from "../modules/msstats"
 
 workflow BUILD_CHROMATOGRAM_LIBRARY {
     take:
@@ -78,7 +79,8 @@ workflow PERFORM_QUANT {
 
     // Only run group-wise global if needed.
     if ( local_only ) {
-        Channel.empty() | set { output_elib }
+        Channel.empty() | set { global_files }
+        Channel.empty() | set { msstats_files }
     } else {
         // Get the unique peptides and proteins detected
         local_files
@@ -86,20 +88,27 @@ workflow PERFORM_QUANT {
         | UNIQUE_PEPTIDES_PROTEINS
 
         // Do the global analysis
-        // Ouput is [group, [global_elib_file]]
+        // Ouput is [group, global_elib_file, peptides_txt, proteins_txt, log]
         ENCYCLOPEDIA_GLOBAL(
             local_files,
             dlib,
             fasta,
             params.encyclopedia.quant_postfix
         )
-        | map { tuple it[0], it[1] }
-        | set { output_elib }
+        | set { global_files }
+
+        // Run MSstats
+        // Ouput is [group, input_csv, feature_csv ]
+        global_files
+        | map { tuple it[0], it[2] }
+        | MSSTATS
+        | set { msstats_files }
     }
 
     emit:
     local = local_files
-    global = output_elib
+    global = global_files
+    msstats = msstats_files
 }
 
 
@@ -114,7 +123,7 @@ workflow PERFORM_GLOBAL_QUANT {
     // The output is ["global", [local_elib_files], [mzml_gz_files]]
     local_quant_files
     | transpose()
-    | map { tuple "global", it[1], it[2] }
+    | map { tuple params.encyclopedia.global_postfix, it[1], it[2] }
     | groupTuple(by: 0)
     | set { all_local_files }
 
@@ -123,5 +132,24 @@ workflow PERFORM_GLOBAL_QUANT {
     | map { tuple it[0], it[1] }
     | UNIQUE_PEPTIDES_PROTEINS
 
-    ENCYCLOPEDIA_GLOBAL(all_local_files, dlib, fasta, "global")
+    // Do the global analysis
+    // Ouput is ["global", global_elib_file, peptides_txt, proteins_txt, log]
+    ENCYCLOPEDIA_GLOBAL(
+        all_local_files,
+        dlib,
+        fasta,
+        params.encyclopedia.global_postfix
+    )
+    | set { global_files }
+
+    // Run MSstats
+    // Ouput is ["global", input_csv, feature_csv ]
+    global_files
+    | map { tuple it[0], it[2] }
+    | MSSTATS
+    | set { msstats_files }
+
+    emit:
+    global = global_files
+    msstats = msstats_files
 }
