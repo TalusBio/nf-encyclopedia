@@ -1,7 +1,7 @@
 process ENCYCLOPEDIA_LOCAL {
     echo true
     publishDir "${params.publish_dir}/${group}", mode: "copy"
-    storeDir params.store_dir
+    storeDir "${params.store_dir}/${group}"
 
     input:
     tuple val(group), path(mzml_gz_file)
@@ -45,7 +45,7 @@ process ENCYCLOPEDIA_LOCAL {
 process ENCYCLOPEDIA_GLOBAL {
     echo true
     publishDir "${params.publish_dir}/${group}", mode: "copy"
-    storeDir params.store_dir
+    storeDir "${params.store_dir}/${group}"
 
     input:
     tuple val(group), path(local_elib_files), path(mzml_gz_files)

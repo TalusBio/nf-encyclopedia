@@ -1,7 +1,7 @@
 process MSCONVERT {
     echo true
     publishDir "${params.mzml_dir}/${outputDir}", mode: "copy"
-    storeDir params.store_dir
+    storeDir "${params.store_dir}/${outputDir}"
 
     input:
     tuple val(file_id), path(raw_input), val(outputDir)
