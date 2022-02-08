@@ -43,9 +43,10 @@ testing/
 testing*
 *.pyc
 experiment-bucket/
-metadata-bucket/
-mzml-bucket/
-raw-bucket/
-cache-bucket/
+metadata/
+mzml/
+raw/
 input_folder/
 .pytest_cache/
+store
+run.config
