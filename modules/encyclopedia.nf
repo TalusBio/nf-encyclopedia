@@ -65,7 +65,7 @@ process ENCYCLOPEDIA_GLOBAL {
     script:
     """
     mkdir logs
-    gunzip -f ${mzml_gz_files} \\;
+    gunzip -f ${mzml_gz_files}
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -libexport \\
