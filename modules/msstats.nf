@@ -3,14 +3,14 @@ process MSSTATS {
     publishDir "${params.publish_dir}/${group}", mode: "copy"
 
     input:
-    tuple val(group), path(quant_peptides)
+        tuple val(group), path(quant_peptides)
 
     output:
-    tuple(
-        val(group),
-        path("msstats_input.csv"),
-        path("msstats_feature_level_data.csv")
-    )
+        tuple(
+            val(group),
+            path("msstats_input.csv"),
+            path("msstats_feature_level_data.csv")
+        )
 
     script:
     """

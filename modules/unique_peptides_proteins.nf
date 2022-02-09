@@ -3,10 +3,10 @@ process UNIQUE_PEPTIDES_PROTEINS {
     publishDir "${params.publish_dir}/${group}", mode: "copy"
 
     input:
-    tuple val(group), path(elib_files)
+        tuple val(group), path(elib_files)
 
     output:
-    path("unique_peptides_proteins.csv")
+        path("unique_peptides_proteins.csv")
 
     script:
     """

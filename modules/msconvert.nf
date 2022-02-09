@@ -4,10 +4,10 @@ process MSCONVERT {
     storeDir "${params.store_dir}/${outputDir}"
 
     input:
-    tuple val(file_id), path(raw_input), val(outputDir)
+        tuple val(file_id), path(raw_input), val(outputDir)
 
     output:
-    tuple val(file_id), path("${raw_input.baseName}.mzML.gz")
+        tuple val(file_id), path("${raw_input.baseName}.mzML.gz")
 
     script:
     """

@@ -4,18 +4,18 @@ process ENCYCLOPEDIA_LOCAL {
     storeDir "${params.store_dir}/${group}"
 
     input:
-    tuple val(group), path(mzml_gz_file)
-    path(library_file)
-    path(fasta_file)
+        tuple val(group), path(mzml_gz_file)
+        path(library_file)
+        path(fasta_file)
 
     output:
-    tuple(
-        val(group),
-        path("${mzml_gz_file.baseName}.elib"),
-        path("${file(mzml_gz_file.baseName).baseName}.dia"),
-        path("${mzml_gz_file.baseName}.{features,encyclopedia,encyclopedia.decoy}.txt"),
-        path("logs/${mzml_gz_file.baseName}.local.log"),
-    )
+        tuple(
+            val(group),
+            path("${mzml_gz_file.baseName}.elib"),
+            path("${file(mzml_gz_file.baseName).baseName}.dia"),
+            path("${mzml_gz_file.baseName}.{features,encyclopedia,encyclopedia.decoy}.txt"),
+            path("logs/${mzml_gz_file.baseName}.local.log"),
+        )
 
     script:
     """
@@ -48,19 +48,19 @@ process ENCYCLOPEDIA_GLOBAL {
     storeDir "${params.store_dir}/${group}"
 
     input:
-    tuple val(group), path(local_elib_files), path(mzml_gz_files)
-    path(library_file)
-    path(fasta_file)
-    val output_postfix
+        tuple val(group), path(local_elib_files), path(mzml_gz_files)
+        path(library_file)
+        path(fasta_file)
+        val output_postfix
 
     output:
-    tuple(
-        val(group),
-        path("result-${output_postfix}*.elib"),
-        path("result-${output_postfix}*.peptides.txt"),
-        path("result-${output_postfix}*.proteins.txt"),
-        path("logs/result-${output_postfix}*.global.log")
-    )
+        tuple(
+            val(group),
+            path("result-${output_postfix}*.elib"),
+            path("result-${output_postfix}*.peptides.txt"),
+            path("result-${output_postfix}*.proteins.txt"),
+            path("logs/result-${output_postfix}*.global.log")
+        )
 
     script:
     """
