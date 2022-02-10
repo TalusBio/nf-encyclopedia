@@ -13,7 +13,9 @@ process ENCYCLOPEDIA_LOCAL {
             val(group),
             path("${mzml_gz_file.baseName}.elib"),
             path("${file(mzml_gz_file.baseName).baseName}.dia"),
-            path("${mzml_gz_file.baseName}.{features,encyclopedia,encyclopedia.decoy}.txt"),
+            path("${mzml_gz_file.baseName}.features.txt"),
+            path("${mzml_gz_file.baseName}.encyclopedia.txt"),
+            path("${mzml_gz_file.baseName}.encyclopedia.decoy.txt"),
             path("logs/${mzml_gz_file.baseName}.local.log"),
         )
 
@@ -48,7 +50,7 @@ process ENCYCLOPEDIA_GLOBAL {
     storeDir "${params.store_dir}/${group}"
 
     input:
-        tuple val(group), path(local_elib_files), path(mzml_gz_files)
+        tuple val(group), path(local_elib_files), path(local_dia_files), path(local_feature_files), path(local_encyclopedia_files)
         path(library_file)
         path(fasta_file)
         val output_postfix
@@ -65,7 +67,7 @@ process ENCYCLOPEDIA_GLOBAL {
     script:
     """
     mkdir logs
-    gunzip -f ${mzml_gz_files}
+    find . -name '*\.mzML\.*' -exec bash -c 'mv \$0 \${0/\.mzML/\.dia}' {} \\;
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -libexport \\
