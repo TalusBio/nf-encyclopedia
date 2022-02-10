@@ -114,7 +114,7 @@ workflow PERFORM_GLOBAL_QUANT {
         // The output is ["global", [local_elib_files], [local_dia_files], [local_feature_files], [local_encyclopedia_files]]
         local_quant_files
         | transpose()
-        | map { tuple params.encyclopedia.global_postfix, it[1], it[2] }
+        | map { tuple params.encyclopedia.global_postfix, it[1], it[2], it[3], it[4] }
         | groupTuple(by: 0)
         | set { all_local_files }
 
