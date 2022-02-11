@@ -1,192 +1,80 @@
 #!/usr/bin/env nextflow
-include { msconvert as msconvert_narrow } from "./modules/msconvert.nf"
-include { msconvert as msconvert_wide } from "./modules/msconvert.nf"
-include { unique_peptides_proteins } from "./modules/unique_peptides_proteins.nf"
-include { msstats } from "./modules/msstats.nf"
 
 nextflow.enable.dsl = 2
 
-process run_encyclopedia_local {
-    echo true
-    publishDir params.publish_dir, mode: "copy"
-    storeDir params.store_dir
+// Subworkflows:
+include { CONVERT_TO_MZML } from "./subworkflows/msconvert"
+include {
+    BUILD_CHROMATOGRAM_LIBRARY;
+    PERFORM_QUANT;
+    PERFORM_GLOBAL_QUANT
+} from "./subworkflows/encyclopedia"
 
-    input:
-        path mzml_gz_file
-        each path(library_file)
-        each path(fasta_file)
 
-    output:
-        tuple(
-            path("${mzml_gz_file.baseName}.elib"),
-            path("${file(mzml_gz_file.baseName).baseName}.dia"),
-            path("${mzml_gz_file.baseName}.{features,encyclopedia,encyclopedia.decoy}.txt"),
-            path("logs/${mzml_gz_file.baseName}.local.log"),
-        )
-
-    script:
-    """
-    mkdir logs
-    gzip -df ${mzml_gz_file}
-    java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
-        -jar /code/encyclopedia-\$VERSION-executable.jar \\
-        -i ${mzml_gz_file.baseName} \\
-        -f ${fasta_file} \\
-        -l ${library_file} \\
-        ${params.encyclopedia.local_options} \\
-    | tee logs/${mzml_gz_file.baseName}.local.log
-    """
-
-    stub:
-    """
-    mkdir logs
-    touch ${mzml_gz_file.baseName}.elib
-    touch ${file(mzml_gz_file.baseName).baseName}.dia
-    touch ${mzml_gz_file.baseName}.features.txt
-    touch ${mzml_gz_file.baseName}.encyclopedia.txt
-    touch ${mzml_gz_file.baseName}.encyclopedia.decoy.txt
-    touch logs/${mzml_gz_file.baseName}.local.log
-    """
+def replace_missing_elib(elib) {
+    // Use the DLIB when the ELIB is unavailable.
+    if (elib == null) {
+        return file(params.encyclopedia.dlib)
+    }
+    return elib
 }
 
-process run_encyclopedia_global {
-    echo true
-    publishDir params.publish_dir, mode: "copy"
-    storeDir params.store_dir
-
-    input:
-        path local_files
-        path mzml_gz_files
-        path library_file
-        path fasta_file
-        val output_postfix
-
-    output:
-        tuple(
-            path("result-${output_postfix}*.elib"),
-            path("result-${output_postfix}*.{peptides,proteins}.txt"),
-            path("logs/result-${output_postfix}*.global.log")
-        )
-
-    script:
-    """
-    mkdir logs
-    find . -name '*.gz' -exec gzip -df {} \\;
-    java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
-        -jar /code/encyclopedia-\$VERSION-executable.jar \\
-        -libexport \\
-        -o result-${output_postfix}.elib \\
-        -i ./ \\
-        -f ${fasta_file} \\
-        -l ${library_file} \\
-        ${params.encyclopedia.global_options} \\
-    | tee logs/result-${output_postfix}.global.log
-    """
-
-    stub:
-    def stem = "result-${output_postfix}"
-    """
-    mkdir logs
-    touch ${stem}.elib
-    touch ${stem}.peptides.txt
-    touch ${stem}.proteins.txt
-    touch logs/${stem}.global.log
-    """
-}
-
-workflow encyclopedia_narrow {
-    take: 
-        mzml_gz_files
-        dlib
-        fasta
-    main:
-        run_encyclopedia_local(mzml_gz_files, dlib, fasta)
-            | flatten
-            | collect
-            | set { narrow_local_files }
-
-        run_encyclopedia_global(
-            narrow_local_files,
-            mzml_gz_files | collect,
-            dlib,
-            fasta,
-            params.encyclopedia.narrow_lib_postfix,
-        )
-            | flatten
-            | filter { it.name =~ /.*elib$/ }
-            | set { narrow_elib }
-    emit:
-        narrow_elib
-}
-
-workflow encyclopedia_wide {
-    take: 
-        mzml_gz_files
-        elib
-        fasta
-    main:
-        // Run encyclopedia for all local files
-        run_encyclopedia_local(mzml_gz_files, elib, fasta)
-            .flatten()
-            .tap { wide_local_files }
-            | filter { it.name =~ /.*mzML.elib$/ }
-            | collect
-            | unique_peptides_proteins
-
-        // Use the local .elib's as an input to the global run
-        run_encyclopedia_global(
-            wide_local_files | collect,
-            mzml_gz_files | collect,
-            elib,
-            fasta,
-            params.encyclopedia.wide_lib_postfix
-        )
-            | flatten
-            | filter { it.name =~ /.*(elib|txt)$/ }
-            | set { output_files }
-    emit:
-        output_files
-}
 
 workflow {
     // Get .fasta and .dlib from metadata-bucket
-    fasta = Channel.fromPath(params.encyclopedia.fasta, checkIfExists: true)
-    dlib = Channel.fromPath(params.encyclopedia.dlib, checkIfExists: true)
+    fasta = Channel.fromPath(params.encyclopedia.fasta, checkIfExists: true).first()
+    dlib = Channel.fromPath(params.encyclopedia.dlib, checkIfExists: true).first()
 
     // Get the narrow and wide files:
-    narrow_files = Channel
-        .fromPath(params.narrow_files, checkIfExists: true)
-        .splitCsv()
-        .map { row -> file(row[0]) }
+    ms_files = Channel
+        .fromPath(params.ms_file_csv, checkIfExists: true)
+        .splitCsv(header: true, strip: true)
+        .multiMap { it ->
+            runs: it.file
+            meta: tuple it.file, it.chrlib.toBoolean(), it.group
+        }
 
-    wide_files = Channel
-        .fromPath(params.wide_files, checkIfExists: true)
-        .splitCsv()
-        .map { row -> file(row[0]) }
-
-    if ( !narrow_files && !wide_files ) {
-        error "No raw files were given. Nothing to do."
+    if ( !ms_files.runs ) {
+        error "No MS data files were given. Nothing to do."
     }
 
-    // Convert raw files to gzipped mzML.
-    narrow_files | msconvert_narrow | set { narrow_mzml_files }
-    wide_files | msconvert_wide | set { wide_mzml_files }
+    // Convert raw files to gzipped mzML and group them by experiment.
+    // The chrlib and quant channels take the following form:
+    // [[file_ids], [mzml_gz_files], is_chrlib, group]
+    CONVERT_TO_MZML(ms_files.runs)
+    | join(ms_files.meta)
+    | groupTuple(by: [2, 3])
+    | branch {
+        chrlib: it[2]
+        quant: !it[2]
+    }
+    | set { mzml_gz_files }
 
-    // Build a chromatogram library with EncyclopeDIA
-    encyclopedia_narrow(narrow_mzml_files, dlib, fasta)
+    // Build chromatogram libraries with EncyclopeDIA:
+    // The output is [group, elib]
+    BUILD_CHROMATOGRAM_LIBRARY(mzml_gz_files.chrlib, dlib, fasta)
+    | set { chrlib_elib_files }
 
-    // If no narrow file are given, use the dlib instead.
-    encyclopedia_narrow.out
-        .ifEmpty(file(params.encyclopedia.dlib))
-        .set { chr_elib }
+    // Group quant files with either corresponding library ELIB.
+    // If none exists, use the DLIB.
+    // The output is [group, [quant_mzml_gz_files], elib_file]
+    mzml_gz_files.quant
+    | map { tuple it[3], it[1] }
+    | join(chrlib_elib_files, remainder: true)
+    | map { tuple it[0], it[1], replace_missing_elib(it[2]) }
+    | set { quant_files }
 
-    // Perform quant runs on wide window files.
-    encyclopedia_wide(wide_mzml_files, chr_elib, fasta)
-    
-    if (params.use_msstats) {
-        encyclopedia_wide.out
-            | filter { it.name =~ /.*quant.elib.peptides.txt$/ }
-            | msstats
+    // Analyze the quantitative runs with EncyclopeDIA.
+    // The output has two channels:
+    // local -> [group, [local_elib_files], [mzml_gz_files]]
+    // global -> [group, global_elib, peptides, proteins] or null
+    // msstats -> [group, input_csv, feature_csv]
+    PERFORM_QUANT(quant_files, dlib, fasta, params.aggregate)
+    | set { quant_results }
+
+    // Perform an global analysis on all files if needed:
+    if ( params.aggregate ) {
+        PERFORM_GLOBAL_QUANT(quant_results.local, dlib, fasta)
     }
 }
 
@@ -204,4 +92,5 @@ workflow.onError {
         subject: "Error: ${params.experimentName} failed.",
         body: "Experiment run ${params.experimentName} using Encyclopedia failed.",
     )
+
 }

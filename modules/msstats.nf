@@ -1,15 +1,13 @@
-#!/usr/bin/env nextflow
-
-nextflow.enable.dsl = 2
-
-process msstats {
+process MSSTATS {
     echo true
-    publishDir params.publish_dir, mode: "copy"
+    publishDir "${params.publish_dir}/${group}", mode: "copy"
 
     input:
-        path quant_peptides
+        tuple val(group), path(quant_peptides)
+
     output:
         tuple(
+            val(group),
             path("msstats_input.csv"),
             path("msstats_feature_level_data.csv")
         )
@@ -24,10 +22,4 @@ process msstats {
     touch msstats_input.csv
     touch msstats_feature_level_data.csv
     """
-}
-
-workflow {
-    files = Channel.fromPath("result-quant.elib.peptides.txt")
-        | msstats
-        | view
 }
