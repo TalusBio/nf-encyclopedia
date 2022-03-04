@@ -61,13 +61,14 @@ process ENCYCLOPEDIA_GLOBAL {
             path("result-${output_postfix}*.elib"),
             path("result-${output_postfix}*.peptides.txt"),
             path("result-${output_postfix}*.proteins.txt"),
-            path("logs/result-${output_postfix}*.global.log")
+            path("logs/result-${output_postfix}*.global.log"),
+            path("${output_postfix}_unique_peptides_proteins.csv")
         )
 
     script:
     """
     mkdir logs
-    find . -name '*\\.mzML\\.*' -exec bash -c 'mv \$0 \${0/\\.mzML/\\.dia}' {} \\;
+    find * -name '*\\.mzML\\.*' -exec bash -c 'mv \$0 \${0/\\.mzML/\\.dia}' {} \\;
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -libexport \\
@@ -77,6 +78,8 @@ process ENCYCLOPEDIA_GLOBAL {
         -l ${library_file} \\
         ${params.encyclopedia.global_options} \\
     | tee logs/result-${output_postfix}.global.log
+    echo 'Run,Unique Proteins,Unique Peptides' > unique_peptides_proteins.csv
+    find * -name '*\\.elib' -exec bash -c 'unique_peptides_proteins \$0 >> ${output_postfix}_unique_peptides_proteins.csv' {} \\;
     """
 
     stub:
@@ -87,5 +90,6 @@ process ENCYCLOPEDIA_GLOBAL {
     touch ${stem}.peptides.txt
     touch ${stem}.proteins.txt
     touch logs/${stem}.global.log
+    touch ${output_postfix}_unique_peptides_proteins.csv
     """
 }
