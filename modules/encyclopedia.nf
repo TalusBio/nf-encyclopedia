@@ -67,6 +67,7 @@ process ENCYCLOPEDIA_GLOBAL {
 
     script:
     """
+    source ~/.bashrc
     mkdir logs
     find * -name '*\\.mzML\\.*' -exec bash -c 'mv \$0 \${0/\\.mzML/\\.dia}' {} \\;
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
