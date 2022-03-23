@@ -28,6 +28,7 @@ process ENCYCLOPEDIA_LOCAL {
         -i ${mzml_gz_file.baseName} \\
         -f ${fasta_file} \\
         -l ${library_file} \\
+        -percolatorVersion ${params.encyclopedia.percolator_version} \\
         ${params.encyclopedia.local_options} \\
     | tee logs/${mzml_gz_file.baseName}.local.log
     """
@@ -77,6 +78,7 @@ process ENCYCLOPEDIA_GLOBAL {
         -i ./ \\
         -f ${fasta_file} \\
         -l ${library_file} \\
+        -percolatorVersion ${params.encyclopedia.percolator_version} \\
         ${params.encyclopedia.global_options} \\
     | tee logs/result-${output_postfix}.global.log
     echo 'Run,Unique Proteins,Unique Peptides' > ${output_postfix}_unique_peptides_proteins.csv
