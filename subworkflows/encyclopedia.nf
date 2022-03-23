@@ -1,5 +1,4 @@
 include { ENCYCLOPEDIA_LOCAL; ENCYCLOPEDIA_GLOBAL } from "../modules/encyclopedia"
-include { UNIQUE_PEPTIDES_PROTEINS } from "../modules/unique_peptides_proteins"
 include { MSSTATS } from "../modules/msstats"
 
 workflow BUILD_CHROMATOGRAM_LIBRARY {
@@ -73,11 +72,6 @@ workflow PERFORM_QUANT {
             Channel.empty() | set { global_files }
             Channel.empty() | set { msstats_files }
         } else {
-            // Get the unique peptides and proteins detected
-            local_files
-            | map { tuple it[0], it[1] }
-            | UNIQUE_PEPTIDES_PROTEINS
-
             // Do the global analysis
             // Ouput is [group, global_elib_file, peptides_txt, proteins_txt, log]
             ENCYCLOPEDIA_GLOBAL(
@@ -117,11 +111,6 @@ workflow PERFORM_GLOBAL_QUANT {
         | map { tuple params.encyclopedia.global_postfix, it[1], it[2], it[3], it[4] }
         | groupTuple(by: 0)
         | set { all_local_files }
-
-        // Get the unique peptides and proteins detected
-        all_local_files
-        | map { tuple it[0], it[1] }
-        | UNIQUE_PEPTIDES_PROTEINS
 
         // Do the global analysis
         // Ouput is ["global", global_elib_file, peptides_txt, proteins_txt, log]
