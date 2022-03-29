@@ -29,8 +29,11 @@ process ENCYCLOPEDIA_LOCAL {
         -f ${fasta_file} \\
         -l ${library_file} \\
         -percolatorVersion ${params.encyclopedia.percolator_version} \\
+        -percolatorTrainingFDR ${params.encyclopedia.percolator_train_fdr} \\
+        -percolatorTrainingSetSize ${params.encyclopedia.percolator_training_set_size} \\
         ${params.encyclopedia.local_options} \\
     | tee logs/${mzml_gz_file.baseName}.local.log
+    gzip ${mzml_gz_file.baseName}.features.txt
     """
 
     stub:
