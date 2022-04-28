@@ -1,0 +1,92 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://raw.githubusercontent.com/nf-core/encyclopedia/master/nextflow_schema.json",
+    "title": "nf-core/encyclopedia pipeline parameters",
+    "description": "A bioinformatics analysis pipeline used for quantitative processing of data independent (DIA) proteomics data",
+    "type": "object",
+    "definitions": {
+        "input_output_options": {
+            "title": "Input/output options",
+            "type": "object",
+            "fa_icon": "fas fa-terminal",
+            "description": "Define where the pipeline should find input data and save output data.",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "description": "Email address for completion summary.",
+                    "fa_icon": "fas fa-envelope",
+                    "help_text": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.",
+                    "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
+                }
+            }
+        },
+        "institutional_config_options": {
+            "title": "Institutional config options",
+            "type": "object",
+            "fa_icon": "fas fa-university",
+            "description": "Parameters used to describe centralised config profiles. These should not be edited.",
+            "help_text": "The centralised nf-core configuration profiles use a handful of pipeline parameters to describe themselves. This information is then printed to the Nextflow log when you run a pipeline. You should not need to change these values when you run a pipeline."
+        },
+        "max_job_request_options": {
+            "title": "Max job request options",
+            "type": "object",
+            "fa_icon": "fab fa-acquisitions-incorporated",
+            "description": "Set the top limit for requested resources for any single job.",
+            "help_text": "If you are running on a smaller system, a pipeline step requesting more resources than are available may cause the Nextflow to stop the run with an error. These options allow you to cap the maximum resources requested by any single job so that the pipeline will run on your system.\n\nNote that you can not _increase_ the resources requested by any job using these options. For that you will need your own configuration file. See [the nf-core website](https://nf-co.re/usage/configuration) for details."
+        },
+        "generic_options": {
+            "title": "Generic options",
+            "type": "object",
+            "fa_icon": "fas fa-file-import",
+            "description": "Less common options for the pipeline, typically set in a config file.",
+            "help_text": "These options are common to all nf-core pipelines and allow you to customise some of the core preferences for how the pipeline runs.\n\nTypically these options would be set in a Nextflow config file loaded for all pipeline runs, such as `~/.nextflow/config`."
+        }
+    },
+    "allOf": [
+        {
+            "$ref": "#/definitions/input_output_options"
+        },
+        {
+            "$ref": "#/definitions/institutional_config_options"
+        },
+        {
+            "$ref": "#/definitions/max_job_request_options"
+        },
+        {
+            "$ref": "#/definitions/generic_options"
+        }
+    ],
+    "properties": {
+        "experimentName": {
+            "type": "string",
+            "default": "purple-pig"
+        },
+        "publish_dir": {
+            "type": "string",
+            "default": "results"
+        },
+        "store_dir": {
+            "type": "string",
+            "default": "store"
+        },
+        "mzml_dir": {
+            "type": "string",
+            "default": "mzml"
+        },
+        "ms_file_csv": {
+            "type": "string"
+        },
+        "use_msstats": {
+            "type": "string",
+            "default": "true"
+        },
+        "aggregate": {
+            "type": "string",
+            "default": "false"
+        }
+    },
+    "required": [
+        "ms_file_csv",
+        "experimentName"
+    ]
+}

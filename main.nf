@@ -92,5 +92,4 @@ workflow.onError {
         subject: "Error: ${params.experimentName} failed.",
         body: "Experiment run ${params.experimentName} using Encyclopedia failed.",
     )
-
 }
