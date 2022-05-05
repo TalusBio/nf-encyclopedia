@@ -1,5 +1,5 @@
-include { ENCYCLOPEDIA_LOCAL; ENCYCLOPEDIA_GLOBAL } from "../modules/encyclopedia"
-include { MSSTATS } from "../modules/msstats"
+include { ENCYCLOPEDIA_LOCAL; ENCYCLOPEDIA_GLOBAL } from "../../modules/local/encyclopedia"
+include { MSSTATS } from "../../modules/local/msstats"
 
 workflow BUILD_CHROMATOGRAM_LIBRARY {
     take:

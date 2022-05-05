@@ -1,4 +1,4 @@
-include { MSCONVERT } from "../modules/msconvert.nf"
+include { MSCONVERT } from "../../modules/local/msconvert.nf"
 
 
 workflow CONVERT_TO_MZML {

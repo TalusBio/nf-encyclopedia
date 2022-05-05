@@ -3,12 +3,12 @@
 nextflow.enable.dsl = 2
 
 // Subworkflows:
-include { CONVERT_TO_MZML } from "./subworkflows/msconvert"
+include { CONVERT_TO_MZML } from "./subworkflows/local/msconvert"
 include {
     BUILD_CHROMATOGRAM_LIBRARY;
     PERFORM_QUANT;
     PERFORM_GLOBAL_QUANT
-} from "./subworkflows/encyclopedia"
+} from "./subworkflows/local/encyclopedia"
 
 
 def replace_missing_elib(elib) {
