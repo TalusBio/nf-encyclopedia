@@ -1,7 +1,6 @@
 process ENCYCLOPEDIA_LOCAL {
     echo true
     publishDir "${params.publish_dir}/${group}", mode: "copy"
-    storeDir "${params.store_dir}/${group}"
 
     input:
         tuple val(group), path(mzml_gz_file)
@@ -13,7 +12,7 @@ process ENCYCLOPEDIA_LOCAL {
             val(group),
             path("${mzml_gz_file.baseName}.elib"),
             path("${file(mzml_gz_file.baseName).baseName}.dia"),
-            path("${mzml_gz_file.baseName}.features.txt"),
+            path("${mzml_gz_file.baseName}.features.txt.gz"),
             path("${mzml_gz_file.baseName}.encyclopedia.txt"),
             path("${mzml_gz_file.baseName}.encyclopedia.decoy.txt"),
             path("logs/${mzml_gz_file.baseName}.local.log"),
@@ -29,8 +28,11 @@ process ENCYCLOPEDIA_LOCAL {
         -f ${fasta_file} \\
         -l ${library_file} \\
         -percolatorVersion ${params.encyclopedia.percolator_version} \\
+        -percolatorTrainingFDR ${params.encyclopedia.percolator_train_fdr} \\
+        -percolatorTrainingSetSize ${params.encyclopedia.percolator_training_set_size} \\
         ${params.encyclopedia.local_options} \\
     | tee logs/${mzml_gz_file.baseName}.local.log
+    gzip ${mzml_gz_file.baseName}.features.txt
     """
 
     stub:
@@ -38,7 +40,7 @@ process ENCYCLOPEDIA_LOCAL {
     mkdir logs
     touch ${mzml_gz_file.baseName}.elib
     touch ${file(mzml_gz_file.baseName).baseName}.dia
-    touch ${mzml_gz_file.baseName}.features.txt
+    touch ${mzml_gz_file.baseName}.features.txt.gz
     touch ${mzml_gz_file.baseName}.encyclopedia.txt
     touch ${mzml_gz_file.baseName}.encyclopedia.decoy.txt
     touch logs/${mzml_gz_file.baseName}.local.log
@@ -48,7 +50,6 @@ process ENCYCLOPEDIA_LOCAL {
 process ENCYCLOPEDIA_GLOBAL {
     echo true
     publishDir "${params.publish_dir}/${group}", mode: "copy"
-    storeDir "${params.store_dir}/${group}"
 
     input:
         tuple val(group), path(local_elib_files), path(local_dia_files), path(local_feature_files), path(local_encyclopedia_files)
@@ -70,6 +71,7 @@ process ENCYCLOPEDIA_GLOBAL {
     """
     source ~/.bashrc
     mkdir logs
+    gunzip ${local_feature_files}
     find * -name '*\\.mzML\\.*' -exec bash -c 'mv \$0 \${0/\\.mzML/\\.dia}' {} \\;
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
