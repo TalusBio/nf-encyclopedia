@@ -81,6 +81,8 @@ process ENCYCLOPEDIA_GLOBAL {
         -f ${fasta_file} \\
         -l ${library_file} \\
         -percolatorVersion ${params.encyclopedia.percolator_version} \\
+        -percolatorTrainingFDR ${params.encyclopedia.percolator_train_fdr} \\
+        -percolatorTrainingSetSize ${params.encyclopedia.percolator_training_set_size} \\
         ${params.encyclopedia.global_options} \\
     | tee logs/result-${output_postfix}.global.log
     echo 'Run,Unique Proteins,Unique Peptides' > ${output_postfix}_unique_peptides_proteins.csv
