@@ -44,8 +44,11 @@ workflow PERFORM_QUANT {
         dlib
         fasta
         local_only
+        ms_file_csv
 
     main:
+    ms_file_csv.view()
+
         // Ungroup files for local runs
         // output is [group, mzml_gz_file, elib]
         quant_files
@@ -83,9 +86,10 @@ workflow PERFORM_QUANT {
             | set { global_files }
 
             // Run MSstats
-            // Ouput is [group, input_csv, feature_csv ]
+            // Ouput is [group, input_csv, feature_rda ]
             global_files
             | map { tuple it[0], it[2] }
+            | join { ms_file_csv }
             | MSSTATS
             | set { msstats_files }
         }
@@ -102,6 +106,7 @@ workflow PERFORM_GLOBAL_QUANT {
         local_quant_files
         dlib
         fasta
+        ms_file_csv
 
     main:
         // Set the group for all runs to "global"
@@ -123,9 +128,10 @@ workflow PERFORM_GLOBAL_QUANT {
         | set { global_files }
 
         // Run MSstats
-        // Ouput is ["global", input_csv, feature_csv ]
+        // Ouput is ["global", input_csv, feature_rda ]
         global_files
         | map { tuple it[0], it[2] }
+        | join { ms_file_csv }
         | MSSTATS
         | set { msstats_files }
 

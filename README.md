@@ -27,17 +27,21 @@ nextflow run /path/to/nf-encyclopedia --<parameters>
 
 Where `<parameters>` are the pipeline parameters. The pipeline has 3 required parameters:
 
-- `ms_file_csv` - A comma-separated values (CSV) file containing the raw mass spectrometry data files. It is required to have 3 columns: `file`, `chrlib`, and `group`.
+- `ms_file_csv` - A comma-separated values (CSV) file containing the raw mass spectrometry data files. It is required to have 4 columns: `file`, `chrlib`, and `group`.
   * `file` specifies the path of a raw MS data file.
   * `chrlib` is either `true` or `false` and specifies whether the file is part of a chromatogram library ("library files") or used for quantitation ("quant files"), respectively.
-  * `group` specifies an experiment group. Quant files will searched only using library files from the same group. Any group with no library files will be searched directly with the DLIB instead. Additionally, the group will specify a subdirectory in which the pipeline results will be written. An example of such a file would be:
+  * `group` specifies an experiment group. Quant files will searched only using library files from the same group. Any group with no library files will be searched directly with the DLIB instead. Additionally, the group will specify a subdirectory in which the pipeline results will be written. 
+  * `condition` is used by comparisons with MSstats.
+  
+  
+  An example of such a file would be:
 ```
-      file, chrlib, group
-data/a.raw,   true,     x
-data/b.raw,   true,     y
-data/c.raw,  false,     x
-data/d.raw,  false,     y
-data/e.raw,  false,     z
+      file, chrlib, group, condition
+data/a.raw,   true,     x,      pool
+data/b.raw,   true,     y,      pool
+data/c.raw,  false,     x,      case
+data/d.raw,  false,     y,   control
+data/e.raw,  false,     z,      case
 ```
 
 - `encyclopedia.fasta` - The FASTA file of protein sequences for EncyclopeDIA to use. This must match the provided DLIB.

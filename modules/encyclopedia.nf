@@ -1,5 +1,5 @@
 process ENCYCLOPEDIA_LOCAL {
-    echo true
+    debug true
     publishDir "${params.publish_dir}/${group}", mode: "copy"
 
     input:
@@ -48,7 +48,7 @@ process ENCYCLOPEDIA_LOCAL {
 }
 
 process ENCYCLOPEDIA_GLOBAL {
-    echo true
+    debug true
     publishDir "${params.publish_dir}/${group}", mode: "copy"
 
     input:

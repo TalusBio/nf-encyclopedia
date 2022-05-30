@@ -15,10 +15,11 @@ def base_project(tmp_path):
     chrlibs = ["true"] * 6 + ["false"] * 7
     groups = "xy" * 6 + "z"
 
+
     # create an input csv
-    ms_files = ["file,chrlib,group"]
-    for row in zip(raw_files, chrlibs, groups):
-        row = list(row)
+    ms_files = ["file,chrlib,group,condition,bioreplicate"]
+    for i, row in enumerate(zip(raw_files, chrlibs, groups)):
+        row = list(row) + ["blah", str(i)]
         row[0] = str(row[0])
         ms_files.append(",".join(row))
 

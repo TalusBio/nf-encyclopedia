@@ -24,6 +24,7 @@ workflow {
     // Get .fasta and .dlib from metadata-bucket
     fasta = Channel.fromPath(params.encyclopedia.fasta, checkIfExists: true).first()
     dlib = Channel.fromPath(params.encyclopedia.dlib, checkIfExists: true).first()
+    ms_file_csv = Channel.fromPath(params.ms_file_csv, checkIfExists: true).first()
 
     // Get the narrow and wide files:
     ms_files = Channel
@@ -69,7 +70,7 @@ workflow {
     // local -> [group, [local_elib_files], [mzml_gz_files]]
     // global -> [group, global_elib, peptides, proteins] or null
     // msstats -> [group, input_csv, feature_csv]
-    PERFORM_QUANT(quant_files, dlib, fasta, params.aggregate)
+    PERFORM_QUANT(quant_files, dlib, fasta, params.aggregate, ms_file_csv)
     | set { quant_results }
 
     // Perform an global analysis on all files if needed:

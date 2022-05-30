@@ -1,5 +1,5 @@
 process MSCONVERT {
-    echo true
+    debug true
     publishDir "${params.mzml_dir}/${outputDir}", mode: "copy"
     storeDir "${params.store_dir}/${outputDir}"
 
