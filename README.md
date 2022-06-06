@@ -1,26 +1,29 @@
-# NextFlow - EncyclopeDIA
+# nf-encyclopedia
 
 This repository contains Talus' NextFlow pipeline for EncyclopeDIA. It connects three open-source tools---msconvert, EncylopeDIA, and MSstats---to go from raw mass spectrometry data to quantified peptides and proteins that are ready for statistical analysis. 
 
+*We are still in the process of moving the containers used in this pipeline to open-source.*
+
+![](static/pipeline.svg)
+
 ## Dependencies
 To run the pipeline locally, you'll need these dependencies:
-- [NextFlow](https://www.nextflow.io/) - Personally I install it using conda:
+- [NextFlow](https://www.nextflow.io/). Installing it with conda:
 
 ``` sh
 conda install -c bioconda nextflow
 ```
 
-- [Docker](https://www.docker.com/)[^1] - On my Mac, I install it with [Homebrew](https://brew.sh/)
+- [Docker](https://www.docker.com/). Installing it with [Homebrew](https://brew.sh/) on a Mac:
 
 ``` sh
 brew install docker
 ```
 
-[^1]: Note that Docker is only required to really run the pipeline. Testing using NextFlow process stubs can be done without it.
 
 ## Usage
-Generally, we launch this pipeline from our [pipeline launcher](https://share.streamlit.io/talusbio/talus-pipeline-launcher/main/apps/pipeline_launcher.py). However, it can be launched like any other NextFlow pipeline locally:
 
+The nf-encyclopedia pipeline can be launched in the same way as other NextFlow workflows:
 ``` sh
 nextflow run /path/to/nf-encyclopedia --<parameters>
 ```
@@ -67,56 +70,3 @@ Once installed, tests can be run from the root directory of the workflow. These 
 ``` sh
 pytest
 ```
-
-
-### Git Flow
-We use git flow for features, releases, fixes, etc. Here's an introductory article: https://jeffkreeftmeijer.com/git-flow/.
-And a cheatsheet: https://danielkummer.github.io/git-flow-cheatsheet/index.html.
-
-### Releases
-```
-# See existing tags
-git tag
-
-# Create a new tag
-git tag -a v0.0.1 -m "First version"
-
-# Push to new tag
-git push origin "v0.0.1"
-```
-
-## Known Issues
-### Command `aws` cannot be found
-Problem:
-When creating the custom AMI, make sure to install the aws-cli outside of the /usr/ directory. During the docker mount it will overwrite it and render the docker image content unusable. 
-
-Solution: 
-Install the `aws` tool at `/home/ec2-user/bin/aws`:
-```
-# https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-linux.html
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-sudo ./aws/install -b /home/ec2-user/bin
-aws --version
-```
-
-Also mentioned here: https://github.com/nextflow-io/nextflow/issues/2322
-
-### Command 'ps' required by nextflow to collect task metrics cannot be found
-Problem: 
-Nextflow needs certain tools installed on the system to collect metrics: https://www.nextflow.io/docs/latest/tracing.html#tasks.
-
-Solution:
-Install `ps` in the docker image, e.g.
-```
-RUN apt-get update && \
-    apt-get install procps -y && \
-    apt-get clean
-```
-
-Also mentioned here:
-https://github.com/replikation/What_the_Phage/issues/89
-
-## Resources
-- Running Nextflow on AWS - https://t-neumann.github.io/pipelines/AWS-pipeline/
-- Getting started with Nextflow - https://carpentries-incubator.github.io/workflows-nextflow/aio/index.html
