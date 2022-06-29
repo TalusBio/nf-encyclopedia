@@ -12,10 +12,10 @@ process ENCYCLOPEDIA_LOCAL {
             val(group),
             path("${mzml_gz_file.baseName}.elib"),
             path("${file(mzml_gz_file.baseName).baseName}.dia"),
-            // path("${mzml_gz_file.baseName}.features.txt.gz"),
+            path("${mzml_gz_file.baseName}.features.txt.gz"),
             path("${mzml_gz_file.baseName}.encyclopedia.txt"),
             path("${mzml_gz_file.baseName}.encyclopedia.decoy.txt"),
-            path("logs/${mzml_gz_file.baseName}.local.log")
+            path("logs/${mzml_gz_file.baseName}.local.log"),
         )
 
     script:
@@ -40,7 +40,7 @@ process ENCYCLOPEDIA_LOCAL {
     mkdir logs
     touch ${mzml_gz_file.baseName}.elib
     touch ${file(mzml_gz_file.baseName).baseName}.dia
-    # touch ${mzml_gz_file.baseName}.features.txt.gz
+    touch ${mzml_gz_file.baseName}.features.txt.gz
     touch ${mzml_gz_file.baseName}.encyclopedia.txt
     touch ${mzml_gz_file.baseName}.encyclopedia.decoy.txt
     touch logs/${mzml_gz_file.baseName}.local.log
@@ -52,16 +52,10 @@ process ENCYCLOPEDIA_GLOBAL {
     publishDir "${params.publish_dir}/${group}", mode: "copy"
 
     input:
-    tuple(
-        val(group),
-        path(local_elib_files),
-        path(local_dia_files),
-        //path(local_feature_files),
-        path(local_encyclopedia_files)
-    )
-    path(library_file)
-    path(fasta_file)
-    val output_postfix
+        tuple val(group), path(local_elib_files), path(local_dia_files), path(local_feature_files), path(local_encyclopedia_files)
+        path(library_file)
+        path(fasta_file)
+        val output_postfix
 
     output:
         tuple(
@@ -77,7 +71,7 @@ process ENCYCLOPEDIA_GLOBAL {
     """
     source ~/.bashrc
     mkdir logs
-    # gunzip ${local_feature_files}
+    gunzip ${local_feature_files}
     find * -name '*\\.mzML\\.*' -exec bash -c 'mv \$0 \${0/\\.mzML/\\.dia}' {} \\;
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
