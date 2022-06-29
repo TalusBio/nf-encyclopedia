@@ -19,7 +19,7 @@ workflow BUILD_CHROMATOGRAM_LIBRARY {
         // Ouput is [group, [local_elib_files], [local_dia_files], [local_feature_files], [local_encyclopedia_files]]
         ENCYCLOPEDIA_LOCAL(ungrouped_files, dlib, fasta)
         | groupTuple(by: 0)
-        | map { tuple it[0], it[1], it[2], it[3], it[4] }
+        | map { tuple it[0], it[1], it[2], it[3]}//, it[4] }
         | set { local_files }
 
         // Do the global analysis
@@ -64,7 +64,7 @@ workflow PERFORM_QUANT {
             fasta
         )
         | groupTuple(by: 0)
-        | map { tuple it[0], it[1], it[2], it[3], it[4] }
+        | map { tuple it[0], it[1], it[2], it[3]}//, it[4] }
         | set { local_files }
 
         // Only run group-wise global if needed.
