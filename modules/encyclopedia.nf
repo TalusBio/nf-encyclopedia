@@ -77,7 +77,6 @@ process ENCYCLOPEDIA_GLOBAL {
     """
     source ~/.bashrc
     mkdir logs
-    # gunzip ${local_feature_files}
     find * -name '*\\.mzML\\.*' -exec bash -c 'mv \$0 \${0/\\.mzML/\\.dia}' {} \\;
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
