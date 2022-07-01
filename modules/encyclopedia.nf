@@ -90,7 +90,7 @@ process ENCYCLOPEDIA_GLOBAL {
     echo 'Run,Unique Proteins,Unique Peptides' > ${output_postfix}_unique_peptides_proteins.csv
     find * -name '*\\.elib' -exec bash -c 'unique_peptides_proteins \$0 >> ${output_postfix}_unique_peptides_proteins.csv' {} \\;
     echo 'Gzipping result files...'
-    gzip ${stem}.peptides.txt.gz ${stem}.proteins.txt.gz
+    gzip ${stem}.peptides.txt ${stem}.proteins.txt
     echo 'DONE!'
     """
 
