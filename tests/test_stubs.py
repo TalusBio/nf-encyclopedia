@@ -7,7 +7,6 @@ def test_no_aggregate(base_project, tmp_path):
     config, *_ = base_project
     cmd = ["nextflow", "run", "main.nf"] + config
     subprocess.run(cmd, check=True)
-
     base = tmp_path / "results"
     expected = [
         base / "x" / "result-quant.elib",
@@ -36,7 +35,6 @@ def test_aggregate(base_project, tmp_path):
     cmd += config
 
     subprocess.run(cmd, check=True)
-
     base = tmp_path / "results"
     not_expected = [
         base / "x" / "result-quant.elib",
