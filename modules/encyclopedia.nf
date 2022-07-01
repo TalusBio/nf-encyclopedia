@@ -68,6 +68,7 @@ process ENCYCLOPEDIA_GLOBAL {
         )
 
     script:
+    def stem = "result-${output_postfix}.elib"
     """
     source ~/.bashrc
     mkdir logs
@@ -76,7 +77,7 @@ process ENCYCLOPEDIA_GLOBAL {
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -libexport \\
-        -o result-${output_postfix}.elib \\
+        -o ${stem} \\
         -i ./ \\
         -f ${fasta_file} \\
         -l ${library_file} \\
@@ -85,9 +86,12 @@ process ENCYCLOPEDIA_GLOBAL {
         -percolatorTrainingSetSize ${params.encyclopedia.percolator_training_set_size} \\
         ${params.encyclopedia.global_options} \\
     | tee logs/result-${output_postfix}.global.log
+    echo 'Finding unique peptides and proteins...'
     echo 'Run,Unique Proteins,Unique Peptides' > ${output_postfix}_unique_peptides_proteins.csv
     find * -name '*\\.elib' -exec bash -c 'unique_peptides_proteins \$0 >> ${output_postfix}_unique_peptides_proteins.csv' {} \\;
+    echo 'Gzipping result files...'
     gzip ${stem}.peptides.txt.gz ${stem}.proteins.txt.gz
+    echo 'DONE!'
     """
 
     stub:
