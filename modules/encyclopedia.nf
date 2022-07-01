@@ -49,7 +49,7 @@ process ENCYCLOPEDIA_LOCAL {
 
 process ENCYCLOPEDIA_GLOBAL {
     debug true
-    publishDir "${params.publish_dir}/${group}", mode: "copy"
+    publishDir "${params.publish_dir}/${group}", mode: "copy", failOnError: true
 
     input:
         tuple val(group), path(local_elib_files), path(local_dia_files), path(local_feature_files), path(local_encyclopedia_files)
@@ -61,8 +61,8 @@ process ENCYCLOPEDIA_GLOBAL {
         tuple(
             val(group),
             path("result-${output_postfix}.elib"),
-            path("result-${output_postfix}.elib.peptides.txt.gz"),
-            path("result-${output_postfix}.elib.proteins.txt.gz"),
+            path("result-${output_postfix}.elib.peptides.txt"),
+            path("result-${output_postfix}.elib.proteins.txt"),
             path("logs/result-${output_postfix}.global.log"),
             path("${output_postfix}_unique_peptides_proteins.csv")
         )
@@ -89,8 +89,6 @@ process ENCYCLOPEDIA_GLOBAL {
     echo 'Finding unique peptides and proteins...'
     echo 'Run,Unique Proteins,Unique Peptides' > ${output_postfix}_unique_peptides_proteins.csv
     find * -name '*\\.elib' -exec bash -c 'unique_peptides_proteins \$0 >> ${output_postfix}_unique_peptides_proteins.csv' {} \\;
-    echo 'Gzipping result files...'
-    gzip ${stem}.peptides.txt ${stem}.proteins.txt
     echo 'DONE!'
     """
 
@@ -99,8 +97,8 @@ process ENCYCLOPEDIA_GLOBAL {
     """
     mkdir logs
     touch ${stem}.elib
-    touch ${stem}.elib.peptides.txt.gz
-    touch ${stem}.elib.proteins.txt.gz
+    touch ${stem}.elib.peptides.txt
+    touch ${stem}.elib.proteins.txt
     touch logs/${stem}.global.log
     touch ${output_postfix}_unique_peptides_proteins.csv
     """
