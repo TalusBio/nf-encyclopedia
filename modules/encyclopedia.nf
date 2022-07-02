@@ -49,7 +49,7 @@ process ENCYCLOPEDIA_LOCAL {
 
 process ENCYCLOPEDIA_GLOBAL {
     debug true
-    publishDir "${params.publish_dir}/${group}", mode: "copy", failOnError: true
+    publishDir "${params.publish_dir}/${group}", failOnError: true
 
     input:
         tuple val(group), path(local_elib_files), path(local_dia_files), path(local_feature_files), path(local_encyclopedia_files)
