@@ -12,8 +12,12 @@ def base_project(tmp_path):
     for raw_file in raw_files:
         raw_file.touch()
 
-    chrlibs = ["true"] * 6 + ["false"] * 7
-    groups = "xy" * 6 + "z"
+    mzml_file = raw_dir / "n.mzML.gz"
+    mzml_file.touch()
+    raw_files.append(mzml_file)
+
+    chrlibs = ["true"] * 6 + ["false"] * 8
+    groups = "xy" * 6 + "z" * 2
 
     # create an input csv
     ms_files = ["file,chrlib,group"]

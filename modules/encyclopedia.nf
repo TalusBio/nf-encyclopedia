@@ -1,6 +1,6 @@
 process ENCYCLOPEDIA_LOCAL {
-    echo true
-    publishDir "${params.publish_dir}/${group}", mode: "copy"
+    debug true
+    publishDir "${params.publish_dir}/${group}", mode: "copy", failOnError: true
 
     input:
         tuple val(group), path(mzml_gz_file)
@@ -48,8 +48,8 @@ process ENCYCLOPEDIA_LOCAL {
 }
 
 process ENCYCLOPEDIA_GLOBAL {
-    echo true
-    publishDir "${params.publish_dir}/${group}", mode: "copy"
+    debug true
+    publishDir "${params.publish_dir}/${group}", model: "copy", failOnError: true
 
     input:
         tuple val(group), path(local_elib_files), path(local_dia_files), path(local_feature_files), path(local_encyclopedia_files)
@@ -60,14 +60,15 @@ process ENCYCLOPEDIA_GLOBAL {
     output:
         tuple(
             val(group),
-            path("result-${output_postfix}*.elib"),
-            path("result-${output_postfix}*.peptides.txt"),
-            path("result-${output_postfix}*.proteins.txt"),
-            path("logs/result-${output_postfix}*.global.log"),
+            path("result-${output_postfix}.elib"),
+            path("result-${output_postfix}.elib.peptides.txt"),
+            path("result-${output_postfix}.elib.proteins.txt"),
+            path("logs/result-${output_postfix}.global.log"),
             path("${output_postfix}_unique_peptides_proteins.csv")
         )
 
     script:
+    def stem = "result-${output_postfix}.elib"
     """
     source ~/.bashrc
     mkdir logs
@@ -76,7 +77,7 @@ process ENCYCLOPEDIA_GLOBAL {
     java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -libexport \\
-        -o result-${output_postfix}.elib \\
+        -o ${stem} \\
         -i ./ \\
         -f ${fasta_file} \\
         -l ${library_file} \\
@@ -85,8 +86,10 @@ process ENCYCLOPEDIA_GLOBAL {
         -percolatorTrainingSetSize ${params.encyclopedia.percolator_training_set_size} \\
         ${params.encyclopedia.global_options} \\
     | tee logs/result-${output_postfix}.global.log
+    echo 'Finding unique peptides and proteins...'
     echo 'Run,Unique Proteins,Unique Peptides' > ${output_postfix}_unique_peptides_proteins.csv
     find * -name '*\\.elib' -exec bash -c 'unique_peptides_proteins \$0 >> ${output_postfix}_unique_peptides_proteins.csv' {} \\;
+    echo 'DONE!'
     """
 
     stub:
@@ -94,8 +97,8 @@ process ENCYCLOPEDIA_GLOBAL {
     """
     mkdir logs
     touch ${stem}.elib
-    touch ${stem}.peptides.txt
-    touch ${stem}.proteins.txt
+    touch ${stem}.elib.peptides.txt
+    touch ${stem}.elib.proteins.txt
     touch logs/${stem}.global.log
     touch ${output_postfix}_unique_peptides_proteins.csv
     """
