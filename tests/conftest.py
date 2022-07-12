@@ -50,7 +50,6 @@ def base_project(tmp_path):
         "-w", str(tmp_path / "work"),
         "--publish_dir", str(tmp_path / "results"),
         "--mzml_dir", str(tmp_path / "mzml"),
-        "--email", "''",
         "--encyclopedia.fasta", str(fasta_file),
         "--encyclopedia.dlib", str(dlib_file),
         "--ms_file_csv", str(ms_files_csv),
