@@ -1,6 +1,7 @@
 # nf-encyclopedia
 
-This repository contains Talus' NextFlow pipeline for EncyclopeDIA. It connects three open-source tools---msconvert, EncylopeDIA, and MSstats---to go from raw mass spectrometry data to quantified peptides and proteins that are ready for statistical analysis. 
+This repository contains Talus' NextFlow pipeline for EncyclopeDIA. 
+It connects three open-source tools---msconvert, EncylopeDIA, and MSstats---to go from raw mass spectrometry data to quantified peptides and proteins that are ready for statistical analysis. 
 
 *We are still in the process of moving the containers used in this pipeline to open-source.*
 
