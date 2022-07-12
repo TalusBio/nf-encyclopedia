@@ -2,7 +2,7 @@ name: Release Nextflow Workflow
 
 on: 
   release:
-    types: [created]
+    types: [published, edited]
 
 jobs:
   deploy:
