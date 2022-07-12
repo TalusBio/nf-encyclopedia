@@ -77,20 +77,3 @@ workflow {
         PERFORM_GLOBAL_QUANT(quant_results.local, dlib, fasta)
     }
 }
-
-workflow.onComplete {
-    sendMail( 
-        to: params.email,
-        subject: "Success: ${params.experimentName} succeeded.",
-        body: "Experiment run ${params.experimentName} using Encyclopedia succeeded.",
-    )
-}
-
-workflow.onError {
-    sendMail( 
-        to: params.email,
-        subject: "Error: ${params.experimentName} failed.",
-        body: "Experiment run ${params.experimentName} using Encyclopedia failed.",
-    )
-
-}
