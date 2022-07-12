@@ -1,17 +1,17 @@
 name: Release Nextflow Workflow
 
 on: 
-  push:
-    tags:
-      - '*'
+  release:
+    types: [created]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-    environment:
-      name: prod
+
     steps:
       - uses: actions/checkout@v2
-      - uses: ncipollo/release-action@v1
+
+      - name: Create latest tag
+        uses: Actions-R-Us/actions-tagger@latest
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          publish_latest_tag: true
