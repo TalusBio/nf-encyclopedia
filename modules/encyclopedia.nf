@@ -1,5 +1,5 @@
 process ENCYCLOPEDIA_LOCAL {
-    publishDir "${params.publish_dir}/${group}", mode: "copy"
+    publishDir "${params.publish_dir}/${group}", mode: "copy", failOnError: true
 
     input:
         tuple val(group), path(mzml_gz_file)
@@ -47,7 +47,7 @@ process ENCYCLOPEDIA_LOCAL {
 }
 
 process ENCYCLOPEDIA_GLOBAL {
-    publishDir "${params.publish_dir}/${group}", model: "copy"
+    publishDir "${params.publish_dir}/${group}", model: "copy", failOnError: true
 
     input:
         tuple val(group), path(local_elib_files), path(local_dia_files), path(local_feature_files), path(local_encyclopedia_files)
