@@ -1,5 +1,4 @@
 process ENCYCLOPEDIA_LOCAL {
-    debug true
     publishDir "${params.publish_dir}/${group}", mode: "copy", failOnError: true
 
     input:
@@ -48,7 +47,6 @@ process ENCYCLOPEDIA_LOCAL {
 }
 
 process ENCYCLOPEDIA_GLOBAL {
-    debug true
     publishDir "${params.publish_dir}/${group}", model: "copy", failOnError: true
 
     input:
