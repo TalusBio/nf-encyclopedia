@@ -77,3 +77,8 @@ workflow {
         PERFORM_GLOBAL_QUANT(quant_results.local, dlib, fasta)
     }
 }
+
+
+workflow dummy {
+    channel.of('blah')
+}
