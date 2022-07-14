@@ -79,6 +79,53 @@ workflow {
 }
 
 
+// A dummy workflow for testing:
 workflow dummy {
-    channel.of('blah')
+    channel.of('This workflow doesn\'t do anything...')
+}
+
+
+// Email notifications:
+workflow.onComplete {
+    def msg = """\
+        ${params.experimentName}
+        Pipeline execution summary
+        --------------------------
+        Completed at  : ${workflow.complete}
+        Duration      : ${workflow.duration}
+        Success       : ${workflow.success}
+        Exit Status   : ${workflow.exitStatus}
+        """
+        .stripIndent()
+
+    sendMail(
+        to: "$params.email",
+        subject: "${params.experimentName} Completed",
+        body: msg
+    )
+}
+
+
+// Email notifications:
+workflow.onComplete {
+    def msg = """\
+        ${params.experimentName}
+        Pipeline execution summary
+        --------------------------
+        Completed at  : ${workflow.complete}
+        Duration      : ${workflow.duration}
+        Success       : ${workflow.success}
+        Exit Status   : ${workflow.exitStatus}
+        Error Message :
+            ${workflow.errorMessage}
+        Error Report  :
+            ${workflow.errorReport}
+        """
+        .stripIndent()
+
+    sendMail(
+        to: "$params.email",
+        subject: "${params.experimentName} Failed",
+        body: msg
+    )
 }
