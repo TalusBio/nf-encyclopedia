@@ -107,7 +107,7 @@ workflow.onComplete {
 
 
 // Email notifications:
-workflow.onComplete {
+workflow.onError {
     def msg = """\
         ${params.experimentName}
         Pipeline execution summary
