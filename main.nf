@@ -11,8 +11,25 @@ include {
 } from "./subworkflows/encyclopedia"
 
 
+//
+// Used for email notifications
+//
+def email() {
+    def msg = TalusTemplate.email(workflow, params)
+    if (params.email) {
+        sendMail(
+            to: "$params.email",
+            subject: "${params.experimentName} Failed",
+            body: msg
+        )
+    }
+}
+
+
+//
+// Use the DLIB when the ELIB is unavailable.
+//
 def replace_missing_elib(elib) {
-    // Use the DLIB when the ELIB is unavailable.
     if (elib == null) {
         return file(params.encyclopedia.dlib)
     }
@@ -20,8 +37,11 @@ def replace_missing_elib(elib) {
 }
 
 
+//
+// The main workflow
+//
 workflow {
-    // Get .fasta and .dlib from metadata-bucket
+    // Get .fasta and .dlib
     fasta = Channel.fromPath(params.encyclopedia.fasta, checkIfExists: true).first()
     dlib = Channel.fromPath(params.encyclopedia.dlib, checkIfExists: true).first()
 
@@ -65,7 +85,7 @@ workflow {
     | set { quant_files }
 
     // Analyze the quantitative runs with EncyclopeDIA.
-    // The output has two channels:
+    // The output has three channels:
     // local -> [group, [local_elib_files], [mzml_gz_files]]
     // global -> [group, global_elib, peptides, proteins] or null
     // msstats -> [group, input_csv, feature_csv]
@@ -86,46 +106,5 @@ workflow dummy {
 
 
 // Email notifications:
-workflow.onComplete {
-    def msg = """\
-        ${params.experimentName}
-        Pipeline execution summary
-        --------------------------
-        Completed at  : ${workflow.complete}
-        Duration      : ${workflow.duration}
-        Success       : ${workflow.success}
-        Exit Status   : ${workflow.exitStatus}
-        """
-        .stripIndent()
-
-    sendMail(
-        to: "$params.email",
-        subject: "${params.experimentName} Completed",
-        body: msg
-    )
-}
-
-
-// Email notifications:
-workflow.onError {
-    def msg = """\
-        ${params.experimentName}
-        Pipeline execution summary
-        --------------------------
-        Completed at  : ${workflow.complete}
-        Duration      : ${workflow.duration}
-        Success       : ${workflow.success}
-        Exit Status   : ${workflow.exitStatus}
-        Error Message :
-            ${workflow.errorMessage}
-        Error Report  :
-            ${workflow.errorReport}
-        """
-        .stripIndent()
-
-    sendMail(
-        to: "$params.email",
-        subject: "${params.experimentName} Failed",
-        body: msg
-    )
-}
+workflow.onComplete { email() }
+workflow.onError { email() }
