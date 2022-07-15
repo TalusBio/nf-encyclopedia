@@ -15,11 +15,14 @@ include {
 // Used for email notifications
 //
 def email() {
-    def msg = TalusTemplate.email(workflow, params)
+    // Create the email text:
+    (subject, msg) = TalusTemplate.email(workflow, params)
+
+    // Send the email:
     if (params.email) {
         sendMail(
             to: "$params.email",
-            subject: "${params.experimentName} Failed",
+            subject: subject,
             body: msg
         )
     }

@@ -14,7 +14,7 @@ class TalusTemplate {
     //     The HTML email body.
     public static String email(workflow, params) {
 
-        // Set up email variables
+        // Set the email subject:
         def subject = "[$workflow.manifest.name] SUCCESS: $params.experimentName"
         if (!workflow.success) {
             subject = "[$workflow.manifest.name] FAILED: $params.experimentName"
@@ -23,12 +23,11 @@ class TalusTemplate {
         // Used in ../assets/email_template.html
         def email_fields = [:]
         email_fields['started']      = workflow.start
-        email_fields['completed']    = workflow.complete
-        email_fields['nfVersion']    = workflow.nextflow.version
-        email_fields['version']      = workflow.manifest.version
-        email_fields['runName']      = workflow.runName
-        email_fields['success']      = workflow.success
         email_fields['dateComplete'] = workflow.complete
+        email_fields['nfVersion']    = workflow.nextflow.version
+        email_fields['runName']      = workflow.runName
+        email_fields['uuid']         = workflow.sessionId
+        email_fields['success']      = workflow.success
         email_fields['duration']     = workflow.duration
         email_fields['exitStatus']   = workflow.exitStatus
         email_fields['errorMessage'] = (workflow.errorMessage ?: 'None')
@@ -43,6 +42,6 @@ class TalusTemplate {
         def html_template = engine.createTemplate(html_file).make(email_fields)
         def email_html = html_template.toString()
 
-        return email_html
+        return [subject, email_html]
     }
 }
