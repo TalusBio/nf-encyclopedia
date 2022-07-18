@@ -1,5 +1,4 @@
 process MSSTATS {
-    echo true
     publishDir "${params.publish_dir}/${group}", mode: "copy"
 
     input:

@@ -11,8 +11,28 @@ include {
 } from "./subworkflows/encyclopedia"
 
 
+//
+// Used for email notifications
+//
+def email() {
+    // Create the email text:
+    (subject, msg) = TalusTemplate.email(workflow, params)
+
+    // Send the email:
+    if (params.email) {
+        sendMail(
+            to: "$params.email",
+            subject: subject,
+            body: msg
+        )
+    }
+}
+
+
+//
+// Use the DLIB when the ELIB is unavailable.
+//
 def replace_missing_elib(elib) {
-    // Use the DLIB when the ELIB is unavailable.
     if (elib == null) {
         return file(params.encyclopedia.dlib)
     }
@@ -20,8 +40,11 @@ def replace_missing_elib(elib) {
 }
 
 
+//
+// The main workflow
+//
 workflow {
-    // Get .fasta and .dlib from metadata-bucket
+    // Get .fasta and .dlib
     fasta = Channel.fromPath(params.encyclopedia.fasta, checkIfExists: true).first()
     dlib = Channel.fromPath(params.encyclopedia.dlib, checkIfExists: true).first()
 
@@ -65,7 +88,7 @@ workflow {
     | set { quant_files }
 
     // Analyze the quantitative runs with EncyclopeDIA.
-    // The output has two channels:
+    // The output has three channels:
     // local -> [group, [local_elib_files], [mzml_gz_files]]
     // global -> [group, global_elib, peptides, proteins] or null
     // msstats -> [group, input_csv, feature_csv]
@@ -78,19 +101,7 @@ workflow {
     }
 }
 
-workflow.onComplete {
-    sendMail( 
-        to: params.email,
-        subject: "Success: ${params.experimentName} succeeded.",
-        body: "Experiment run ${params.experimentName} using Encyclopedia succeeded.",
-    )
-}
 
-workflow.onError {
-    sendMail( 
-        to: params.email,
-        subject: "Error: ${params.experimentName} failed.",
-        body: "Experiment run ${params.experimentName} using Encyclopedia failed.",
-    )
-
-}
+// Email notifications:
+workflow.onComplete { email() }
+workflow.onError { email() }
