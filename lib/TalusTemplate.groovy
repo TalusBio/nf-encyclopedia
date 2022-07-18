@@ -24,7 +24,6 @@ class TalusTemplate {
         def email_fields = [:]
         email_fields['started']      = workflow.start
         email_fields['dateComplete'] = workflow.complete
-        email_fields['nfVersion']    = workflow.nextflow.version
         email_fields['runName']      = workflow.runName
         email_fields['uuid']         = workflow.sessionId
         email_fields['success']      = workflow.success

@@ -102,12 +102,6 @@ workflow {
 }
 
 
-// A dummy workflow for testing:
-workflow dummy {
-    channel.of('This workflow doesn\'t do anything...')
-}
-
-
 // Email notifications:
 workflow.onComplete { email() }
 workflow.onError { email() }
