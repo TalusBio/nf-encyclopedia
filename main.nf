@@ -16,8 +16,7 @@ include {
 //
 def email() {
     // Create the email text:
-    (subject, msg) = TalusTemplate.email(workflow, params)
-
+    def (subject, msg) = TalusTemplate.email(workflow, params)
     // Send the email:
     if (params.email) {
         sendMail(
@@ -101,6 +100,13 @@ workflow {
     }
 }
 
+
+//
+// This is a dummy workflow for testing
+//
+workflow dummy {
+    println "This is a workflow that doesn't do anything."
+}
 
 // Email notifications:
 workflow.onComplete { email() }

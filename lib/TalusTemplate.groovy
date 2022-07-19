@@ -12,7 +12,7 @@ class TalusTemplate {
     // -------
     // str
     //     The HTML email body.
-    public static String email(workflow, params) {
+    public static email(workflow, params) {
 
         // Set the email subject:
         def subject = "[$workflow.manifest.name] SUCCESS: $params.experimentName"
@@ -40,7 +40,6 @@ class TalusTemplate {
         def html_file = new File(html_path)
         def html_template = engine.createTemplate(html_file).make(email_fields)
         def email_html = html_template.toString()
-
         return [subject, email_html]
     }
 }
