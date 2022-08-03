@@ -7,7 +7,7 @@ include { CONVERT_TO_MZML } from "./subworkflows/msconvert"
 include {
     BUILD_CHROMATOGRAM_LIBRARY;
     PERFORM_QUANT;
-    PERFORM_GLOBAL_QUANT
+    PERFORM_AGGREGATE_QUANT
 } from "./subworkflows/encyclopedia"
 
 
@@ -33,7 +33,7 @@ def email() {
 //
 def replace_missing_elib(elib) {
     if (elib == null) {
-        return file(params.encyclopedia.dlib)
+        return file(params.dlib)
     }
     return elib
 }
@@ -44,8 +44,8 @@ def replace_missing_elib(elib) {
 //
 workflow {
     // Get .fasta and .dlib
-    fasta = Channel.fromPath(params.encyclopedia.fasta, checkIfExists: true).first()
-    dlib = Channel.fromPath(params.encyclopedia.dlib, checkIfExists: true).first()
+    fasta = Channel.fromPath(params.fasta, checkIfExists: true).first()
+    dlib = Channel.fromPath(params.dlib, checkIfExists: true).first()
 
     // Get the narrow and wide files:
     ms_files = Channel
@@ -96,7 +96,7 @@ workflow {
 
     // Perform an global analysis on all files if needed:
     if ( params.aggregate ) {
-        PERFORM_GLOBAL_QUANT(quant_results.local, dlib, fasta)
+        PERFORM_AGGREGATE_QUANT(quant_results.local, dlib, fasta)
     }
 }
 
@@ -110,4 +110,3 @@ workflow dummy {
 
 // Email notifications:
 workflow.onComplete { email() }
-workflow.onError { email() }

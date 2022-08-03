@@ -45,7 +45,7 @@ def test_aggregate(base_project, tmp_path):
     for fname in not_expected:
         assert not fname.exists()
 
-    expected = base / "global" / "result-global.elib"
+    expected = base / "agg" / "result-agg.elib"
     assert expected.exists()
 
 

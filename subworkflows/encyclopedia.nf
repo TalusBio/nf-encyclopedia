@@ -1,6 +1,7 @@
 include { ENCYCLOPEDIA_LOCAL; ENCYCLOPEDIA_GLOBAL } from "../modules/encyclopedia"
 include { MSSTATS } from "../modules/msstats"
 
+
 workflow BUILD_CHROMATOGRAM_LIBRARY {
     take:
         chrlib_files
@@ -16,10 +17,10 @@ workflow BUILD_CHROMATOGRAM_LIBRARY {
         | set { ungrouped_files }
 
         // Search each file
-        // Ouput is [group, [local_elib_files], [local_dia_files], [local_feature_files], [local_encyclopedia_files]]
+        // Ouput is [group, [local_elib_files], [local_dia_files], [local_feature_files]]
         ENCYCLOPEDIA_LOCAL(ungrouped_files, dlib, fasta)
         | groupTuple(by: 0)
-        | map { tuple it[0], it[1], it[2], it[3], it[4] }
+        | map { tuple it[0], it[1], it[2], it[3]}
         | set { local_files }
 
         // Do the global analysis
@@ -57,14 +58,14 @@ workflow PERFORM_QUANT {
         | set { ungrouped_files }
 
         // Perform local search:
-        // Ouput is [group, [local_elib_files], [local_dia_files], [local_feature_files], [local_encyclopedia_files]]
+        // Ouput is [group, [local_elib_files], [local_dia_files], [local_feature_files]]
         ENCYCLOPEDIA_LOCAL(
             ungrouped_files.mzml,
             ungrouped_files.elib,
             fasta
         )
         | groupTuple(by: 0)
-        | map { tuple it[0], it[1], it[2], it[3], it[4] }
+        | map { tuple it[0], it[1], it[2], it[3] }
         | set { local_files }
 
         // Only run group-wise global if needed.
@@ -83,7 +84,7 @@ workflow PERFORM_QUANT {
             | set { global_files }
 
             // Run MSstats
-            // Ouput is [group, input_csv, feature_csv ]
+            // Ouput is [group, input_csv, feature_rda ]
             global_files
             | map { tuple it[0], it[2] }
             | MSSTATS
@@ -97,7 +98,7 @@ workflow PERFORM_QUANT {
 }
 
 
-workflow PERFORM_GLOBAL_QUANT {
+workflow PERFORM_AGGREGATE_QUANT {
     take:
         local_quant_files
         dlib
@@ -105,10 +106,10 @@ workflow PERFORM_GLOBAL_QUANT {
 
     main:
         // Set the group for all runs to "global"
-        // The output is ["global", [local_elib_files], [local_dia_files], [local_feature_files], [local_encyclopedia_files]]
+        // The output is ["global", [local_elib_files], [local_dia_files], [local_feature_files]]
         local_quant_files
         | transpose()
-        | map { tuple params.encyclopedia.global_postfix, it[1], it[2], it[3], it[4] }
+        | map { tuple params.encyclopedia.agg_postfix, it[1], it[2], it[3] }
         | groupTuple(by: 0)
         | set { all_local_files }
 
@@ -118,7 +119,7 @@ workflow PERFORM_GLOBAL_QUANT {
             all_local_files,
             dlib,
             fasta,
-            params.encyclopedia.global_postfix
+            params.encyclopedia.agg_postfix
         )
         | set { global_files }
 

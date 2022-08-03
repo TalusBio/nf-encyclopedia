@@ -1,5 +1,6 @@
 process ENCYCLOPEDIA_LOCAL {
-    publishDir "${params.publish_dir}/${group}", mode: "copy", failOnError: true
+    publishDir "${params.result_dir}/${group}", failOnError: true
+    label 'process_medium'
 
     input:
         tuple val(group), path(mzml_gz_file)
@@ -12,8 +13,6 @@ process ENCYCLOPEDIA_LOCAL {
             path("${mzml_gz_file.baseName}.elib"),
             path("${file(mzml_gz_file.baseName).baseName}.dia"),
             path("${mzml_gz_file.baseName}.features.txt.gz"),
-            path("${mzml_gz_file.baseName}.encyclopedia.txt"),
-            path("${mzml_gz_file.baseName}.encyclopedia.decoy.txt"),
             path("logs/${mzml_gz_file.baseName}.local.log"),
         )
 
@@ -21,15 +20,15 @@ process ENCYCLOPEDIA_LOCAL {
     """
     mkdir logs
     gunzip -f ${mzml_gz_file}
-    java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
+    java \\
+        -Djava.awt.headless=true \\
+        -Xmx${task.memory.toGiga()-1}G \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -i ${mzml_gz_file.baseName} \\
         -f ${fasta_file} \\
         -l ${library_file} \\
-        -percolatorVersion ${params.encyclopedia.percolator_version} \\
-        -percolatorTrainingFDR ${params.encyclopedia.percolator_train_fdr} \\
-        -percolatorTrainingSetSize ${params.encyclopedia.percolator_training_set_size} \\
-        ${params.encyclopedia.local_options} \\
+        ${params.encyclopedia.args} \\
+        ${params.encyclopedia.local.args} \\
     | tee logs/${mzml_gz_file.baseName}.local.log
     gzip ${mzml_gz_file.baseName}.features.txt
     """
@@ -40,17 +39,17 @@ process ENCYCLOPEDIA_LOCAL {
     touch ${mzml_gz_file.baseName}.elib
     touch ${file(mzml_gz_file.baseName).baseName}.dia
     touch ${mzml_gz_file.baseName}.features.txt.gz
-    touch ${mzml_gz_file.baseName}.encyclopedia.txt
-    touch ${mzml_gz_file.baseName}.encyclopedia.decoy.txt
     touch logs/${mzml_gz_file.baseName}.local.log
     """
 }
 
+
 process ENCYCLOPEDIA_GLOBAL {
-    publishDir "${params.publish_dir}/${group}", model: "copy", failOnError: true
+    publishDir "${params.result_dir}/${group}", failOnError: true
+    label 'process_high'
 
     input:
-        tuple val(group), path(local_elib_files), path(local_dia_files), path(local_feature_files), path(local_encyclopedia_files)
+        tuple val(group), path(local_elib_files), path(local_dia_files), path(local_feature_files)
         path(library_file)
         path(fasta_file)
         val output_postfix
@@ -72,17 +71,17 @@ process ENCYCLOPEDIA_GLOBAL {
     mkdir logs
     gunzip ${local_feature_files}
     find * -name '*\\.mzML\\.*' -exec bash -c 'mv \$0 \${0/\\.mzML/\\.dia}' {} \\;
-    java -Djava.awt.headless=true ${params.encyclopedia.memory} \\
+    java \\
+        -Djava.awt.headless=true ${params.encyclopedia.memory} \\
+        -Xmx${task.memory.toGiga()-1}G \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -libexport \\
         -o ${stem} \\
         -i ./ \\
         -f ${fasta_file} \\
         -l ${library_file} \\
-        -percolatorVersion ${params.encyclopedia.percolator_version} \\
-        -percolatorTrainingFDR ${params.encyclopedia.percolator_train_fdr} \\
-        -percolatorTrainingSetSize ${params.encyclopedia.percolator_training_set_size} \\
-        ${params.encyclopedia.global_options} \\
+        ${params.encyclopedia.args} \\
+        ${params.encyclopedia.global.args} \\
     | tee logs/result-${output_postfix}.global.log
     echo 'Finding unique peptides and proteins...'
     echo 'Run,Unique Proteins,Unique Peptides' > ${output_postfix}_unique_peptides_proteins.csv

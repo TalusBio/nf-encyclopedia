@@ -48,11 +48,13 @@ def base_project(tmp_path):
         "-without-docker",
         "-stub-run",
         "-w", str(tmp_path / "work"),
-        "--publish_dir", str(tmp_path / "results"),
+        "--result_dir", str(tmp_path / "results"),
         "--mzml_dir", str(tmp_path / "mzml"),
-        "--encyclopedia.fasta", str(fasta_file),
-        "--encyclopedia.dlib", str(dlib_file),
+        "--fasta", str(fasta_file),
+        "--dlib", str(dlib_file),
         "--ms_file_csv", str(ms_files_csv),
+        "--max_memory", "4.GB",
+        "--max_cpus", "1",
     ]
 
     return config, ms_files_csv, ms_files_csv_short

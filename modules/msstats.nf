@@ -1,5 +1,6 @@
 process MSSTATS {
-    publishDir "${params.publish_dir}/${group}", mode: "copy"
+    publishDir "${params.result_dir}/${group}", failOnError: true
+    label 'process_medium'
 
     input:
         tuple val(group), path(quant_peptides)
@@ -8,7 +9,7 @@ process MSSTATS {
         tuple(
             val(group),
             path("msstats_input.csv"),
-            path("msstats_feature_level_data.csv")
+            path("msstats_processed.rda")
         )
 
     script:
@@ -19,6 +20,6 @@ process MSSTATS {
     stub:
     """
     touch msstats_input.csv
-    touch msstats_feature_level_data.csv
+    touch msstats_processed.rda
     """
 }
