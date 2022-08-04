@@ -76,7 +76,6 @@ def encyclopedia_to_msstats(peptides_txt):
 @click.argument("peptides_txt")
 def main(peptides_txt):
     """The main function."""
-    # Convert pandas.DataFrames to R dataframes automatically.
     pandas2ri.activate()
     base = importr("base")
     MSstats = importr("MSstats")
@@ -94,3 +93,7 @@ def main(peptides_txt):
 
     peptide_df.to_csv("msstats_input.csv")
     base.save(processed, file="msstats_processed.rda")
+
+
+if name == "__main__":
+    main()

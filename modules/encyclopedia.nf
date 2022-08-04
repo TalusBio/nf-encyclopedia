@@ -84,8 +84,10 @@ process ENCYCLOPEDIA_GLOBAL {
         ${params.encyclopedia.global.args} \\
     | tee logs/result-${output_postfix}.global.log
     echo 'Finding unique peptides and proteins...'
-    echo 'Run,Unique Proteins,Unique Peptides' > ${output_postfix}_unique_peptides_proteins.csv
-    find * -name '*\\.elib' -exec bash -c 'unique_peptides_proteins \$0 >> ${output_postfix}_unique_peptides_proteins.csv' {} \\;
+    echo 'Run,Unique Proteins,Unique Peptides' \\
+        > ${output_postfix}_unique_peptides_proteins.csv
+    find * -name '*\\.elib' -exec bash -c 'count_peptides_proteins.sh \$0 \\
+        >> ${output_postfix}_unique_peptides_proteins.csv' {} \\;
     echo 'DONE!'
     """
 

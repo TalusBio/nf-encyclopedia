@@ -14,7 +14,7 @@ process MSSTATS {
 
     script:
     """
-    python /app/src/msstats.py -f ${quant_peptides} -t encyclopedia
+    python msstats.py ${quant_peptides}
     """
 
     stub:
