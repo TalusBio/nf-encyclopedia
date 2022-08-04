@@ -72,7 +72,7 @@ process ENCYCLOPEDIA_GLOBAL {
     gunzip ${local_feature_files}
     find * -name '*\\.mzML\\.*' -exec bash -c 'mv \$0 \${0/\\.mzML/\\.dia}' {} \\;
     java \\
-        -Djava.awt.headless=true ${params.encyclopedia.memory} \\
+        -Djava.awt.headless=true \\
         -Xmx${task.memory.toGiga()-1}G \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -libexport \\
