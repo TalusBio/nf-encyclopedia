@@ -1,5 +1,6 @@
 process MSCONVERT {
     publishDir "${params.mzml_dir}/${outputDir}", failOnError: true
+    label 'process_low_constant'
 
     input:
         tuple val(file_id), path(raw_input), val(outputDir)
