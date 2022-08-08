@@ -9,7 +9,7 @@ process MSCONVERT {
 
     script:
     """
-    wine msconvert
+    wine msconvert \\
         -v \\
         --gzip \\
         --mzML \\
