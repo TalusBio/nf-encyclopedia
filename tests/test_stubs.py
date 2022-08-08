@@ -19,9 +19,8 @@ def test_no_aggregate(base_project, tmp_path):
     for fname in expected:
         assert fname.exists()
 
-    not_expected = base / "global" / "result-global.elib"
+    not_expected = base / "agg" / "result-agg.elib"
     assert not not_expected.exists()
-
 
 def test_aggregate(base_project, tmp_path):
     """Test workflow logic for global analyses."""
@@ -59,4 +58,28 @@ def test_already_converted(base_project, tmp_path):
     test_no_aggregate(base_project=base_project, tmp_path=tmp_path)
 
     assert old == mzml.stat()
+    assert (mzml_dir / "b.mzML.gz").exists()
+
+
+def test_force_convert(base_project, tmp_path):
+    """Test that we can force files to be converted again."""
+    mzml_dir = (tmp_path / "mzml" / "subdir")
+    mzml_dir.mkdir(parents=True)
+    mzml = mzml_dir / "a.mzML.gz"
+    mzml.touch()
+    old = mzml.stat()
+
+    config, *_ = base_project
+    cmd = ["nextflow", "run", "main.nf", "--msconvert.force", "true"] + config
+    subprocess.run(cmd, check=True)
+    base = tmp_path / "results"
+    expected = [
+        base / "x" / "result-quant.elib",
+        base / "y" / "result-quant.elib",
+        base / "z" / "result-quant.elib",
+        base / "x" / "result-chr.elib",
+        base / "y" / "result-chr.elib",
+    ]
+
+    assert old != mzml.stat()
     assert (mzml_dir / "b.mzML.gz").exists()
