@@ -16,7 +16,7 @@ process MSCONVERT {
         --64 \\
         --zlib \\
         --filter "peakPicking true 1-" \\
-        ${'--filter "demultiplex optimization=overlap"' ? params.msconvert.demultiplex : ''} \\
+        ${params.msconvert.demultiplex ? '--filter "demultiplex optimization=overlap"' : ''} \\
         ${raw_input}
     """
 
