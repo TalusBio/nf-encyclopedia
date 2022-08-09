@@ -1,5 +1,5 @@
 process MSSTATS {
-    publishDir "${params.result_dir}/${group}", failOnError: true
+    publishDir "${params.result_dir}/${group}/msstats", failOnError: true
     label 'process_medium'
 
     input:
@@ -14,7 +14,7 @@ process MSSTATS {
 
     script:
     """
-    python bin/msstats.py ${quant_peptides}
+    msstats.py ${quant_peptides}
     """
 
     stub:

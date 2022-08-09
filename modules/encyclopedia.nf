@@ -1,5 +1,6 @@
 process ENCYCLOPEDIA_LOCAL {
-    publishDir "${params.result_dir}/${group}", failOnError: true
+    publishDir "${params.result_dir}/${group}/elib", pattern: '*.elib', failOnError: true
+    publishDir "${params.result_dir}/${group}/logs", pattern: '*.log', failOnError: true
     label 'process_medium'
 
     input:
@@ -15,7 +16,7 @@ process ENCYCLOPEDIA_LOCAL {
             path("${mzml_gz_file.baseName}.features.txt.gz"),
             path("${mzml_gz_file.baseName}.encyclopedia.txt"),
             path("${mzml_gz_file.baseName}.encyclopedia.decoy.txt"),
-            path("logs/${mzml_gz_file.baseName}.local.log"),
+            path("${mzml_gz_file.baseName}.local.log"),
         )
 
     script:
@@ -31,7 +32,7 @@ process ENCYCLOPEDIA_LOCAL {
         -l ${library_file} \\
         ${params.encyclopedia.args} \\
         ${params.encyclopedia.local.args} \\
-    | tee logs/${mzml_gz_file.baseName}.local.log
+    | tee ${mzml_gz_file.baseName}.local.log
     gzip ${mzml_gz_file.baseName}.features.txt
     """
 
@@ -43,13 +44,15 @@ process ENCYCLOPEDIA_LOCAL {
     touch ${mzml_gz_file.baseName}.features.txt.gz
     touch ${mzml_gz_file.baseName}.encyclopedia.txt
     touch ${mzml_gz_file.baseName}.encyclopedia.decoy.txt
-    touch logs/${mzml_gz_file.baseName}.local.log
+    touch ${mzml_gz_file.baseName}.local.log
     """
 }
 
 
 process ENCYCLOPEDIA_GLOBAL {
-    publishDir "${params.result_dir}/${group}", failOnError: true
+    publishDir "${params.result_dir}/${group}/elib", pattern: '*.elib', failOnError: true
+    publishDir "${params.result_dir}/${group}/logs", pattern: '*.log', failOnError: true
+    publishDir "${params.result_dir}/${group}/logs", pattern: '*.log', failOnError: true
     label 'process_high'
 
     input:
