@@ -21,7 +21,6 @@ process ENCYCLOPEDIA_LOCAL {
 
     script:
     """
-    mkdir logs
     gunzip -f ${mzml_gz_file}
     java \\
         -Djava.awt.headless=true \\

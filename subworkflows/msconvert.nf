@@ -21,8 +21,6 @@ workflow CONVERT_TO_MZML {
     }
     | set { staging }
 
-    staging.is_mzml.view {it}
-
     MSCONVERT(staging.mzml_absent)
     | concat(staging.is_mzml)
     | concat(staging.mzml_present)
