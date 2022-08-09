@@ -53,7 +53,7 @@ def base_project(tmp_path):
         "--fasta", str(fasta_file),
         "--dlib", str(dlib_file),
         "--ms_file_csv", str(ms_files_csv),
-        "--max_memory", "4.GB",
+        "--max_memory", "2.GB",
         "--max_cpus", "1",
     ]
 
