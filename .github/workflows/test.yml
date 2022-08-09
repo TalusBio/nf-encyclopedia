@@ -24,6 +24,5 @@ jobs:
           mkdir bin && mv nextflow bin
           echo "$(pwd)/bin" >> $GITHUB_PATH
       - name: Run tests
-        uses: MillironX/setup-nextflow@v1
         run: |
           pytest

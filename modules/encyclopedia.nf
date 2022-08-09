@@ -53,7 +53,13 @@ process ENCYCLOPEDIA_GLOBAL {
     label 'process_high'
 
     input:
-        tuple val(group), path(local_elib_files), path(local_dia_files), path(local_feature_files)
+        tuple(
+            val(group),
+            path(local_elib_files),
+            path(local_dia_files),
+            path(local_feature_files),
+            path(local_encyclopedia_files),
+        )
         path(library_file)
         path(fasta_file)
         val output_postfix
