@@ -13,6 +13,8 @@ process ENCYCLOPEDIA_LOCAL {
             path("${mzml_gz_file.baseName}.elib"),
             path("${file(mzml_gz_file.baseName).baseName}.dia"),
             path("${mzml_gz_file.baseName}.features.txt.gz"),
+            path("${mzml_gz_file.baseName}.encyclopedia.txt"),
+            path("${mzml_gz_file.baseName}.encyclopedia.decoy.txt"),
             path("logs/${mzml_gz_file.baseName}.local.log"),
         )
 
@@ -39,6 +41,8 @@ process ENCYCLOPEDIA_LOCAL {
     touch ${mzml_gz_file.baseName}.elib
     touch ${file(mzml_gz_file.baseName).baseName}.dia
     touch ${mzml_gz_file.baseName}.features.txt.gz
+    touch ${mzml_gz_file.baseName}.encyclopedia.txt
+    touch ${mzml_gz_file.baseName}.encyclopedia.decoy.txt
     touch logs/${mzml_gz_file.baseName}.local.log
     """
 }
