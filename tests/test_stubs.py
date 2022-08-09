@@ -9,11 +9,11 @@ def test_no_aggregate(base_project, tmp_path):
     subprocess.run(cmd, check=True)
     base = tmp_path / "results"
     expected = [
-        base / "x" / "result-quant.elib",
-        base / "y" / "result-quant.elib",
-        base / "z" / "result-quant.elib",
-        base / "x" / "result-chr.elib",
-        base / "y" / "result-chr.elib",
+        base / "x" / "elib/encyclopedia.quant.elib",
+        base / "y" / "elib/encyclopedia.quant.elib",
+        base / "z" / "elib/encyclopedia.quant.elib",
+        base / "x" / "elib/encyclopedia.chrlib.elib",
+        base / "y" / "elib/encyclopedia.chrlib.elib",
     ]
 
     for fname in expected:
@@ -36,15 +36,15 @@ def test_aggregate(base_project, tmp_path):
     subprocess.run(cmd, check=True)
     base = tmp_path / "results"
     not_expected = [
-        base / "x" / "result-quant.elib",
-        base / "y" / "result-quant.elib",
-        base / "z" / "result-quant.elib",
+        base / "x/elib/encyclopedia.quant.elib",
+        base / "y/elib/encyclopedia.quant.elib",
+        base / "z/elib/encyclopedia.quant.elib",
     ]
 
     for fname in not_expected:
         assert not fname.exists()
 
-    expected = base / "agg" / "result-agg.elib"
+    expected = base / "aggregated/elib/encyclopedia.quant.elib"
     assert expected.exists()
 
 
@@ -55,7 +55,10 @@ def test_already_converted(base_project, tmp_path):
     mzml = mzml_dir / "a.mzML.gz"
     mzml.touch()
     old = mzml.stat()
-    test_no_aggregate(base_project=base_project, tmp_path=tmp_path)
+
+    config, *_ = base_project
+    cmd = ["nextflow", "run", "main.nf"] + config
+    subprocess.run(cmd, check=True)
 
     assert old == mzml.stat()
     assert (mzml_dir / "b.mzML.gz").exists()
@@ -72,14 +75,6 @@ def test_force_convert(base_project, tmp_path):
     config, *_ = base_project
     cmd = ["nextflow", "run", "main.nf", "--msconvert.force", "true"] + config
     subprocess.run(cmd, check=True)
-    base = tmp_path / "results"
-    expected = [
-        base / "x" / "result-quant.elib",
-        base / "y" / "result-quant.elib",
-        base / "z" / "result-quant.elib",
-        base / "x" / "result-chr.elib",
-        base / "y" / "result-chr.elib",
-    ]
 
     assert old != mzml.stat()
     assert (mzml_dir / "b.mzML.gz").exists()

@@ -53,7 +53,7 @@ process ENCYCLOPEDIA_GLOBAL {
     publishDir "${params.result_dir}/${group}/elib", pattern: '*.elib', failOnError: true
     publishDir "${params.result_dir}/${group}/logs", pattern: '*.log', failOnError: true
     publishDir "${params.result_dir}/${group}/results", pattern: '*.txt', failOnError: true
-    publishDri "${params.result_dir}/${group}/reports", pattern: '*.csv', failOnError: true
+    publishDir "${params.result_dir}/${group}/reports", pattern: '*.csv', failOnError: true
     label 'process_high'
 
     input:
@@ -68,14 +68,15 @@ process ENCYCLOPEDIA_GLOBAL {
         path(fasta_file)
         val output_postfix
 
+
     output:
         tuple(
             val(group),
-            path("encyclopedia.elib"),
-            path("encyclopedia.peptides.txt"),
-            path("encyclopedia.proteins.txt"),
-            path("logs/enyclopedia.global.log"),
-            path("detection_summary.csv")
+            path("${stem(output_postfix)}.elib"),
+            path("${stem(output_postfix)}.peptides.txt"),
+            path("${stem(output_postfix)}.proteins.txt"),
+            path("${stem(output_postfix)}.global.log"),
+            path("${output_postfix}_detection_summary.csv")
         )
 
     script:
@@ -89,30 +90,36 @@ process ENCYCLOPEDIA_GLOBAL {
         -Xmx${task.memory.toGiga()-1}G \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -libexport \\
-        -o encyclopedia \\
+        -o ${stem(output_postfix)} \\
         -i ./ \\
         -f ${fasta_file} \\
         -l ${library_file} \\
         ${params.encyclopedia.args} \\
         ${params.encyclopedia.global.args} \\
-    | tee logs/enyclopedia.global.log
+    | tee enyclopedia.global.log
     mv encyclopedia.elib.peptides.txt encyclopedia.peptides.txt
     mv encyclopedia.elib.proteins.txt encyclopedia.proteins.txt
     echo 'Finding unique peptides and proteins...'
     echo 'Run,Unique Proteins,Unique Peptides' \\
-        > detection_summary.csv
+        > ${output_postfix}_detection_summary.csv
     find * -name '*\\.elib' -exec bash -c 'count_peptides_proteins.sh \$0 \\
-        >> detection_summary.csv' {} \\;
+        >> ${output_postfix}_detection_summary.csv' {} \\;
     echo 'DONE!'
     """
 
     stub:
+
     """
-    mkdir logs
-    touch encyclopedia.elib
-    touch encyclopedia.peptides.txt
-    touch encyclopedia.proteins.txt
-    touch logs/encyclopedia.global.log
-    touch detection_summary.csv
+    touch ${stem(output_postfix)}.elib
+    touch ${stem(output_postfix)}.peptides.txt
+    touch ${stem(output_postfix)}.proteins.txt
+    touch ${stem(output_postfix)}.global.log
+    touch ${output_postfix}_detection_summary.csv
     """
+}
+
+
+// A utility function for creating the prefixes:
+def stem(postfix) {
+    return "encyclopedia.${postfix}"
 }

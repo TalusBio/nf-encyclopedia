@@ -105,11 +105,11 @@ workflow PERFORM_AGGREGATE_QUANT {
         fasta
 
     main:
-        // Set the group for all runs to "global"
-        // The output is ["global", [local_elib_files], [local_dia_files], [local_feature_files], [local_encyclopedia_files]]
+        // Set the group for all runs to agg_name
+        // The output is [agg_name, [local_elib_files], [local_dia_files], [local_feature_files], [local_encyclopedia_files]]
         local_quant_files
         | transpose()
-        | map { tuple params.encyclopedia.agg_postfix, it[1], it[2], it[3], it[4] }
+        | map { tuple params.agg_name, it[1], it[2], it[3], it[4] }
         | groupTuple(by: 0)
         | set { all_local_files }
 
@@ -119,7 +119,7 @@ workflow PERFORM_AGGREGATE_QUANT {
             all_local_files,
             dlib,
             fasta,
-            params.encyclopedia.agg_postfix
+            params.encyclopedia.quant_postfix
         )
         | set { global_files }
 
