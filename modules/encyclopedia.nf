@@ -96,7 +96,7 @@ process ENCYCLOPEDIA_GLOBAL {
     echo 'Finding unique peptides and proteins...'
     echo 'Run,Unique Proteins,Unique Peptides' \\
         > ${output_postfix}_unique_peptides_proteins.csv
-    find * -name '*\\.elib' -exec bash -c 'count_peptides_proteins.sh \$0 \\
+    find * -name '*\\.elib' -exec bash -c 'bin/count_peptides_proteins.sh \$0 \\
         >> ${output_postfix}_unique_peptides_proteins.csv' {} \\;
     echo 'DONE!'
     """
