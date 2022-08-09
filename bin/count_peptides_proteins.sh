@@ -6,9 +6,11 @@ SELECT
     count(distinct p2p.PeptideSeq )
 FROM proteinscores p, peptidetoprotein p2p
 WHERE p.ProteinAccession=p2p.ProteinAccession
-    and p2p.isDecoy == 0'
+    and p2p.isDecoy == 0
 EOF
 )
+
+echo QUERY
 
 function count_unique_peptides_proteins() {
     [[ $# -eq 0 ]] && return
@@ -18,4 +20,4 @@ function count_unique_peptides_proteins() {
             '{split($0,a,"|"); printf "%s,%d,%d\n",FILE,a[1],a[2]}'
 }
 
-count_unique_peptides_proteins $1
+count_unique_peptides_proteins
