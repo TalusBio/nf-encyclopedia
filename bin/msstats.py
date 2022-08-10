@@ -92,14 +92,14 @@ def main(peptides_txt):
         filter_with_Qvalue=False,
         use_log_file=False,
     )
-    processed = MSstats.dataProcess(
+    processed, *_ = MSstats.dataProcess(
         raw,
         censoredInt="0",
         use_log_file=False
     )
 
-    peptide_df.to_csv("msstats_input.csv")
-    base.save(processed, file="msstats_processed.rda")
+    peptide_df.to_csv("msstats_input.csv", index=False)
+    processed.to_csv("msstats_processed.csv", index=False)
 
 
 if __name__ == "__main__":

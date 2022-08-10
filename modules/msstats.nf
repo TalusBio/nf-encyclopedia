@@ -9,7 +9,7 @@ process MSSTATS {
         tuple(
             val(group),
             path("msstats_input.csv"),
-            path("msstats_processed.rda")
+            path("msstats_processed.csv")
         )
 
     script:
@@ -20,6 +20,6 @@ process MSSTATS {
     stub:
     """
     touch msstats_input.csv
-    touch msstats_processed.rda
+    touch msstats_processed.csv
     """
 }
