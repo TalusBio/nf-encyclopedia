@@ -96,8 +96,6 @@ process ENCYCLOPEDIA_GLOBAL {
         ${params.encyclopedia.args} \\
         ${params.encyclopedia.global.args} \\
     | tee enyclopedia.global.log
-    mv ${stem(output_postfix)}.elib.peptides.txt ${stem(output_postfix)}.peptides.txt
-    mv ${stem(output_postfix)}.elib.proteins.txt ${stem(output_postfix)}.proteins.txt
     echo 'Finding unique peptides and proteins...'
     echo 'Run,Unique Proteins,Unique Peptides' \\
         > ${output_postfix}_detection_summary.csv
