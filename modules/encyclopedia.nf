@@ -89,13 +89,13 @@ process ENCYCLOPEDIA_GLOBAL {
         -Xmx${task.memory.toGiga()-1}G \\
         -jar /code/encyclopedia-\$VERSION-executable.jar \\
         -libexport \\
-        -o ${stem(output_postfix)} \\
+        -o ${stem(output_postfix)}.elib \\
         -i ./ \\
         -f ${fasta_file} \\
         -l ${library_file} \\
         ${params.encyclopedia.args} \\
         ${params.encyclopedia.global.args} \\
-    | tee enyclopedia.global.log
+    | tee ${stem(output_postfix)}.global.log
     echo 'Finding unique peptides and proteins...'
     echo 'Run,Unique Proteins,Unique Peptides' \\
         > ${output_postfix}_detection_summary.csv
