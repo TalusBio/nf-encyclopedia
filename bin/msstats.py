@@ -79,7 +79,7 @@ def main(peptides_txt):
     pandas2ri.activate()
     base = importr("base")
     MSstats = importr("MSstats")
-    peptide_df = encyclopedia2msstats(peptides_txt)
+    peptide_df = encyclopedia_to_msstats(peptides_txt)
     raw = MSstats.SkylinetoMSstatsFormat(
         peptide_df,
         filter_with_Qvalue=False,
