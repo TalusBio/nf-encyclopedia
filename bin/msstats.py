@@ -95,5 +95,5 @@ def main(peptides_txt):
     base.save(processed, file="msstats_processed.rda")
 
 
-if name == "__main__":
+if __name__ == "__main__":
     main()
