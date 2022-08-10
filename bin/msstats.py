@@ -21,8 +21,19 @@ def encyclopedia_to_msstats(peptides_txt):
     pandas.DataFrame
         The data to analyze with MSstats
     """
-    peptides_df = (
-        pd.read_table(peptides_txt)
+    peptide_df = pd.read_table(peptides_txt)
+    id_vars = ["Peptide", "Protein", "numFragments"]
+    peptide_df = peptide_df.melt(
+        id_vars=id_vars,
+        var_name="run",
+        value_name="intensity",
+    )
+
+    peptide_df["run"] = peptide_df["run"].str.replace(".mzML", "", regex=False)
+    print(peptide_df.columns)
+
+    peptide_df = (
+        peptide_df
         .reset_index(drop=True)
         .rename(
             columns={
@@ -41,12 +52,7 @@ def encyclopedia_to_msstats(peptides_txt):
         raise RuntimeError(f"Prev: {prev}, Now: {len(peptide_df)}")
 
     peptide_df["BioReplicate"] = peptide_df["Run"]
-    peptide_df["Condition"] = (
-        peptide_df.loc[:, group_cols]
-        .astype(str)
-        .apply("|".join, axis=1)
-    )
-
+    peptide_df["Condition"] = "ctrl"
     peptide_df["PrecursorCharge"] = 2
     peptide_df["IsotopeLabelType"] = "L"
     peptide_df["FragmentIon"] = "y0"
@@ -69,6 +75,7 @@ def encyclopedia_to_msstats(peptides_txt):
         "FragmentIon",
         "ProductCharge",
     ]
+    return peptide_df.loc[:, keep]
 
 
 
