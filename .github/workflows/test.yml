@@ -2,17 +2,15 @@ name: tests
 
 on:
   push:
-    branches: [ dev, main ]
+    branches: main
   pull_request:
-    branches: [ dev, main ]
+    branches: main
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment:
-      name: dev
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python 3.10
         uses: actions/setup-python@v2
         with:
@@ -23,7 +21,7 @@ jobs:
           pip install pytest
           curl -s https://get.nextflow.io | bash
           chmod u+x nextflow
-          mkdir bin && mv nextflow bin
+          mkdir -p bin && mv nextflow bin
           echo "$(pwd)/bin" >> $GITHUB_PATH
       - name: Run tests
         run: |

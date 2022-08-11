@@ -1,6 +1,6 @@
 process MSCONVERT {
-    publishDir "${params.mzml_dir}/${outputDir}", mode: "copy"
-    storeDir "${params.store_dir}/${outputDir}"
+    publishDir "${params.mzml_dir}/${outputDir}", failOnError: true
+    label 'process_low_constant'
 
     input:
         tuple val(file_id), path(raw_input), val(outputDir)
@@ -11,10 +11,13 @@ process MSCONVERT {
     script:
     """
     wine msconvert \\
-        ${params.msconvert.verbose} \\
-        ${params.msconvert.options} \\
-        ${params.msconvert.gzip} \\
-        ${params.msconvert.filters} \\
+        -v \\
+        --gzip \\
+        --mzML \\
+        --64 \\
+        --zlib \\
+        --filter "peakPicking true 1-" \\
+        ${params.msconvert.demultiplex ? '--filter "demultiplex optimization=overlap_only"' : ''} \\
         ${raw_input}
     """
 

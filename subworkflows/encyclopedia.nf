@@ -1,6 +1,7 @@
 include { ENCYCLOPEDIA_LOCAL; ENCYCLOPEDIA_GLOBAL } from "../modules/encyclopedia"
 include { MSSTATS } from "../modules/msstats"
 
+
 workflow BUILD_CHROMATOGRAM_LIBRARY {
     take:
         chrlib_files
@@ -97,18 +98,18 @@ workflow PERFORM_QUANT {
 }
 
 
-workflow PERFORM_GLOBAL_QUANT {
+workflow PERFORM_AGGREGATE_QUANT {
     take:
         local_quant_files
         dlib
         fasta
 
     main:
-        // Set the group for all runs to "global"
-        // The output is ["global", [local_elib_files], [local_dia_files], [local_feature_files], [local_encyclopedia_files]]
+        // Set the group for all runs to agg_name
+        // The output is [agg_name, [local_elib_files], [local_dia_files], [local_feature_files], [local_encyclopedia_files]]
         local_quant_files
         | transpose()
-        | map { tuple params.encyclopedia.global_postfix, it[1], it[2], it[3], it[4] }
+        | map { tuple params.agg_name, it[1], it[2], it[3], it[4] }
         | groupTuple(by: 0)
         | set { all_local_files }
 
@@ -118,7 +119,7 @@ workflow PERFORM_GLOBAL_QUANT {
             all_local_files,
             dlib,
             fasta,
-            params.encyclopedia.global_postfix
+            params.encyclopedia.quant_postfix
         )
         | set { global_files }
 

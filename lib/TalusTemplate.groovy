@@ -13,11 +13,10 @@ class TalusTemplate {
     // str
     //     The HTML email body.
     public static email(workflow, params) {
-
         // Set the email subject:
-        def subject = "[$workflow.manifest.name] SUCCESS: $params.experimentName"
+        def subject = "[$workflow.manifest.name] SUCCESS: ${workflow.runName}"
         if (!workflow.success) {
-            subject = "[$workflow.manifest.name] FAILED: $params.experimentName"
+            subject = "[$workflow.manifest.name] FAILED ${workflow.runName}"
         }
 
         // Used in ../assets/email_template.html

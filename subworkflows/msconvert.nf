@@ -11,14 +11,15 @@ workflow CONVERT_TO_MZML {
     | branch {
         is_mzml: it[0].endsWith(".mzML.gz")
         return tuple(it[0], it[1])
-        mzml_present: file("${params.mzml_dir}/${it[2]}/${it[1].simpleName}.mzML.gz").exists()
+        mzml_present: (
+            file("${params.mzml_dir}/${it[2]}/${it[1].simpleName}.mzML.gz").exists()
+            && !params.msconvert.force
+        )
         return tuple(it[0], file("${params.mzml_dir}/${it[2]}/${it[1].simpleName}.mzML.gz"))
         mzml_absent: true
         return it
     }
     | set { staging }
-
-    staging.is_mzml.view {it}
 
     MSCONVERT(staging.mzml_absent)
     | concat(staging.is_mzml)

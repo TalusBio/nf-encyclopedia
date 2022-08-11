@@ -1,4 +1,6 @@
 """Fixtures for test"""
+from pathlib import Path
+
 import pytest
 
 
@@ -48,11 +50,45 @@ def base_project(tmp_path):
         "-without-docker",
         "-stub-run",
         "-w", str(tmp_path / "work"),
-        "--publish_dir", str(tmp_path / "results"),
+        "--result_dir", str(tmp_path / "results"),
         "--mzml_dir", str(tmp_path / "mzml"),
-        "--encyclopedia.fasta", str(fasta_file),
-        "--encyclopedia.dlib", str(dlib_file),
+        "--fasta", str(fasta_file),
+        "--dlib", str(dlib_file),
         "--ms_file_csv", str(ms_files_csv),
+        "--max_memory", "4.GB",
+        "--max_cpus", "1",
     ]
 
     return config, ms_files_csv, ms_files_csv_short
+
+
+@pytest.fixture
+def real_data(tmp_path):
+    """Test using small mzML files."""
+    fasta_file = Path("tests/data/small-yeast.fasta")
+    dlib_file = Path("tests/data/small-yeast.dlib")
+
+    # create an input csv
+    ms_files = ["file,chrlib,group"]
+    for mzml_file in Path("tests/data").glob("*.mzML.gz"):
+        ms_files.append(",".join([str(mzml_file), "false", "test"]))
+
+    ms_files_csv = tmp_path / "ms_files.csv"
+    with ms_files_csv.open("w+") as fhndl:
+        fhndl.write("\n".join(ms_files))
+
+    # Config:
+    config = [
+        "-w", str(tmp_path / "work"),
+        "-with-docker", "nextflow/examples:latest",
+        "--result_dir", str(tmp_path / "results"),
+        "--mzml_dir", str(tmp_path / "mzml"),
+        "--fasta", str(fasta_file),
+        "--dlib", str(dlib_file),
+        "--ms_file_csv", str(ms_files_csv),
+        "--max_memory", "4.GB",
+        "--max_cpus", "8",
+        "--encyclopedia.args", "-percolatorTrainingFDR 0.05 -percolatorThreshold 0.05",
+    ]
+
+    return config, ms_files_csv
