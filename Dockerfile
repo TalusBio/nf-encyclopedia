@@ -2,6 +2,7 @@ FROM mambaorg/micromamba:latest
 LABEL authors="wfondrie@talus.bio" \
       description="Docker image for most of nf-encyclopedia"
 
+USER root
 COPY environment.yml /tmp/environment.yml
 
 # Install procps so that Nextflow can poll CPU usage and
