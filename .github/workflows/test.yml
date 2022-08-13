@@ -37,10 +37,6 @@ jobs:
         load: true
         tags: ${{ env.IMAGE_NAME }}:latest
 
-    - name: Check that the Docker image works
-      run: |
-        docker run nf-encyclopedia EncyclopeDIA -h
-
-    - name: Run tests
+    - name: Run Workflow Tests
       run: |
         pytest
