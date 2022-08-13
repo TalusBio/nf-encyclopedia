@@ -37,6 +37,10 @@ jobs:
         load: true
         tags: ${{ env.IMAGE_NAME }}:latest
 
+    - name: Check that the Docker image works
+      run: |
+        EncyclopeDIA -h
+
     - name: Run tests
       run: |
         pytest
