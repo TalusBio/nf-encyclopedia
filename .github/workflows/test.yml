@@ -39,7 +39,7 @@ jobs:
 
     - name: Check that the Docker image works
       run: |
-        EncyclopeDIA -h
+        docker run nf-encyclopedia EncyclopeDIA -h
 
     - name: Run tests
       run: |
