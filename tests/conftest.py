@@ -80,15 +80,13 @@ def real_data(tmp_path):
     # Config:
     config = [
         "-w", str(tmp_path / "work"),
-        "-with-docker", "nextflow/examples:latest",
+        "-c", "conf/test.config",
+        "-with-docker", "nf-encyclopedia", # Built from Dockerfile.
         "--result_dir", str(tmp_path / "results"),
         "--mzml_dir", str(tmp_path / "mzml"),
         "--fasta", str(fasta_file),
         "--dlib", str(dlib_file),
         "--ms_file_csv", str(ms_files_csv),
-        "--max_memory", "4.GB",
-        "--max_cpus", "8",
-        "--encyclopedia.args", "-percolatorTrainingFDR 0.05 -percolatorThreshold 0.05",
     ]
 
     return config, ms_files_csv
