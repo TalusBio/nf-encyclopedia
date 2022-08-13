@@ -2,7 +2,6 @@ FROM mambaorg/micromamba:latest
 LABEL authors="wfondrie@talus.bio" \
       description="Docker image for most of nf-encyclopedia"
 
-USER root
 COPY environment.yml /tmp/environment.yml
 
 # Install procps so that Nextflow can poll CPU usage and
@@ -18,3 +17,6 @@ RUN touch .Rprofile .Renviron
 # Create the environment
 RUN micromamba install -y -n base -f /tmp/environment.yml && \
     micromamba clean --all --yes
+
+# Set the path. NextFlow seems to circumvent the conda environment
+ENV PATH "$MAMBA_ROOT_PREFIX/bin:$PATH"
