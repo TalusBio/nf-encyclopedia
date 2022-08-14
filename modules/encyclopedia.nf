@@ -100,7 +100,7 @@ process ENCYCLOPEDIA_GLOBAL {
 
     script:
     """
-    gunzip ${local_feature_files}
+    gzip -d ${local_feature_files}
     find * -name '*\\.mzML\\.*' -exec bash -c 'mv \$0 \${0/\\.mzML/\\.dia}' {} \\;
     ${execEncyclopedia(task.memory)} \\
         -libexport \\
