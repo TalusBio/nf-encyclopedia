@@ -45,7 +45,7 @@ process ENCYCLOPEDIA_LOCAL {
     """
     echo \${PATH} 1>&2
     which EncyclopeDIA
-    gunzip -f ${mzml_gz_file}
+    gzip -df ${mzml_gz_file}
     ${execEncyclopedia(task.memory)} \\
         -i ${mzml_gz_file.baseName} \\
         -f ${fasta_file} \\
@@ -100,7 +100,7 @@ process ENCYCLOPEDIA_GLOBAL {
 
     script:
     """
-    gzip -d ${local_feature_files}
+    gzip -df ${local_feature_files}
     find * -name '*\\.mzML\\.*' -exec bash -c 'mv \$0 \${0/\\.mzML/\\.dia}' {} \\;
     ${execEncyclopedia(task.memory)} \\
         -libexport \\
