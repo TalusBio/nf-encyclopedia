@@ -100,8 +100,6 @@ process ENCYCLOPEDIA_GLOBAL {
 
     script:
     """
-    source ~/.bashrc
-    mkdir logs
     gunzip ${local_feature_files}
     find * -name '*\\.mzML\\.*' -exec bash -c 'mv \$0 \${0/\\.mzML/\\.dia}' {} \\;
     ${execEncyclopedia(task.memory)} \\

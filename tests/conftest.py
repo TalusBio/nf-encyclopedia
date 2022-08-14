@@ -81,7 +81,6 @@ def real_data(tmp_path):
     config = [
         "-w", str(tmp_path / "work"),
         "-c", "conf/test.config",
-        "-with-docker", "nf-encyclopedia", # Built from Dockerfile.
         "--result_dir", str(tmp_path / "results"),
         "--mzml_dir", str(tmp_path / "mzml"),
         "--fasta", str(fasta_file),
