@@ -14,7 +14,7 @@ process MSSTATS {
 
     script:
     """
-    msstats.py ${quant_peptides}
+    msstats.R ${quant_peptides}
     """
 
     stub:
