@@ -43,7 +43,7 @@ RUN micromamba install -y -n base -f /tmp/environment.yml && \
     micromamba clean --all --yes
 
 # Setup the EncyclopeDIA executable:
-RUN ln -s /code/encyclopedia-$VERSION-executable.jar ./encyclopedia.jar
+RUN ln -s /code/encyclopedia-$VERSION-executable.jar /code/encyclopedia.jar
 
 # Set the path. NextFlow seems to circumvent the conda environment
 # We also need to set options for the JRE here.
