@@ -1,8 +1,10 @@
 name: Build Docker image
 
 on:
+  workflow_dispatch:
   release:
     types: [published, edited]
+
 
 env:
   REGISTRY: ghcr.io
