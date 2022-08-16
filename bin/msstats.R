@@ -2,7 +2,7 @@
 library(dplyr)
 library(tidyr)
 library(magrittr)
-#library(MSstats)
+library(MSstats)
 
 
 # Convert EncyclopeDIA results to a format for MSstats
@@ -55,23 +55,23 @@ main <- function() {
   
   peptide_df <- encyclopediaToMsstats(peptides_txt)
   write.table(peptide_df, 
-              file = "msstats_input.R.txt", 
+              file = "msstats_input.txt",
               sep = "\t",
               row.names = FALSE,
               quote = FALSE)
   
-  # raw <- SkylinetoMSstatsFormat(peptide_df,
-  #                               annotation = annot,
-  #                               filter_with_Qvalue = FALSE,
-  #                               censoredInt = "0",
-  #                               use_log_file = FALSE)
-  # 
-  # processed <- dataProcess(raw,
-  #                          censoredInt = "0",
-  #                          use_log_file = FALSE)
-  # 
-  # save(processed, "msstats_processed.rda")
-  # 
+  raw <- SkylinetoMSstatsFormat(peptide_df,
+                                annotation = annot,
+                                filter_with_Qvalue = FALSE,
+                                censoredInt = "0",
+                                use_log_file = FALSE)
+
+  processed <- dataProcess(raw,
+                           censoredInt = "0",
+                           use_log_file = FALSE)
+
+  save(processed, "msstats_processed.rda")
 }
+
 
 main()
