@@ -70,7 +70,7 @@ main <- function() {
                            censoredInt = "0",
                            use_log_file = FALSE)
 
-  save(processed, "msstats_processed.rda")
+  save(processed, file = "msstats_processed.rda")
 }
 
 
