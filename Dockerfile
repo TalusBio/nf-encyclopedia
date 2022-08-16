@@ -42,6 +42,9 @@ RUN touch .Rprofile .Renviron
 RUN micromamba install -y -n base -f /tmp/environment.yml && \
     micromamba clean --all --yes
 
+# Setup the EncyclopeDIA executable:
+RUN ln -s /code/encyclopedia-$VERSION-executable.jar ./encyclopedia.jar
+
 # Set the path. NextFlow seems to circumvent the conda environment
 # We also need to set options for the JRE here.
 ENV PATH="$MAMBA_ROOT_PREFIX/bin:$PATH" _JAVA_OPTIONS="-Djava.awt.headless=true" VERSION=$VERSION
