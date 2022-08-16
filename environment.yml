@@ -4,8 +4,7 @@ channels:
   - conda-forge
   - r
 dependencies:
-  # Main dependencies:
-  - openjdk=11.0.15
-  - encyclopedia=1.12.34
   - bioconductor-msstats=4.2.0
-  - r-tidyverse
+  - r-dplyr
+  - r-tidyr
+  - r-magrittr
