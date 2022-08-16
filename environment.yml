@@ -2,14 +2,9 @@ name: nf-encyclopedia
 channels:
   - bioconda
   - conda-forge
+  - r
 dependencies:
   # Main dependencies:
   - encyclopedia=1.12.34
   - bioconductor-msstats=4.2.0
-  - python=3.10
-
-  # Secondary dependencies:
-  - rpy2
-  - click
-  - pandas
-  - numpy
+  - r-tidyverse
