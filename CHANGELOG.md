@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.5.0] - 2022-08-11
+## [0.5.0] - 2022-08-16
 ### Changed
 - Parameters updated to be more user-friendly.
 - Scripts are now in the `bin` directory, instead of the Docker containers.
@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Reports for pipeline runs.
+- Created a public nf-encyclopedia Docker image for everything except msconvert.
+- A nearly complete system test using small mzML files.
 
 ## [0.4.2] - 2022-07-19
 ### Changed
