@@ -43,8 +43,6 @@ process ENCYCLOPEDIA_LOCAL {
 
     script:
     """
-    echo \${PATH} 1>&2
-    which EncyclopeDIA
     gzip -df ${mzml_gz_file}
     ${execEncyclopedia(task.memory)} \\
         -i ${mzml_gz_file.baseName} \\
