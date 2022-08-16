@@ -1,0 +1,10 @@
+name: nf-encyclopedia
+channels:
+  - bioconda
+  - conda-forge
+  - r
+dependencies:
+  # Main dependencies:
+  - encyclopedia=1.12.34
+  - bioconductor-msstats=4.2.0
+  - r-tidyverse

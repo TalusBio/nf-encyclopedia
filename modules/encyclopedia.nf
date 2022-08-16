@@ -1,3 +1,25 @@
+/* Execute EncyclopeDIA
+ *
+ * Bioconda includes a wrapper script that makes it difficult to find the jar
+ * file. This function calls Java manually, only in the case that a custom
+ * jar file is provided for EncyclopeDIA.
+ */
+def execEncyclopedia(mem) {
+    def xmx = "-Xmx${mem.toGiga()-1}G"
+    if (params.encyclopedia.jar) {
+        return "java -Djava.aws.headless=true ${xmx} -jar ${params.encyclopedia.jar}"
+    } else {
+        return "EncyclopeDIA ${xmx}"
+    }
+}
+
+
+// A utility function for creating the prefixes:
+def stem(postfix) {
+    return "encyclopedia.${postfix}"
+}
+
+
 process ENCYCLOPEDIA_LOCAL {
     publishDir "${params.result_dir}/${group}/elib", pattern: '*.elib', failOnError: true
     publishDir "${params.result_dir}/${group}/logs", pattern: '*.log', failOnError: true
@@ -21,11 +43,10 @@ process ENCYCLOPEDIA_LOCAL {
 
     script:
     """
-    gunzip -f ${mzml_gz_file}
-    java \\
-        -Djava.awt.headless=true \\
-        -Xmx${task.memory.toGiga()-1}G \\
-        -jar /code/encyclopedia-\$VERSION-executable.jar \\
+    echo \${PATH} 1>&2
+    which EncyclopeDIA
+    gzip -df ${mzml_gz_file}
+    ${execEncyclopedia(task.memory)} \\
         -i ${mzml_gz_file.baseName} \\
         -f ${fasta_file} \\
         -l ${library_file} \\
@@ -67,7 +88,6 @@ process ENCYCLOPEDIA_GLOBAL {
         path(fasta_file)
         val output_postfix
 
-
     output:
         tuple(
             val(group),
@@ -80,14 +100,9 @@ process ENCYCLOPEDIA_GLOBAL {
 
     script:
     """
-    source ~/.bashrc
-    mkdir logs
-    gunzip ${local_feature_files}
+    gzip -df ${local_feature_files}
     find * -name '*\\.mzML\\.*' -exec bash -c 'mv \$0 \${0/\\.mzML/\\.dia}' {} \\;
-    java \\
-        -Djava.awt.headless=true \\
-        -Xmx${task.memory.toGiga()-1}G \\
-        -jar /code/encyclopedia-\$VERSION-executable.jar \\
+    ${execEncyclopedia(task.memory)} \\
         -libexport \\
         -o ${stem(output_postfix)}.elib \\
         -i ./ \\
@@ -115,10 +130,4 @@ process ENCYCLOPEDIA_GLOBAL {
     touch ${stem(output_postfix)}.global.log
     touch ${output_postfix}_detection_summary.csv
     """
-}
-
-
-// A utility function for creating the prefixes:
-def stem(postfix) {
-    return "encyclopedia.${postfix}"
 }

@@ -1,0 +1,41 @@
+name: Build Docker image
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published, edited]
+
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: TalusBio/nf-encyclopedia
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout the repository
+      uses: actions/checkout@v3
+
+    - name: Login to the GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata for Docker
+      id: meta
+      uses: docker/metadata-action@v3
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+    # Note that the image is cached from the test build, so it won't be build a
+    # second time. Correspondingly, this step only pushes it to the GitHub
+    # Container Registry.
+    - name: Push the Docker image to the GHCR
+      uses: docker/build-push-action@v2
+      with:
+        push: false
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}

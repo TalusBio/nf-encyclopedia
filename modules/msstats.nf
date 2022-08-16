@@ -8,18 +8,18 @@ process MSSTATS {
     output:
         tuple(
             val(group),
-            path("msstats_input.csv"),
-            path("msstats_processed.csv")
+            path("msstats_input.txt"),
+            path("msstats_processed.rda")
         )
 
     script:
     """
-    msstats.py ${quant_peptides}
+    msstats.R ${quant_peptides}
     """
 
     stub:
     """
-    touch msstats_input.csv
-    touch msstats_processed.csv
+    touch msstats_input.txt
+    touch msstats_processed.rda
     """
 }
