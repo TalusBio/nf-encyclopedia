@@ -2,13 +2,16 @@
 
 nextflow.enable.dsl = 2
 
-// Subworkflows:
+// Subworkflows
 include { CONVERT_TO_MZML } from "./subworkflows/msconvert"
 include {
     BUILD_CHROMATOGRAM_LIBRARY;
     PERFORM_QUANT;
     PERFORM_AGGREGATE_QUANT
 } from "./subworkflows/encyclopedia"
+
+// Modules
+include { MSSTATS } from "./modules/msstats"
 
 
 //
@@ -43,21 +46,34 @@ def replace_missing_elib(elib) {
 // The main workflow
 //
 workflow {
-    // Get .fasta and .dlib
+    input = Channel.fromPath(params.input, checkIfExist: true).first()
     fasta = Channel.fromPath(params.fasta, checkIfExists: true).first()
     dlib = Channel.fromPath(params.dlib, checkIfExists: true).first()
 
+    // Optional contrasts arg:
+    if ( params.contrasts != null ) {
+        contrasts = Channel
+            .fromPath(params.contrasts, checkIfExists: true)
+            .first()
+    } else {
+        contrasts = file("NO_FILE")
+    }
+
     // Get the narrow and wide files:
     ms_files = Channel
-        .fromPath(params.ms_file_csv, checkIfExists: true)
+        .fromPath(params.input, checkIfExists: true)
         .splitCsv(header: true, strip: true)
         .multiMap { it ->
             runs: it.file
-            meta: tuple it.file, it.chrlib.toBoolean(), it.group
+            meta: tuple(
+                it.file,
+                it.chrlib.toBoolean(),
+                it.group,
+            )
         }
 
     if ( !ms_files.runs ) {
-        error "No MS data files were given. Nothing to do."
+        error "No MS data files were provided. Nothing to do."
     }
 
     // Convert raw files to gzipped mzML and group them by experiment.
@@ -87,16 +103,29 @@ workflow {
     | set { quant_files }
 
     // Analyze the quantitative runs with EncyclopeDIA.
-    // The output has three channels:
+    // The output has two channels:
     // local -> [group, [local_elib_files], [mzml_gz_files]]
     // global -> [group, global_elib, peptides, proteins] or null
-    // msstats -> [group, input_csv, feature_csv]
     PERFORM_QUANT(quant_files, dlib, fasta, params.aggregate)
     | set { quant_results }
 
-    // Perform an global analysis on all files if needed:
+    // Perform an aggregate analysis on all files if needed:
     if ( params.aggregate ) {
+        // Aggregate quantitative runs with EncyclopeDIA.
+        // The output has one channel:
+        // global -> [agg_name, global_elib, peptides, proteins] or null
         PERFORM_AGGREGATE_QUANT(quant_results.local, dlib, fasta)
+        | set { msstats_input }
+    } else {
+        quant_results | set{ msstats_input }
+    }
+
+    // Run MSstats
+    if ( params.msstats.enabled ) {
+        msstats_input.global
+        | map { tuple it[0], it[2], input_csv, contrasts }
+        MSSTATS
+        | set { msstats_files }
     }
 }
 

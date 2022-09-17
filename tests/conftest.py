@@ -1,7 +1,10 @@
 """Fixtures for test"""
+import random
 from pathlib import Path
 
 import pytest
+import numpy as np
+import pandas as pd
 
 
 @pytest.fixture
@@ -89,3 +92,45 @@ def real_data(tmp_path):
     ]
 
     return config, ms_files_csv
+
+
+@pytest.fixture
+def enc_peptides_txt(tmp_path):
+    """A simulated peptide.txt file from EncyclopeDIA with corresponding
+    annotations and contrasts.
+    """
+    rng = np.random.default_rng(42)
+    random.seed(1)
+
+    n_peptides = 100
+
+    alpha = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    peps = ["".join(random.choices(alpha, k=10)) for _ in range(n_peptides)]
+    prots = ["".join(random.choices(alpha, k=2)) for _ in range(n_peptides)]
+    quants = rng.normal(0, 1, size=(n_peptides, len(alpha))) ** 2 * 1e5
+    mzml = [a + ".mzML" for a in alpha]
+    raw = ["s3://stuff/blah/" + a + ".raw" for a in alpha]
+
+    # The peptides.txt file:
+    quant_df = pd.DataFrame(quants, columns=mzml)
+    meta_df = pd.DataFrame(
+        {"Peptide": peps, "Protein": prots, "numFragments": 1}
+    )
+
+    peptide_df = pd.concat([quant_df, meta_df], axis=1)
+    peptide_file = tmp_path / "encyclopedia.peptides.txt"
+    peptide_df.to_csv(peptide_file, sep="\t", index=False)
+
+    # The annotation file:
+    n_group = int(len(raw) // 2)
+    input_df = pd.DataFrame({"file": raw, "chrlib": False, "group": "default"})
+    input_df["condition"] = ["A"] * n_group + ["B"] * (len(raw) - n_group)
+    input_file = tmp_path / "input.csv"
+    input_df.to_csv(input_file, index=False)
+
+    # contrasts:
+    contrast_df = pd.DataFrame([(-1, 1)], columns=["A", "B"], index=["test"])
+    contrast_file = tmp_path / "contrasts.csv"
+    contrast_df.to_csv(contrast_file)
+
+    return peptide_file, input_file, contrast_file

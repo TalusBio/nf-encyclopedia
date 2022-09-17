@@ -74,7 +74,7 @@ workflow PERFORM_QUANT {
             Channel.empty() | set { msstats_files }
         } else {
             // Do the global analysis
-            // Ouput is [group, global_elib_file, peptides_txt, proteins_txt, log]
+            // Output is [group, global_elib_file, peptides_txt, proteins_txt, log]
             ENCYCLOPEDIA_GLOBAL(
                 local_files,
                 dlib,
@@ -82,19 +82,11 @@ workflow PERFORM_QUANT {
                 params.encyclopedia.quant_postfix
             )
             | set { global_files }
-
-            // Run MSstats
-            // Ouput is [group, input_csv, feature_csv ]
-            global_files
-            | map { tuple it[0], it[2] }
-            | MSSTATS
-            | set { msstats_files }
         }
 
     emit:
         local = local_files
         global = global_files
-        msstats = msstats_files
 }
 
 
@@ -123,14 +115,6 @@ workflow PERFORM_AGGREGATE_QUANT {
         )
         | set { global_files }
 
-        // Run MSstats
-        // Ouput is ["global", input_csv, feature_csv ]
-        global_files
-        | map { tuple it[0], it[2] }
-        | MSSTATS
-        | set { msstats_files }
-
     emit:
         global = global_files
-        msstats = msstats_files
 }
