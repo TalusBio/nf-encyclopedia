@@ -95,14 +95,14 @@ def real_data(tmp_path):
 
 
 @pytest.fixture
-def enc_peptides_txt(tmp_path):
+def msstats_input(tmp_path):
     """A simulated peptide.txt file from EncyclopeDIA with corresponding
     annotations and contrasts.
     """
     rng = np.random.default_rng(42)
     random.seed(1)
 
-    n_peptides = 100
+    n_peptides = 500
 
     alpha = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
     peps = ["".join(random.choices(alpha, k=10)) for _ in range(n_peptides)]

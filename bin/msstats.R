@@ -1,8 +1,10 @@
 #!/usr/bin/env Rscript
-library(dplyr)
-library(tidyr)
-library(magrittr)
-library(MSstats)
+library(rlang)
+library(dplyr, warn.conflicts = FALSE)
+library(tidyr, warn.conflicts = FALSE)
+library(stringr, warn.conflicts = FALSE)
+library(magrittr, warn.conflicts = FALSE)
+library(MSstats, warn.conflicts = FALSE)
 
 
 # Convert EncyclopeDIA results to a format for MSstats
@@ -16,7 +18,7 @@ encyclopediaToMsstats <- function(peptides_txt) {
     pivot_longer(names(.)[!names(.) %in% id_vars], 
                  names_to = "run",
                  values_to = "intensity") %>%
-    mutate(run = sub("\\.mzML$", "", run)) %>%
+    mutate(run = str_replace(run, "\\.mzML$", "")) %>%
     rename(Run = run,
            Intensity = intensity,
            PeptideModifiedSequence = Peptide,
@@ -27,7 +29,7 @@ encyclopediaToMsstats <- function(peptides_txt) {
            FragmentIon = "y0",
            ProductCharge = 1,
            PeptideSequence =
-             sub("[\\[\\(].*?[\\]\\)]", "", PeptideModifiedSequence)) %>%
+             str_replace(PeptideModifiedSequence, "[\\[\\(].*?[\\]\\)]", "")) %>%
     select(PeptideSequence,
            PeptideModifiedSequence,
            ProteinName,
@@ -44,14 +46,27 @@ encyclopediaToMsstats <- function(peptides_txt) {
 # Parse the annotation file.
 annotate <- function(peptide_df, annot_csv) {
   annot_df <- read.csv(annot_csv, header = TRUE, stringsAsFactors = FALSE) %>%
-    mutate(file = sub("\.[^\.]*?[\.gz]*$", ".mzML", basename(file)),
-           condition = ifelse("condition" %in% names(.), condition, "unknown"),
-           bioreplicate = ifelse("bioreplicate" %in% names(.), bioreplicate, file)) %>%
+    mutate(file = str_replace(basename(file),"\\.[^\\.]*?[\\.gz]*$", "")) %>%
+    fill_column(condition, "unknown") %>%
+    fill_column(bioreplicate, file) %>%
     rename(Run = file,
            Condition = condition,
-           BioReplicate = bioreplicate)
+           BioReplicate = bioreplicate) %>%
+    select(c("Run", "Condition", "BioReplicate")) %>%
+    print()
+
 
   return(left_join(peptide_df, annot_df))
+}
+
+
+# Test if a column exists and create it if it doesn't.
+fill_column <- function(df, column, backup) {
+  var_name <- englue("{{column}}")
+  if (!(var_name %in% names(df))) {
+    df <- mutate(df, "{{ column }}" := {{ backup }})
+  }
+  return(df)
 }
 
 
@@ -70,6 +85,8 @@ main <- function() {
   # Read the data and add annotations:
   peptide_df <- encyclopediaToMsstats(peptides_txt) %>%
     annotate(input_csv)
+
+  print(head(peptide_df))
 
   write.table(peptide_df, 
               file = "msstats.input.txt",
@@ -101,8 +118,9 @@ main <- function() {
 
   # Perform hypothesis tests:
   if(contrasts != "NO_FILE") {
-    contrast_mat <- read.csv(contrasts)
-    diffexp <- groupComparison(contrast_mat, processed)
+    contrast_mat <- read.csv(contrasts, row.names = 1)
+    print(contrast_mat)
+    diffexp <- groupComparison(contrast_mat, processed, use_log_file=FALSE)
     write.table(diffexp$ComparisonResult,
                 "msstats.stats.txt",
                 quote = FALSE,
@@ -112,7 +130,7 @@ main <- function() {
 
   if(reports) {
     dataProcessPlots(processed, "QCPlot")
-    groupComparisonPlots(diffexp, "VolcanoPlot")
+    if (contrasts != "NO_FILE") groupComparisonPlots(diffexp, "VolcanoPlot")
   }
 
 }
