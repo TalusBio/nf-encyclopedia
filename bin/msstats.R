@@ -40,6 +40,7 @@ encyclopediaToMsstats <- function(peptides_txt) {
            FragmentIon,
            ProductCharge)
 
+  print(df)
   return(df)
 }
 

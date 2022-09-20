@@ -33,11 +33,11 @@ def base_project(tmp_path):
 
     ms_files_csv = tmp_path / "ms_files.csv"
     with ms_files_csv.open("w+") as fhndl:
-        fhndl.write("\n".join(ms_files))
+        fhndl.write("\n".join(ms_files) + "\n")
 
     ms_files_csv_short = tmp_path / "ms_files_short.csv"
     with ms_files_csv_short.open("w+") as fhndl:
-        fhndl.write("\n".join(ms_files[1:4] + ms_files[7:10]))
+        fhndl.write("\n".join(ms_files[:4] + ms_files[7:10]) + "\n")
 
     # FASTA
     fasta_file = tmp_path / "test.fasta"
