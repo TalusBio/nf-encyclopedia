@@ -40,9 +40,9 @@ encyclopediaToMsstats <- function(peptides_txt) {
            FragmentIon,
            ProductCharge)
 
-  message(df)
   return(df)
 }
+
 
 # Parse the annotation file.
 annotate <- function(peptide_df, annot_csv) {
@@ -55,7 +55,6 @@ annotate <- function(peptide_df, annot_csv) {
            BioReplicate = bioreplicate) %>%
     select(c("Run", "Condition", "BioReplicate"))
 
-  message(annot_df)
   return(left_join(peptide_df, annot_df, by="Run"))
 }
 
