@@ -10,12 +10,12 @@ library(MSstats, warn.conflicts = FALSE)
 # Convert EncyclopeDIA results to a format for MSstats
 encyclopediaToMsstats <- function(peptides_txt) {
   id_vars <- c("Peptide", "Protein", "numFragments")
-  
+
   df <- read.table(peptides_txt,
                    sep = '\t',
                    header = TRUE,
                    stringsAsFactors = FALSE) %>%
-    pivot_longer(names(.)[!names(.) %in% id_vars], 
+    pivot_longer(names(.)[!names(.) %in% id_vars],
                  names_to = "run",
                  values_to = "intensity") %>%
     mutate(run = str_replace(run, "\\.mzML$", "")) %>%

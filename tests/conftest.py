@@ -48,8 +48,6 @@ def base_project(tmp_path):
     dlib_file = tmp_path / "dlib.fasta"
     dlib_file.touch()
 
-    n_cpus = os.cpu_count()
-
     # Config:
     config = [
         "-profile", "standard",
@@ -63,7 +61,7 @@ def base_project(tmp_path):
         "--dlib", str(dlib_file),
         "--input", str(ms_files_csv),
         "--max_memory", f"4.GB",
-        "--max_cpus", str(n_cpus),
+        "--max_cpus", "1",
     ]
 
     return config, ms_files_csv, ms_files_csv_short
@@ -82,7 +80,7 @@ def real_data(tmp_path):
 
     ms_files_csv = tmp_path / "ms_files.csv"
     with ms_files_csv.open("w+") as fhndl:
-        fhndl.write("\n".join(ms_files) + "\n")
+        fhndl.write("\n".join(ms_files))
 
     n_cpus = os.cpu_count()
 
