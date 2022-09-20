@@ -79,7 +79,7 @@ main <- function() {
   reports <- as.logical(args[5])
 
   # Parse the normalization:
-  if(normalization == "none") normalization <- FALSE
+  if(tolower(normalization) == "none") normalization <- FALSE
 
   # Read the data and add annotations:
   peptide_df <- encyclopediaToMsstats(peptides_txt) %>%

@@ -100,16 +100,15 @@ def msstats_input(tmp_path):
     annotations and contrasts.
     """
     rng = np.random.default_rng(42)
-    random.seed(1)
 
-    n_peptides = 100
+    alpha = list("AB")
+    peps = list("ABCDEFGHIJKLMNOP")
+    prots = list("AAAAAAAABBBBBBBB")
+    stems = list("WXYZ")
+    quants = rng.normal(0, 1, size=(len(peps), len(stems))) ** 2 * 1e5
 
-    alpha = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-    peps = ["".join(random.choices(alpha, k=10)) for _ in range(n_peptides)]
-    prots = ["".join(random.choices(alpha, k=1)) for _ in range(n_peptides)]
-    quants = rng.normal(0, 1, size=(n_peptides, len(alpha))) ** 2 * 1e5
-    mzml = [a + ".mzML" for a in alpha]
-    raw = ["s3://stuff/blah/" + a + ".raw" for a in alpha]
+    mzml = [s + ".mzML" for s in stems]
+    raw = ["s3://stuff/blah/" + s + ".raw" for s in stems]
 
     # The peptides.txt file:
     quant_df = pd.DataFrame(quants, columns=mzml)
@@ -124,12 +123,12 @@ def msstats_input(tmp_path):
     # The annotation file:
     n_group = int(len(raw) // 2)
     input_df = pd.DataFrame({"file": raw, "chrlib": False, "group": "default"})
-    input_df["condition"] = ["A"] * n_group + ["B"] * (len(raw) - n_group)
+    input_df["condition"] = ["C"] * n_group + ["D"] * (len(raw) - n_group)
     input_file = tmp_path / "input.csv"
     input_df.to_csv(input_file, index=False)
 
     # contrasts:
-    contrast_df = pd.DataFrame([(-1, 1)], columns=["A", "B"], index=["test"])
+    contrast_df = pd.DataFrame([(-1, 1)], columns=["C", "D"], index=["test"])
     contrast_file = tmp_path / "contrasts.csv"
     contrast_df.to_csv(contrast_file)
 
