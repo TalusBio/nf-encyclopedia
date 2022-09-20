@@ -37,6 +37,10 @@ jobs:
         load: true
         tags: ${{ env.IMAGE_NAME }}:latest
 
-    - name: Run Workflow Tests
+    - name: Run System Tests
       run: |
-        pytest
+        pytest tests/system_tests
+
+    - name: Run Unit Tests
+      run: |
+        docker run nf-encyclopedia:latest tests/unit_tests

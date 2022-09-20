@@ -4,6 +4,10 @@ channels:
   - conda-forge
   - r
 dependencies:
+  - python==3.10
+  - pytest
+  - numpy
+  - pandas
   - bioconductor-msstats=4.2.0
   - r-rlang
   - r-dplyr
