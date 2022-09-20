@@ -102,11 +102,11 @@ def msstats_input(tmp_path):
     rng = np.random.default_rng(42)
     random.seed(1)
 
-    n_peptides = 500
+    n_peptides = 100
 
     alpha = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
     peps = ["".join(random.choices(alpha, k=10)) for _ in range(n_peptides)]
-    prots = ["".join(random.choices(alpha, k=2)) for _ in range(n_peptides)]
+    prots = ["".join(random.choices(alpha, k=1)) for _ in range(n_peptides)]
     quants = rng.normal(0, 1, size=(n_peptides, len(alpha))) ** 2 * 1e5
     mzml = [a + ".mzML" for a in alpha]
     raw = ["s3://stuff/blah/" + a + ".raw" for a in alpha]

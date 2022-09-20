@@ -52,11 +52,10 @@ annotate <- function(peptide_df, annot_csv) {
     rename(Run = file,
            Condition = condition,
            BioReplicate = bioreplicate) %>%
-    select(c("Run", "Condition", "BioReplicate")) %>%
-    print()
+    select(c("Run", "Condition", "BioReplicate"))
 
 
-  return(left_join(peptide_df, annot_df))
+  return(left_join(peptide_df, annot_df, by="Run"))
 }
 
 
@@ -86,9 +85,7 @@ main <- function() {
   peptide_df <- encyclopediaToMsstats(peptides_txt) %>%
     annotate(input_csv)
 
-  print(head(peptide_df))
-
-  write.table(peptide_df, 
+  write.table(peptide_df,
               file = "msstats.input.txt",
               sep = "\t",
               row.names = FALSE,
@@ -109,7 +106,7 @@ main <- function() {
   save(processed, file = "msstats.processed.rda")
 
   # Get quantified proteins:
-  quants <- quantification(processed)
+  quants <- quantification(processed, use_log_file = FALSE)
   write.table(quants,
               "msstats.proteins.txt",
               row.names = TRUE,
@@ -119,7 +116,6 @@ main <- function() {
   # Perform hypothesis tests:
   if(contrasts != "NO_FILE") {
     contrast_mat <- read.csv(contrasts, row.names = 1)
-    print(contrast_mat)
     diffexp <- groupComparison(contrast_mat, processed, use_log_file=FALSE)
     write.table(diffexp$ComparisonResult,
                 "msstats.stats.txt",
@@ -130,7 +126,7 @@ main <- function() {
 
   if(reports) {
     dataProcessPlots(processed, "QCPlot")
-    if (contrasts != "NO_FILE") groupComparisonPlots(diffexp, "VolcanoPlot")
+    #if (contrasts != "NO_FILE") groupComparisonPlots(diffexp, "VolcanoPlot")
   }
 
 }
