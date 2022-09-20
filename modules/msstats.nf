@@ -1,6 +1,7 @@
 process MSSTATS {
     publishDir "${params.result_dir}/${group}", failOnError: true
     label 'process_medium'
+    debug true
 
     input:
         tuple val(group), path(quant_peptides)
