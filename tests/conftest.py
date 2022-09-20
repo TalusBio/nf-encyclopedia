@@ -55,9 +55,10 @@ def base_project(tmp_path):
         "-w", str(tmp_path / "work"),
         "--result_dir", str(tmp_path / "results"),
         "--mzml_dir", str(tmp_path / "mzml"),
+        "--report_dir", str(tmp_path / "reports"),
         "--fasta", str(fasta_file),
         "--dlib", str(dlib_file),
-        "--ms_file_csv", str(ms_files_csv),
+        "--input", str(ms_files_csv),
         "--max_memory", "4.GB",
         "--max_cpus", "1",
     ]
@@ -86,9 +87,10 @@ def real_data(tmp_path):
         "-c", "conf/test.config",
         "--result_dir", str(tmp_path / "results"),
         "--mzml_dir", str(tmp_path / "mzml"),
+        "--report_dir", str(tmp_path / "reports"),
         "--fasta", str(fasta_file),
         "--dlib", str(dlib_file),
-        "--ms_file_csv", str(ms_files_csv),
+        "--input", str(ms_files_csv),
     ]
 
     return config, ms_files_csv

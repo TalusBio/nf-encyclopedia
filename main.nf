@@ -46,7 +46,7 @@ def replace_missing_elib(elib) {
 // The main workflow
 //
 workflow {
-    input = Channel.fromPath(params.input, checkIfExist: true).first()
+    input = Channel.fromPath(params.input, checkIfExists: true).first()
     fasta = Channel.fromPath(params.fasta, checkIfExists: true).first()
     dlib = Channel.fromPath(params.dlib, checkIfExists: true).first()
 
@@ -115,17 +115,18 @@ workflow {
         // The output has one channel:
         // global -> [agg_name, global_elib, peptides, proteins] or null
         PERFORM_AGGREGATE_QUANT(quant_results.local, dlib, fasta)
-        | set { msstats_input }
+        | set { enc_results }
     } else {
-        quant_results | set{ msstats_input }
+        quant_results | set{ enc_results }
     }
 
     // Run MSstats
     if ( params.msstats.enabled ) {
-        msstats_input.global
-        | map { tuple it[0], it[2], input_csv, contrasts }
-        MSSTATS
-        | set { msstats_files }
+        enc_results.global
+        | map { tuple it[0], it[2]}
+        | set { msstats_input }
+
+        MSSTATS(msstats_input, input, contrasts)
     }
 }
 

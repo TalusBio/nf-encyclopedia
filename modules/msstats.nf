@@ -3,12 +3,9 @@ process MSSTATS {
     label 'process_medium'
 
     input:
-        tuple(
-            val(group),
-            path(quant_peptides),
-            path(input),
-            path(contrasts)
-        )
+        tuple val(group), path(quant_peptides)
+        path input
+        path contrasts
 
     output:
         val group
@@ -18,7 +15,6 @@ process MSSTATS {
         path "logs/msstats.log"
         path "msstats.stats.txt", optional: true
         path "reports/msstats.qc.pdf", optional: true
-        path "reports/msstats.volcanoplots.pdf", optional: true
 
     script:
     """
@@ -29,18 +25,18 @@ process MSSTATS {
         ${contrasts} \
         ${params.msstats.normalization} \
         ${params.msstats.reports} \
-        | tee "logs/msstats.log"
+        | tee logs/msstats.log
     [ -f QCplot.pdf ] && mv QCplot.pdf reports/msstats.qc.pdf
-    [ -f VolcanoPlot.pdf ] && mv VolcanoPlot.pdf reports/msstats.volcanoplots.pdf
     """
 
     stub:
     """
+    mkdir -p msstats reports logs
     touch msstats/msstats.input.txt
     touch msstats/msstats.processed.rda
     touch msstats.proteins.txt
+    touch logs/msstats.log
     touch msstats.stats.txt
     touch reports/msstats.qc.pdf
-    touch reports/msstats.volcanoplots.pdf
     """
 }
