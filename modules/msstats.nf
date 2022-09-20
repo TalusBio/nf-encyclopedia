@@ -18,7 +18,6 @@ process MSSTATS {
 
     script:
     """
-    head quant_peptides
     mkdir -p msstats reports logs
     msstats.R \
         ${quant_peptides} \
