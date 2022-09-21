@@ -7,8 +7,8 @@ import pytest
 import pandas as pd
 
 OUTPUTS = [
-    Path("msstats.input.txt"),
-    Path("msstats.processed.rda"),
+    Path("msstats/msstats.input.txt"),
+    Path("msstats/msstats.processed.rda"),
     Path("msstats.proteins.txt"),
     Path("msstats.stats.txt"),
     Path("QCPlot.pdf"),
@@ -93,7 +93,7 @@ def test_input(script, msstats_input):
         "false",
     ]
     subprocess.run(args, check=True)
-    input_df = pd.read_table("msstats.input.txt")
+    input_df = pd.read_table("msstats/msstats.input.txt")
 
     assert input_df.shape == (64, 11)
     assert input_df["Run"].tolist() == input_df["BioReplicate"].tolist()
@@ -129,7 +129,7 @@ def test_input_with_bioreplicate(script, msstats_input):
     ]
 
     subprocess.run(args, check=True)
-    input_df = pd.read_table("msstats.input.txt")
+    input_df = pd.read_table("msstats/msstats.input.txt")
     assert (input_df["BioReplicate"] == 1).all()
 
 
@@ -145,6 +145,7 @@ def _file_created(*args, exists=True):
 @pytest.fixture
 def script(monkeypatch, tmp_path):
     """Set the working directory"""
+    (tmp_path / "msstats").mkdir(exist_ok=True)
     script_path = Path("bin/msstats.R").resolve()
     monkeypatch.syspath_prepend(script_path)
     monkeypatch.chdir(tmp_path)
