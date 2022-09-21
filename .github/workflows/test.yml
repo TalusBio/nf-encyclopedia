@@ -37,11 +37,11 @@ jobs:
         load: true
         tags: ${{ env.IMAGE_NAME }}:latest
 
-    - name: Run System Tests
-      run: |
-        pytest tests/system_tests
-
     - name: Run Unit Tests
       run: |
         docker run -v $(pwd):app/nf-encyclopedia nf-encyclopedia:latest \
           cd nf-encyclopedia && pytest tests/unit_tests
+
+    - name: Run System Tests
+      run: |
+        pytest tests/system_tests
