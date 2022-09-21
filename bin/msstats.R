@@ -14,7 +14,8 @@ encyclopediaToMsstats <- function(peptides_txt) {
   df <- read.table(peptides_txt,
                    sep = '\t',
                    header = TRUE,
-                   stringsAsFactors = FALSE) %>%
+                   stringsAsFactors = FALSE,
+                   check.names = FALSE) %>%
     pivot_longer(names(.)[!names(.) %in% id_vars],
                  names_to = "run",
                  values_to = "intensity") %>%
@@ -86,7 +87,7 @@ main <- function() {
     annotate(input_csv)
 
   write.table(peptide_df,
-              file = "msstats.input.txt",
+              file = "msstats/msstats.input.txt",
               sep = "\t",
               row.names = FALSE,
               quote = FALSE)
@@ -102,8 +103,7 @@ main <- function() {
                            censoredInt = "0",
                            normalization = normalization,
                            use_log_file = FALSE)
-
-  save(processed, file = "msstats.processed.rda")
+  save(processed, file = "msstats/msstats.processed.rda")
 
   # Get quantified proteins:
   quants <- quantification(processed, use_log_file = FALSE)
@@ -121,14 +121,12 @@ main <- function() {
                 "msstats.stats.txt",
                 quote = FALSE,
                 sep = "\t")
-
   }
 
   if(reports) {
     dataProcessPlots(processed, "QCPlot")
     #if (contrasts != "NO_FILE") groupComparisonPlots(diffexp, "VolcanoPlot")
   }
-
 }
 
 

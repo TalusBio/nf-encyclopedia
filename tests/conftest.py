@@ -80,7 +80,7 @@ def real_data(tmp_path):
 
     ms_files_csv = tmp_path / "ms_files.csv"
     with ms_files_csv.open("w+") as fhndl:
-        fhndl.write("\n".join(ms_files))
+        fhndl.write("\n".join(ms_files) + "\n")
 
     n_cpus = os.cpu_count()
 

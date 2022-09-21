@@ -19,7 +19,6 @@ process MSSTATS {
 
     script:
     """
-    cat ${quant_peptides}
     mkdir -p msstats reports logs
     msstats.R \
         ${quant_peptides} \
@@ -29,6 +28,7 @@ process MSSTATS {
         ${params.msstats.reports} \
         | tee logs/msstats.log
     [ -f QCplot.pdf ] && mv QCplot.pdf reports/msstats.qc.pdf
+    echo "DONE!" # Needed for proper exit
     """
 
     stub:
