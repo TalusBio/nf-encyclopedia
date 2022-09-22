@@ -46,17 +46,15 @@ def replace_missing_elib(elib) {
 // The main workflow
 //
 workflow {
-    input = Channel.fromPath(params.input, checkIfExists: true).first()
-    fasta = Channel.fromPath(params.fasta, checkIfExists: true).first()
-    dlib = Channel.fromPath(params.dlib, checkIfExists: true).first()
+    input = file(params.input, checkIfExists: true)
+    fasta = file(params.fasta, checkIfExists: true)
+    dlib = file(params.dlib, checkIfExists: true)
 
     // Optional contrasts arg:
     if ( params.contrasts != null ) {
-        contrasts = Channel
-            .fromPath(params.contrasts, checkIfExists: true)
-            .first()
+        contrasts = file(params.contrasts, checkIfExists: true)
     } else {
-        contrasts = file("NO_FILE")
+        contrasts = file("${baseDir}/assets/NO_FILE", checkIfExists: true)
     }
 
     // Get the narrow and wide files:
