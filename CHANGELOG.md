@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [unreleased]
 ### Changed
 - Updated EncyclopeDIA parameters to match GUI defaults.
+- Retries should automatically occur when MSconvert hangs
 
 ### Added
 - Added full support for MSstats
