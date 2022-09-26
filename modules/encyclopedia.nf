@@ -142,8 +142,8 @@ process ENCYCLOPEDIA_GLOBAL {
         tuple(
             val(group),
             path("${stem(output_postfix)}.elib"),
-            path("${stem(output_postfix)}.peptides.txt", optional: true),
-            path("${stem(output_postfix)}.proteins.txt", optional: true),
+            path("${stem(output_postfix)}.peptides.txt"),
+            path("${stem(output_postfix)}.proteins.txt"),
             path("${stem(output_postfix)}.global.log"),
             path("${output_postfix}_detection_summary.csv")
         )
@@ -151,6 +151,7 @@ process ENCYCLOPEDIA_GLOBAL {
     script:
     """
     STEM=${stem(output_postfix)}
+    touch \${STEM}.elib.peptides.txt \${STEM.elib.proteins.txt}
     gzip -df ${local_feature_files}
     find * -name '*\\.mzML\\.*' -exec bash -c 'mv \$0 \${0/\\.mzML/\\.dia}' {} \\;
     ${execEncyclopedia(task.memory)} \\
@@ -163,8 +164,8 @@ process ENCYCLOPEDIA_GLOBAL {
         ${params.encyclopedia.global.args} \\
         -a ${align} \\
     | tee ${stem(output_postfix)}.global.log
-    [ -f \${STEM}.elib.peptides.txt ] && mv \${STEM}.elib.peptides.txt \${STEM}.peptides.txt
-    [ -f \${STEM}.elib.proteins.txt ] && mv \${STEM}.elib.proteins.txt \${STEM}.proteins.txt
+    mv \${STEM}.elib.peptides.txt \${STEM}.peptides.txt
+    mv \${STEM}.elib.proteins.txt \${STEM}.proteins.txt
     echo 'Finding unique peptides and proteins...'
     echo 'Run,Unique Proteins,Unique Peptides' \\
         > ${output_postfix}_detection_summary.csv
