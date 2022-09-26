@@ -1,6 +1,35 @@
 """Do a quick stub run to make sure things are working"""
 import subprocess
 
+import pytest
+
+
+def test_walnut(base_project, tmp_path):
+    """Test the workflow logic for per experiment workflows"""
+    config, *_ = base_project
+
+    # Remove dlib:
+    dlib_idx = [i for i, c in enumerate(config) if c == "--dlib"][0]
+    del config[dlib_idx:dlib_idx+2]
+
+    cmd = ["nextflow", "run", "main.nf"] + config
+
+    subprocess.run(cmd, check=True)
+    base = tmp_path / "results"
+    expected = [
+        base / "x" / "elib/encyclopedia.quant.elib",
+        base / "y" / "elib/encyclopedia.quant.elib",
+        base / "z" / "elib/encyclopedia.quant.elib",
+        base / "x" / "elib/encyclopedia.chrlib.elib",
+        base / "y" / "elib/encyclopedia.chrlib.elib",
+    ]
+
+    for fname in expected:
+        assert fname.exists()
+
+    not_expected = base / "agg" / "result-agg.elib"
+    assert not not_expected.exists()
+
 
 def test_no_aggregate(base_project, tmp_path):
     """Test the workflow logic for per experiment workflows"""
@@ -22,6 +51,8 @@ def test_no_aggregate(base_project, tmp_path):
     not_expected = base / "agg" / "result-agg.elib"
     assert not not_expected.exists()
 
+
+@pytest.mark.skip("Disabled aggregate parameter")
 def test_aggregate(base_project, tmp_path):
     """Test workflow logic for global analyses."""
     config, *_ = base_project

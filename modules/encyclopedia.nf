@@ -1,3 +1,7 @@
+// Set parameters:
+def chr_global_args = "${params.encyclopedia.global.args} -a false"
+def quant_global_args = "${params.encyclopedia.global.args} -a true"
+
 /* Execute EncyclopeDIA
  *
  * Bioconda includes a wrapper script that makes it difficult to find the jar
@@ -17,6 +21,53 @@ def execEncyclopedia(mem) {
 // A utility function for creating the prefixes:
 def stem(postfix) {
     return "encyclopedia.${postfix}"
+}
+
+
+process WALNUT_LOCAL {
+    publishDir "${params.result_dir}/${group}/elib", pattern: '*.elib', failOnError: true
+    publishDir "${params.result_dir}/${group}/logs", pattern: '*.log', failOnError: true
+    label 'process_medium'
+
+    input:
+        tuple val(group), path(mzml_gz_file)
+        path(fasta_file)
+
+    output:
+        tuple(
+            val(group),
+            path("${mzml_gz_file.baseName}.elib"),
+            path("${file(mzml_gz_file.baseName).baseName}.dia"),
+            path("${mzml_gz_file.baseName}.features.txt.gz"),
+            path("${mzml_gz_file.baseName}.pecan.txt"),
+            path("${mzml_gz_file.baseName}.pecan.decoy.txt"),
+            path("${mzml_gz_file.baseName}.local.log"),
+        )
+
+    script:
+    """
+    gzip -df ${mzml_gz_file}
+    ${execEncyclopedia(task.memory)} \\
+        -walnut \\
+        -i ${mzml_gz_file.baseName} \\
+        -f ${fasta_file} \\
+        ${params.encyclopedia.args} \\
+        ${params.encyclopedia.local.args} \\
+    | tee ${mzml_gz_file.baseName}.local.log
+    gzip ${mzml_gz_file.baseName}.features.txt
+    ls -lh
+    """
+
+    stub:
+    """
+    mkdir logs
+    touch ${mzml_gz_file.baseName}.elib
+    touch ${file(mzml_gz_file.baseName).baseName}.dia
+    touch ${mzml_gz_file.baseName}.features.txt.gz
+    touch ${mzml_gz_file.baseName}.pecan.txt
+    touch ${mzml_gz_file.baseName}.pecan.decoy.txt
+    touch ${mzml_gz_file.baseName}.local.log
+    """
 }
 
 
@@ -81,10 +132,11 @@ process ENCYCLOPEDIA_GLOBAL {
             path(local_dia_files),
             path(local_feature_files),
             path(local_encyclopedia_files),
+            path(library_file)
         )
-        path(library_file)
         path(fasta_file)
         val output_postfix
+        val align
 
     output:
         tuple(
@@ -105,9 +157,10 @@ process ENCYCLOPEDIA_GLOBAL {
         -o ${stem(output_postfix)}.elib \\
         -i ./ \\
         -f ${fasta_file} \\
-        -l ${library_file} \\
+        ${library_file.baseName != 'NO_FILE' ? "-l ${library_file}" : '-pecan'} \\
         ${params.encyclopedia.args} \\
         ${params.encyclopedia.global.args} \\
+        -a ${align} \\
     | tee ${stem(output_postfix)}.global.log
     mv ${stem(output_postfix)}.elib.peptides.txt ${stem(output_postfix)}.peptides.txt
     mv ${stem(output_postfix)}.elib.proteins.txt ${stem(output_postfix)}.proteins.txt
@@ -120,7 +173,6 @@ process ENCYCLOPEDIA_GLOBAL {
     """
 
     stub:
-
     """
     touch ${stem(output_postfix)}.elib
     touch ${stem(output_postfix)}.peptides.txt

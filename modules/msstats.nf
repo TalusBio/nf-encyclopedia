@@ -4,7 +4,7 @@ process MSSTATS {
     debug true
 
     input:
-        tuple val(group), path(quant_peptides)
+        tuple val(group), path(quant_peptides), path(quant_proteins)
         path input
         path contrasts
 
@@ -22,6 +22,7 @@ process MSSTATS {
     mkdir -p msstats reports logs
     msstats.R \
         ${quant_peptides} \
+        ${quant_proteins} \
         ${input} \
         ${contrasts} \
         ${params.msstats.normalization} \

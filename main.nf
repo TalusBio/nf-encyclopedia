@@ -13,6 +13,8 @@ include {
 // Modules
 include { MSSTATS } from "./modules/msstats"
 
+// In-development parameters:
+params.aggregate = false
 
 //
 // Used for email notifications
@@ -35,8 +37,12 @@ def email() {
 // Use the DLIB when the ELIB is unavailable.
 //
 def replace_missing_elib(elib) {
-    if (elib == null) {
-        return file(params.dlib)
+    if ( !elib ) {
+        if ( params.dlib ) {
+            return file(params.dlib, checkIfExists: true)
+        } else {
+            return file("${baseDir}/assets/NO_FILE", checkIfExists: true)
+        }
     }
     return elib
 }
@@ -48,10 +54,16 @@ def replace_missing_elib(elib) {
 workflow {
     input = file(params.input, checkIfExists: true)
     fasta = file(params.fasta, checkIfExists: true)
-    dlib = file(params.dlib, checkIfExists: true)
+
+    // Optional dlib arg. If null, use Walnut:
+    if ( params.dlib ) {
+        dlib = file(params.dlib, checkIfExists: true)
+    } else {
+        dlib = file("${baseDir}/assets/NO_FILE", checkIfExists: true)
+    }
 
     // Optional contrasts arg:
-    if ( params.contrasts != null ) {
+    if ( params.contrasts ) {
         contrasts = file(params.contrasts, checkIfExists: true)
     } else {
         contrasts = file("${baseDir}/assets/NO_FILE", checkIfExists: true)
@@ -89,6 +101,7 @@ workflow {
     // Build chromatogram libraries with EncyclopeDIA:
     // The output is [group, elib]
     BUILD_CHROMATOGRAM_LIBRARY(mzml_gz_files.chrlib, dlib, fasta)
+    | view {}
     | set { chrlib_elib_files }
 
     // Group quant files with either corresponding library ELIB.
@@ -121,7 +134,7 @@ workflow {
     // Run MSstats
     if ( params.msstats.enabled ) {
         enc_results.global
-        | map { tuple it[0], it[2]}
+        | map { tuple it[0], it[2], it[3] }
         | set { msstats_input }
 
         MSSTATS(msstats_input, input, contrasts)

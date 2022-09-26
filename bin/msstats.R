@@ -8,14 +8,20 @@ library(MSstats, warn.conflicts = FALSE)
 
 
 # Convert EncyclopeDIA results to a format for MSstats
-encyclopediaToMsstats <- function(peptides_txt) {
+encyclopediaToMsstats <- function(peptides_txt, proteins_txt) {
   id_vars <- c("Peptide", "Protein", "numFragments")
+  proteins <- read.table(proteins_txt,
+                         sep = "\t",
+                         header = TRUE,
+                         stringsAsFactors = TRUE,
+                         check.names = FALSE)
 
   df <- read.table(peptides_txt,
-                   sep = '\t',
+                   sep = "\t",
                    header = TRUE,
                    stringsAsFactors = FALSE,
                    check.names = FALSE) %>%
+    inner_join(proteins["Protein"], by = "Protein") %>%
     pivot_longer(names(.)[!names(.) %in% id_vars],
                  names_to = "run",
                  values_to = "intensity") %>%
@@ -74,16 +80,17 @@ fill_column <- function(df, column, backup) {
 main <- function() {
   args <- commandArgs(trailingOnly = TRUE)
   peptides_txt <- args[1]
-  input_csv <- args[2]
-  contrasts <- args[3] # 'NO_FILE' if missing.
-  normalization <- args[4]
-  reports <- as.logical(args[5])
+  proteins_txt <- args[2]
+  input_csv <- args[3]
+  contrasts <- args[4] # 'NO_FILE' if missing.
+  normalization <- args[5]
+  reports <- as.logical(args[6])
 
   # Parse the normalization:
   if(tolower(normalization) == "none") normalization <- FALSE
 
   # Read the data and add annotations:
-  peptide_df <- encyclopediaToMsstats(peptides_txt) %>%
+  peptide_df <- encyclopediaToMsstats(peptides_txt, proteins_txt) %>%
     annotate(input_csv)
 
   write.table(peptide_df,

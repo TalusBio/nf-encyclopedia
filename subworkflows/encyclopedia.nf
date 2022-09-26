@@ -1,4 +1,8 @@
-include { ENCYCLOPEDIA_LOCAL; ENCYCLOPEDIA_GLOBAL } from "../modules/encyclopedia"
+include {
+    WALNUT_LOCAL;
+    ENCYCLOPEDIA_LOCAL;
+    ENCYCLOPEDIA_GLOBAL
+} from "../modules/encyclopedia"
 include { MSSTATS } from "../modules/msstats"
 
 
@@ -17,19 +21,29 @@ workflow BUILD_CHROMATOGRAM_LIBRARY {
         | set { ungrouped_files }
 
         // Search each file
+        if (dlib.baseName != "NO_FILE") {
+            ENCYCLOPEDIA_LOCAL(ungrouped_files, dlib, fasta)
+            | set { search_files }
+
+        } else {
+            WALNUT_LOCAL(ungrouped_files, fasta)
+            | set { search_files }
+        }
+
+        // Format the output channels:
         // Ouput is [group, [local_elib_files], [local_dia_files], [local_feature_files], [local_encyclopedia_files]]
-        ENCYCLOPEDIA_LOCAL(ungrouped_files, dlib, fasta)
+        search_files
         | groupTuple(by: 0)
-        | map { tuple it[0], it[1], it[2], it[3], it[4] }
+        | map { tuple it[0], it[1], it[2], it[3], it[4], dlib }
         | set { local_files }
 
         // Do the global analysis
         // Output is [group, global_elib_file]
         ENCYCLOPEDIA_GLOBAL(
             local_files,
-            dlib,
             fasta,
-            params.encyclopedia.chrlib_postfix
+            params.encyclopedia.chrlib_postfix,
+            false,
         )
         | map { tuple it[0], it[1] }
         | set { output_elib }
@@ -48,7 +62,6 @@ workflow PERFORM_QUANT {
 
     main:
         // Ungroup files for local runs
-        // output is [group, mzml_gz_file, elib]
         quant_files
         | transpose()
         | multiMap { it ->
@@ -57,15 +70,40 @@ workflow PERFORM_QUANT {
         }
         | set { ungrouped_files }
 
-        // Perform local search:
-        // Ouput is [group, [local_elib_files], [local_dia_files], [local_feature_files], [local_encyclopedia_files]]
-        ENCYCLOPEDIA_LOCAL(
-            ungrouped_files.mzml,
-            ungrouped_files.elib,
-            fasta
-        )
+        quant_files
+        | map { tuple it[0], it[2] }
+        | set { grouped_elibs }
+
+        // Search each file
+        if (dlib.baseName != "NO_FILE") {
+            ENCYCLOPEDIA_LOCAL(
+                ungrouped_files.mzml,
+                ungrouped_files.elib,
+                fasta
+            )
+            | set { search_files }
+
+        } else {
+            WALNUT_LOCAL(
+                ungrouped_files.mzml,
+                fasta
+            )
+            | set { search_files }
+        }
+
+        // Format the output channels:
+        // Ouput is [
+        //     group,
+        //     [local_elib_files],
+        //     [local_dia_files],
+        //     [local_feature_files],
+        //     [local_encyclopedia_files],
+        //     search_elib
+        // ]
+        search_files
         | groupTuple(by: 0)
         | map { tuple it[0], it[1], it[2], it[3], it[4] }
+        | join(grouped_elibs, by: 0)
         | set { local_files }
 
         // Only run group-wise global if needed.
@@ -77,9 +115,9 @@ workflow PERFORM_QUANT {
             // Output is [group, global_elib_file, peptides_txt, proteins_txt, log]
             ENCYCLOPEDIA_GLOBAL(
                 local_files,
-                dlib,
                 fasta,
-                params.encyclopedia.quant_postfix
+                params.encyclopedia.quant_postfix,
+                true
             )
             | set { global_files }
         }
@@ -111,9 +149,10 @@ workflow PERFORM_AGGREGATE_QUANT {
             all_local_files,
             dlib,
             fasta,
-            params.encyclopedia.quant_postfix
+            params.encyclopedia.quant_postfix,
+            true,
         )
-        | set { global_files }
+    | set { global_files }
 
     emit:
         global = global_files
