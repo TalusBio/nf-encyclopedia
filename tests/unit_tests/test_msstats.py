@@ -17,10 +17,11 @@ OUTPUTS = [
 
 def test_reports(msstats_input, script):
     """Test without reports"""
-    peptide_file, annot_file, contrast_file = msstats_input
+    peptide_file, protein_file, annot_file, contrast_file = msstats_input
     args = [
         script,
         peptide_file,
+        protein_file,
         annot_file,
         contrast_file,
         "equalizeMedians",
@@ -33,10 +34,11 @@ def test_reports(msstats_input, script):
 
 def test_no_reports(msstats_input, script):
     """Test without reports"""
-    peptide_file, annot_file, contrast_file = msstats_input
+    peptide_file, protein_file, annot_file, contrast_file = msstats_input
     args = [
         script,
         peptide_file,
+        protein_file,
         annot_file,
         contrast_file,
         "equalizeMedians",
@@ -50,7 +52,7 @@ def test_no_reports(msstats_input, script):
 
 def test_bad_norm(msstats_input, script):
     """Test without reports"""
-    peptide_file, annot_file, contrast_file = msstats_input
+    peptide_file, protein_file, annot_file, contrast_file = msstats_input
     args = [
         script,
         peptide_file,
@@ -66,10 +68,11 @@ def test_bad_norm(msstats_input, script):
 
 def test_no_contrasts(msstats_input, script):
     """Test without reports"""
-    peptide_file, annot_file, contrast_file = msstats_input
+    peptide_file, protein_file, annot_file, contrast_file = msstats_input
     args = [
         script,
         peptide_file,
+        protein_file,
         annot_file,
         "NO_FILE",
         "equalizeMedians",
@@ -83,10 +86,11 @@ def test_no_contrasts(msstats_input, script):
 
 def test_input(script, msstats_input):
     """Test that the script formats the input correctly."""
-    peptide_file, annot_file, contrast_file = msstats_input
+    peptide_file, protein_file, annot_file, contrast_file = msstats_input
     args = [
         script,
         peptide_file,
+        protein_file,
         annot_file,
         "NO_FILE",
         "none",
@@ -112,7 +116,7 @@ def test_input(script, msstats_input):
 
 def test_input_with_bioreplicate(script, msstats_input):
     """Test the optional specification of BioReplicate"""
-    peptide_file, annot_file, contrast_file = msstats_input
+    peptide_file, protein_file, annot_file, contrast_file = msstats_input
 
     # Test annotations with BioReplicates:
     annot_df = pd.read_csv(annot_file)
@@ -122,6 +126,7 @@ def test_input_with_bioreplicate(script, msstats_input):
     args = [
         script,
         peptide_file,
+        protein_file,
         annot_file,
         "NO_FILE",
         "none",

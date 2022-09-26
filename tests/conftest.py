@@ -126,6 +126,10 @@ def msstats_input(tmp_path):
     peptide_file = tmp_path / "encyclopedia.peptides.txt"
     peptide_df.to_csv(peptide_file, sep="\t", index=False)
 
+    protein_df = pd.DataFrame({"Protein": ["A", "B"]})
+    protein_file = tmp_path / "encyclopedia.proteins.txt"
+    protein_df.to_csv(protein_file, sep="\t", index=False)
+
     # The annotation file:
     n_group = int(len(raw) // 2)
     input_df = pd.DataFrame({"file": raw, "chrlib": False, "group": "default"})
@@ -138,4 +142,4 @@ def msstats_input(tmp_path):
     contrast_file = tmp_path / "contrasts.csv"
     contrast_df.to_csv(contrast_file)
 
-    return peptide_file, input_file, contrast_file
+    return peptide_file, protein_file, input_file, contrast_file
