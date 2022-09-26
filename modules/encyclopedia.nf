@@ -150,11 +150,12 @@ process ENCYCLOPEDIA_GLOBAL {
 
     script:
     """
+    STEM=${stem(output_postfix)}
     gzip -df ${local_feature_files}
     find * -name '*\\.mzML\\.*' -exec bash -c 'mv \$0 \${0/\\.mzML/\\.dia}' {} \\;
     ${execEncyclopedia(task.memory)} \\
         -libexport \\
-        -o ${stem(output_postfix)}.elib \\
+        -o \${STEM}.elib \\
         -i ./ \\
         -f ${fasta_file} \\
         ${library_file.baseName != 'NO_FILE' ? "-l ${library_file}" : '-pecan'} \\
@@ -162,8 +163,8 @@ process ENCYCLOPEDIA_GLOBAL {
         ${params.encyclopedia.global.args} \\
         -a ${align} \\
     | tee ${stem(output_postfix)}.global.log
-    mv ${stem(output_postfix)}.elib.peptides.txt ${stem(output_postfix)}.peptides.txt
-    mv ${stem(output_postfix)}.elib.proteins.txt ${stem(output_postfix)}.proteins.txt
+    [ -f \${STEM}.elib.peptides.txt ] && mv \${STEM}.elib.peptides.txt \${STEM}.peptides.txt
+    [ -f \${STEM}.elib.proteins.txt ] && mv \${STEM}.elib.proteins.txt \${STEM}.proteins.txt
     echo 'Finding unique peptides and proteins...'
     echo 'Run,Unique Proteins,Unique Peptides' \\
         > ${output_postfix}_detection_summary.csv
