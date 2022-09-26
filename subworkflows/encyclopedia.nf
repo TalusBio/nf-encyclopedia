@@ -13,6 +13,9 @@ workflow BUILD_CHROMATOGRAM_LIBRARY {
         fasta
 
     main:
+        // Don't try to align rentention times.
+        def align = false
+
         // Ungroup files for local runs
         // Output is [group, mzml_gz_file]
         chrlib_files
@@ -43,7 +46,7 @@ workflow BUILD_CHROMATOGRAM_LIBRARY {
             local_files,
             fasta,
             params.encyclopedia.chrlib_postfix,
-            false,
+            align,
         )
         | map { tuple it[0], it[1] }
         | set { output_elib }
@@ -61,6 +64,9 @@ workflow PERFORM_QUANT {
         local_only
 
     main:
+        // Align retention times between runs.
+        def align = true
+
         // Ungroup files for local runs
         quant_files
         | transpose()
@@ -117,7 +123,7 @@ workflow PERFORM_QUANT {
                 local_files,
                 fasta,
                 params.encyclopedia.quant_postfix,
-                true
+                align
             )
             | set { global_files }
         }
@@ -135,6 +141,9 @@ workflow PERFORM_AGGREGATE_QUANT {
         fasta
 
     main:
+        // Align retention times between runs.
+        def align = true
+
         // Set the group for all runs to agg_name
         // The output is [agg_name, [local_elib_files], [local_dia_files], [local_feature_files], [local_encyclopedia_files]]
         local_quant_files
@@ -150,7 +159,7 @@ workflow PERFORM_AGGREGATE_QUANT {
             dlib,
             fasta,
             params.encyclopedia.quant_postfix,
-            true,
+            align,
         )
     | set { global_files }
 
