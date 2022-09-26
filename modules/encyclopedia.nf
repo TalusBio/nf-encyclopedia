@@ -151,7 +151,7 @@ process ENCYCLOPEDIA_GLOBAL {
     script:
     """
     STEM=${stem(output_postfix)}
-    touch \${STEM}.elib.peptides.txt \${STEM.elib.proteins.txt}
+    touch \${STEM}.elib.peptides.txt \${STEM}.elib.proteins.txt
     gzip -df ${local_feature_files}
     find * -name '*\\.mzML\\.*' -exec bash -c 'mv \$0 \${0/\\.mzML/\\.dia}' {} \\;
     ${execEncyclopedia(task.memory)} \\
