@@ -142,8 +142,8 @@ process ENCYCLOPEDIA_GLOBAL {
         tuple(
             val(group),
             path("${stem(output_postfix)}.elib"),
-            path("${stem(output_postfix)}.peptides.txt"),
-            path("${stem(output_postfix)}.proteins.txt"),
+            path("${stem(output_postfix)}.peptides.txt", optional: true),
+            path("${stem(output_postfix)}.proteins.txt", optional: true),
             path("${stem(output_postfix)}.global.log"),
             path("${output_postfix}_detection_summary.csv")
         )
