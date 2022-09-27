@@ -8,16 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated EncyclopeDIA parameters to match GUI defaults.
 - Retries should automatically occur when MSconvert hangs
-- The library file used for the EncyclopeDIA global step is now the DLIB/ELIB
-  the files were searched against. This has not affect on workflows that were
-  not using a chromatogram library.
 
 ### Added
 - Added full support for MSstats
-- Support for Walnut (Pecan).
-
-### Removed
-- The aggregate option, which was problematic because only one library can be specified.
 
 ## [0.5.0] - 2022-08-26
 ### Changed
