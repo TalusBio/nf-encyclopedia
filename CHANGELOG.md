@@ -11,12 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Retries should automatically occur when MSconvert hangs
 - Renamed EncyclopeDIA processes to be more intuitive.
 - The `group` column in the input file is now optional
+- `*_postfix` parameters were renamed `*_suffix`.
 
 ### Added
 - Added full support for MSstats
 
 ### Fixed
 - Correctly use `-a false` when building a chromatogram library. 
+- MSstats now outputs into the `results` directory.
 
 ## [0.5.0] - 2022-08-26
 ### Changed
