@@ -95,6 +95,7 @@ def real_data(tmp_path):
         "--dlib", str(dlib_file),
         "--input", str(ms_files_csv),
         "--max_cpus", str(n_cpus),
+        "--encyclopedia-local-args", "-frag HCD",
     ]
 
     return config, ms_files_csv
