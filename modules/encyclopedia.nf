@@ -15,12 +15,12 @@ def execEncyclopedia(mem) {
 
 
 // A utility function for creating the prefixes:
-def stem(postfix) {
-    return "encyclopedia.${postfix}"
+def stem(suffix) {
+    return "encyclopedia.${suffix}"
 }
 
 
-process ENCYCLOPEDIA_LOCAL {
+process ENCYCLOPEDIA_SEARCH {
     publishDir "${params.result_dir}/${group}/elib", pattern: '*.elib', failOnError: true
     publishDir "${params.result_dir}/${group}/logs", pattern: '*.log', failOnError: true
     label 'process_medium'
@@ -56,18 +56,19 @@ process ENCYCLOPEDIA_LOCAL {
 
     stub:
     """
+    echo "${library_file}"
     mkdir logs
     touch ${mzml_gz_file.baseName}.elib
     touch ${file(mzml_gz_file.baseName).baseName}.dia
     touch ${mzml_gz_file.baseName}.features.txt.gz
     touch ${mzml_gz_file.baseName}.encyclopedia.txt
     touch ${mzml_gz_file.baseName}.encyclopedia.decoy.txt
-    touch ${mzml_gz_file.baseName}.local.log
+    echo "${library_file}" > ${mzml_gz_file.baseName}.local.log
     """
 }
 
 
-process ENCYCLOPEDIA_GLOBAL {
+process ENCYCLOPEDIA_AGGREGATE {
     publishDir "${params.result_dir}/${group}/elib", pattern: '*.elib', failOnError: true
     publishDir "${params.result_dir}/${group}/logs", pattern: '*.log', failOnError: true
     publishDir "${params.result_dir}/${group}/results", pattern: '*.txt', failOnError: true
@@ -84,48 +85,68 @@ process ENCYCLOPEDIA_GLOBAL {
         )
         path(library_file)
         path(fasta_file)
-        val output_postfix
+        val output_suffix
+        val align
 
     output:
         tuple(
             val(group),
-            path("${stem(output_postfix)}.elib"),
-            path("${stem(output_postfix)}.peptides.txt"),
-            path("${stem(output_postfix)}.proteins.txt"),
-            path("${stem(output_postfix)}.global.log"),
-            path("${output_postfix}_detection_summary.csv")
+            path("${stem(output_suffix)}.elib"),
+            path("${stem(output_suffix)}.global.log"),
+            path("${output_suffix}_detection_summary.csv"),
+            emit: "lib"
+        )
+        tuple(
+            val(group),
+            path("${stem(output_suffix)}.peptides.txt"),
+            path("${stem(output_suffix)}.proteins.txt"),
+            emit: "quant",
+            optional: true
         )
 
     script:
     """
+    # Decompress the feture files:
     gzip -df ${local_feature_files}
     find * -name '*\\.mzML\\.*' -exec bash -c 'mv \$0 \${0/\\.mzML/\\.dia}' {} \\;
+
+    # Run EncyclopeDIA:
     ${execEncyclopedia(task.memory)} \\
         -libexport \\
-        -o ${stem(output_postfix)}.elib \\
+        -o ${stem(output_suffix)}.elib \\
         -i ./ \\
         -f ${fasta_file} \\
         -l ${library_file} \\
         ${params.encyclopedia.args} \\
         ${params.encyclopedia.global.args} \\
-    | tee ${stem(output_postfix)}.global.log
-    mv ${stem(output_postfix)}.elib.peptides.txt ${stem(output_postfix)}.peptides.txt
-    mv ${stem(output_postfix)}.elib.proteins.txt ${stem(output_postfix)}.proteins.txt
+        -a ${align} \\
+    | tee ${stem(output_suffix)}.global.log
+
+    # Better file names:
+    if [ "${align}" = true ]; then
+        mv ${stem(output_suffix)}.elib.peptides.txt ${stem(output_suffix)}.peptides.txt
+        mv ${stem(output_suffix)}.elib.proteins.txt ${stem(output_suffix)}.proteins.txt
+    fi
+
+    # Count peptides and proteins:
     echo 'Finding unique peptides and proteins...'
     echo 'Run,Unique Proteins,Unique Peptides' \\
-        > ${output_postfix}_detection_summary.csv
+        > ${output_suffix}_detection_summary.csv
     find * -name '*\\.elib' -exec bash -c 'count_peptides_proteins.sh \$0 \\
-        >> ${output_postfix}_detection_summary.csv' {} \\;
+        >> ${output_suffix}_detection_summary.csv' {} \\;
     echo 'DONE!'
     """
 
     stub:
-
     """
-    touch ${stem(output_postfix)}.elib
-    touch ${stem(output_postfix)}.peptides.txt
-    touch ${stem(output_postfix)}.proteins.txt
-    touch ${stem(output_postfix)}.global.log
-    touch ${output_postfix}_detection_summary.csv
+    touch ${stem(output_suffix)}.elib
+
+    if [ "${align}" = true ]; then
+        touch ${stem(output_suffix)}.peptides.txt
+        touch ${stem(output_suffix)}.proteins.txt
+    fi
+
+    echo "${library_file}" > ${stem(output_suffix)}.global.log
+    touch ${output_suffix}_detection_summary.csv
     """
 }

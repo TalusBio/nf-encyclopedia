@@ -66,7 +66,7 @@ workflow {
             meta: tuple(
                 it.file,
                 it.chrlib.toBoolean(),
-                it.group,
+                it.group ?: '',  // no group if missing
             )
         }
 
@@ -103,7 +103,7 @@ workflow {
     // Analyze the quantitative runs with EncyclopeDIA.
     // The output has two channels:
     // local -> [group, [local_elib_files], [mzml_gz_files]]
-    // global -> [group, global_elib, peptides, proteins] or null
+    // global -> [group, peptides, proteins] or null
     PERFORM_QUANT(quant_files, dlib, fasta, params.aggregate)
     | set { quant_results }
 
@@ -111,7 +111,7 @@ workflow {
     if ( params.aggregate ) {
         // Aggregate quantitative runs with EncyclopeDIA.
         // The output has one channel:
-        // global -> [agg_name, global_elib, peptides, proteins] or null
+        // global -> [agg_name, peptides, proteins] or null
         PERFORM_AGGREGATE_QUANT(quant_results.local, dlib, fasta)
         | set { enc_results }
     } else {
@@ -120,11 +120,7 @@ workflow {
 
     // Run MSstats
     if ( params.msstats.enabled ) {
-        enc_results.global
-        | map { tuple it[0], it[2]}
-        | set { msstats_input }
-
-        MSSTATS(msstats_input, input, contrasts)
+        MSSTATS(enc_results.global, input, contrasts)
     }
 }
 
