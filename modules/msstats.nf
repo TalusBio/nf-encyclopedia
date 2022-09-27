@@ -19,7 +19,7 @@ process MSSTATS {
 
     script:
     """
-    mkdir -p msstats reports logs
+    mkdir -p msstats reports logs results
     msstats.R \
         ${quant_peptides} \
         ${quant_proteins} \
@@ -34,12 +34,12 @@ process MSSTATS {
 
     stub:
     """
-    mkdir -p msstats reports logs
+    mkdir -p msstats reports logs results
     touch msstats/msstats.input.txt
     touch msstats/msstats.processed.rda
-    touch msstats.proteins.txt
+    touch results/msstats.proteins.txt
     touch logs/msstats.log
-    touch msstats.stats.txt
+    touch results/msstats.stats.txt
     touch reports/msstats.qc.pdf
     """
 }

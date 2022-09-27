@@ -115,7 +115,7 @@ main <- function() {
   # Get quantified proteins:
   quants <- quantification(processed, use_log_file = FALSE)
   write.table(quants,
-              "msstats.proteins.txt",
+              "results/msstats.proteins.txt",
               row.names = TRUE,
               quote = FALSE,
               sep = "\t")
@@ -125,7 +125,7 @@ main <- function() {
     contrast_mat <- read.csv(contrasts, row.names = 1)
     diffexp <- groupComparison(contrast_mat, processed, use_log_file=FALSE)
     write.table(diffexp$ComparisonResult,
-                "msstats.stats.txt",
+                "results/msstats.stats.txt",
                 quote = FALSE,
                 sep = "\t")
   }

@@ -9,8 +9,8 @@ import pandas as pd
 OUTPUTS = [
     Path("msstats/msstats.input.txt"),
     Path("msstats/msstats.processed.rda"),
-    Path("msstats.proteins.txt"),
-    Path("msstats.stats.txt"),
+    Path("results/msstats.proteins.txt"),
+    Path("results/msstats.stats.txt"),
     Path("QCPlot.pdf"),
 ]
 
@@ -151,6 +151,7 @@ def _file_created(*args, exists=True):
 def script(monkeypatch, tmp_path):
     """Set the working directory"""
     (tmp_path / "msstats").mkdir(exist_ok=True)
+    (tmp_path / "results").mkdir(exist_ok=True)
     script_path = Path("bin/msstats.R").resolve()
     monkeypatch.syspath_prepend(script_path)
     monkeypatch.chdir(tmp_path)
