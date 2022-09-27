@@ -38,7 +38,7 @@ workflow BUILD_CHROMATOGRAM_LIBRARY {
             local_files,
             dlib,
             fasta,
-            params.encyclopedia.chrlib_postfix,
+            params.encyclopedia.chrlib_suffix,
             false  // Don't align RTs
         ).lib
         | map { it -> tuple it[0], it[1] }
@@ -95,7 +95,7 @@ workflow PERFORM_QUANT {
                 local_files,
                 dlib,
                 fasta,
-                params.encyclopedia.quant_postfix,
+                params.encyclopedia.quant_suffix,
                 true  // Align RTs
             ).quant
             | set { global_files }
@@ -134,7 +134,7 @@ workflow PERFORM_AGGREGATE_QUANT {
             all_local_files,
             dlib,
             fasta,
-            params.encyclopedia.quant_postfix,
+            params.encyclopedia.quant_suffix,
             true  // Align RTs
         ).quant
         | set { global_files }
