@@ -12,9 +12,9 @@ process MSSTATS {
         val group
         path "msstats/msstats.input.txt"
         path "msstats/msstats.processed.rda"
-        path "msstats.proteins.txt"
+        path "results/msstats.proteins.txt"
         path "logs/msstats.log"
-        path "msstats.stats.txt", optional: true
+        path "results/msstats.stats.txt", optional: true
         path "reports/msstats.qc.pdf", optional: true
 
     script:
