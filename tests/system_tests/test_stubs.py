@@ -1,5 +1,17 @@
 """Do a quick stub run to make sure things are working"""
 import subprocess
+import pandas as pd
+
+
+def test_no_groups(base_project, tmp_path):
+    """Test that removing the grouping column still works"""
+    config, input_csv, _ = base_project
+    pd.read_csv(input_csv).drop(columns="group").to_csv(input_csv, index=False)
+    cmd = ["nextflow", "run", "main.nf"] + config
+    subprocess.run(cmd, check=True)
+    base = tmp_path / "results"
+
+    assert (base / "elib/encyclopedia.quant.elib").exists()
 
 
 def test_no_aggregate(base_project, tmp_path):
@@ -21,6 +33,12 @@ def test_no_aggregate(base_project, tmp_path):
 
     not_expected = base / "agg" / "result-agg.elib"
     assert not not_expected.exists()
+
+    with (base / "z/logs/m.mzML.local.log").open() as log:
+        lib_name = log.read().strip()
+
+    assert lib_name == "encyclopedia.chrlib.elib"
+
 
 def test_aggregate(base_project, tmp_path):
     """Test workflow logic for global analyses."""

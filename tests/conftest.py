@@ -23,7 +23,7 @@ def base_project(tmp_path):
     raw_files.append(mzml_file)
 
     chrlibs = ["true"] * 6 + ["false"] * 8
-    groups = "xy" * 6 + "z" * 2
+    groups = "xyz" * 4 + "z" * 2
 
     # create an input csv
     ms_files = ["file,chrlib,group"]
@@ -45,7 +45,7 @@ def base_project(tmp_path):
     fasta_file.touch()
 
     # DLIB
-    dlib_file = tmp_path / "dlib.fasta"
+    dlib_file = tmp_path / "test.dlib"
     dlib_file.touch()
 
     # Config:
