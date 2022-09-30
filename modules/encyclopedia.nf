@@ -102,7 +102,6 @@ process ENCYCLOPEDIA_AGGREGATE {
             path("${stem(output_suffix)}.proteins.txt"),
             emit: "quant",
             optional: true
->>>>>>> 6786443621745f87d8b48e00ade63aa1e50c422e
         )
 
     script:
