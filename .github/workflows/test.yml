@@ -24,7 +24,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pytest
+        pip install pytest numpy pandas
         curl -s https://get.nextflow.io | bash
         chmod u+x nextflow
         mkdir -p bin && mv nextflow bin
@@ -37,6 +37,12 @@ jobs:
         load: true
         tags: ${{ env.IMAGE_NAME }}:latest
 
-    - name: Run Workflow Tests
+    - name: Run Unit Tests
       run: |
-        pytest
+        REMOTE=/app/nf-encyclopedia
+        docker run -v $(pwd):${REMOTE} -w ${REMOTE} nf-encyclopedia:latest \
+          pytest tests/unit_tests
+
+    - name: Run System Tests
+      run: |
+        pytest tests/system_tests

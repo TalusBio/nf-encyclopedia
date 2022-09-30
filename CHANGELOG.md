@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [unreleased]
+### Changed
+- Renamed `params.ms_file_csv` to `params.input`
+- Updated EncyclopeDIA parameters to match GUI defaults.
+- Retries should automatically occur when MSconvert hangs
+- Renamed EncyclopeDIA processes to be more intuitive.
+- The `group` column in the input file is now optional
+- `*_postfix` parameters were renamed `*_suffix`.
+
+### Added
+- Added full support for MSstats
+
+### Fixed
+- Correctly use `-a false` when building a chromatogram library. 
+- MSstats now outputs into the `results` directory.
+
 ## [0.5.0] - 2022-08-26
 ### Changed
 - Parameters updated to be more user-friendly.
