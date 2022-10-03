@@ -1,4 +1,4 @@
-site_name: nf-encyclopeda
+site_name: nf-encyclopedia
 repo_url: https://github.com/TalusBio/nf-encyclopedia
 nav:
   - Home: index.md
