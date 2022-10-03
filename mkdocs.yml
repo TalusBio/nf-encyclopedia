@@ -1,5 +1,9 @@
 site_name: nf-encyclopeda
 repo_url: https://github.com/TalusBio/nf-encyclopedia
+nav:
+  - Home: index.md
+  - Parameters: parameters.md
+  - Cite: CITATION.md
 
 theme:
   name: material
@@ -9,6 +13,7 @@ theme:
     text: IBM Plex Sans
   features:
      - toc.integrate
+     - navigation.tabs
 
 extra_css:
   - stylesheets/extra.css
