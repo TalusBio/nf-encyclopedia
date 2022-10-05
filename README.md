@@ -1,7 +1,7 @@
 # nf-encyclopedia
 
-nf-encyclopedia is a NextFlow pipeline for specifically designed to analyze DIA proteomics experiment that leverage chromatogram libraries; however it is perfectly suited to analyze DIA proteomics experiments without chromatogram libraries as well. 
-The nf-encyclopedia connects three, open-source tools---MSconvert, EncyclopeDIA, and MSstats---to go from mass spectra to quantified peptides and proteins. 
+nf-encyclopedia is a NextFlow pipeline specifically designed to analyze DIA proteomics experiment that leverage chromatogram libraries; however it is perfectly suited to analyze DIA proteomics experiments without chromatogram libraries as well. 
+The nf-encyclopedia connects three open-source tools---MSconvert, EncyclopeDIA, and MSstats---to go from mass spectra to quantified peptides and proteins. 
 
 See the [nf-encyclopedia documentation](https://TalusBio.github.io/nf-encyclopedia)
 
