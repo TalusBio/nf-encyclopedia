@@ -1,7 +1,7 @@
 # A NextFlow pipeline for chromatogram library data-independent acquisition (DIA) proteomics workflows
 
-nf-encyclopedia is a NextFlow pipeline for specifically designed to analyze DIA proteomics experiment that leverage chromatogram libraries; however it is perfectly suited to analyze DIA proteomics experiments without chromatogram libraries as well. 
-The nf-encyclopedia connects three, open-source tools---MSconvert, EncyclopeDIA, and MSstats---to go from mass spectra to quantified peptides and proteins. 
+nf-encyclopedia is a NextFlow pipeline specifically designed to analyze DIA proteomics experiment that leverage chromatogram libraries; however it is perfectly suited to analyze DIA proteomics experiments without chromatogram libraries as well. 
+The nf-encyclopedia connects three open-source tools---MSconvert, EncyclopeDIA, and MSstats---to go from mass spectra to quantified peptides and proteins. 
 
 ![An overview of the nf-encyclopedia pipeline](static/diagram.png){: style="width:500px"}
 
@@ -27,7 +27,7 @@ S02.raw, false
 ```
 
 Additionally we need to provide a spectral library and a corresponding protein database in FASTA format. 
-Libraries can be obtained from a variety of sources, including real libraries MassIVE-KB, predicted libraries from Prosit, or from our own data-dependent acquisition data; however, often these will need to be converted to EncyclopeDIA's DLIB format using EncyclopeDIA itself (see the EncyclopeDIA user guide for details). 
+Libraries can be obtained from a variety of sources, including real libraries from MassIVE-KB, predicted libraries from Prosit, or from our own data-dependent acquisition data; however, often these will need to be converted to EncyclopeDIA's DLIB format using EncyclopeDIA itself (see the EncyclopeDIA user guide for details). 
 We will call these files `proteins.dlib` and `proteins.fasta`.
 
 With these files present on our machine, we then open our terminal (command line) and navigate to the directory in which we want to conduct our analysis.

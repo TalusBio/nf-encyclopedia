@@ -1,7 +1,7 @@
 # Parameters for nf-encyclopedia
 
 The following parameters can be used to customize various aspects of the nf-encyclopedia pipeline. 
-These may either be specified as command line arguments, prefixed with `--`, or in an new NextFlow configuration file.
+These may either be specified as command line arguments, prefixed with `--`, or in a new NextFlow configuration file.
 For example:
 ```title="pipeline.config"
 params {
@@ -36,7 +36,7 @@ params {
 
 - **fasta** (string, *required*) -  The FASTA containing the subset of proteins sequences for which to search.
  
-- **contrasts** (string, *required*) - The contrast matrix defining the  to hypothesis tests to perform with MSstats provided as a comma-separated values (CSV) file. 
+- **contrasts** (string, *required*) - The contrast matrix defining the hypothesis tests to perform with MSstats provided as a comma-separated values (CSV) file. 
   The columns of the file should denote conditions from the `input` CSV file.
   The first column defines the name of each hypothesis test.
   See the  [MSstats documentation](https://msstats.org/msstats-2/) for more details.
@@ -46,7 +46,7 @@ params {
     |--------------------|----------:|--------:|
     | TreatmentVsControl |         1 |      -1 |
 
--  ** result_dir** (string) - Where results will be saved. *Default:* `'results'`
+-  **result_dir** (string) - Where results will be saved. *Default:* `'results'`
 -  **report_dir** (string) -  Where reports will be saved. *Default:* `'reports'`
 -  **mzml_dir** (string) -  Where mzML files will be saved. *Default:* `'mzml'`
 -  **email** (string) - An email to alert on completion.
