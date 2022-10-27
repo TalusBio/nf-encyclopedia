@@ -6,12 +6,12 @@ def stem(file_path) {
 }
 
 process MSCONVERT {
-    publishDir "${params.mzml_dir}", failOnError: true
+    publishDir "${params.mzml_dir}/${file(file_id).parent.name}", failOnError: true
     label 'process_low_constant'
     label 'error_retry'
 
     input:
-        tuple val(file_id), path(raw_input)
+    tuple val(file_id), path(raw_input)
 
     output:
         tuple val(file_id), path("${stem(raw_input)}.mzML.gz")

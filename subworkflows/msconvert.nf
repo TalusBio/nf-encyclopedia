@@ -3,8 +3,9 @@ include { MSCONVERT } from "../modules/msconvert.nf"
 
 // Case insensitive extension matching.
 def mzml_file(file_path) {
+    def subdir = file_path.parent.name
     def stem = (file_path.name =~ /(.*)\.(?!gz).*$/)[0][1]
-    def fname = file("${params.mzml_dir}/${stem}.mzML.gz")
+    def fname = file("${params.mzml_dir}/${subdir}/${stem}.mzML.gz")
     return fname
 }
 
