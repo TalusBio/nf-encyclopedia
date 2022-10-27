@@ -1,23 +1,27 @@
 include { MSCONVERT } from "../modules/msconvert.nf"
 
 
+// Case insensitive extension matching.
+def mzml_file(file_path) {
+    def stem = (file_path.name =~ /(.*)\.(?!gz).*$/)[0][1]
+    def fname = file("${params.mzml_dir}/${stem}.mzML.gz")
+    return fname
+}
+
+
 workflow CONVERT_TO_MZML {
     take:
     raw_files
 
     main:
     raw_files
-    | map { raw -> [raw, file(raw), file(raw).getParent().getBaseName()] }
     | branch {
-        is_mzml: it[0].endsWith(".mzML.gz")
-        return tuple(it[0], it[1])
-        mzml_present: (
-            file("${params.mzml_dir}/${it[2]}/${it[1].simpleName}.mzML.gz").exists()
-            && !params.msconvert.force
-        )
-        return tuple(it[0], file("${params.mzml_dir}/${it[2]}/${it[1].simpleName}.mzML.gz"))
+        is_mzml: it.toLowerCase().endsWith(".mzml.gz")
+        return tuple(it, file(it))
+        mzml_present: mzml_file(file(it)).exists() && !params.msconvert.force
+        return tuple(it, mzml_file(file(it)))
         mzml_absent: true
-        return it
+        return tuple(it, file(it))
     }
     | set { staging }
 

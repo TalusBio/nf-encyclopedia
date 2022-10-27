@@ -1,13 +1,20 @@
+// Convert vendor files to mzML
+
+// Get the file stem:
+def stem(file_path) {
+    return (file_path.name =~ /(.*)\.(?!gz).*$/)[0][1]
+}
+
 process MSCONVERT {
-    publishDir "${params.mzml_dir}/${outputDir}", failOnError: true
+    publishDir "${params.mzml_dir}", failOnError: true
     label 'process_low_constant'
     label 'error_retry'
 
     input:
-        tuple val(file_id), path(raw_input), val(outputDir)
+        tuple val(file_id), path(raw_input)
 
     output:
-        tuple val(file_id), path("${raw_input.baseName}.mzML.gz")
+        tuple val(file_id), path("${stem(raw_input)}.mzML.gz")
 
     script:
     """
@@ -24,6 +31,6 @@ process MSCONVERT {
 
     stub:
     """
-    touch ${raw_input.baseName}.mzML.gz
+    touch ${stem(raw_input)}.mzML.gz
     """
 }

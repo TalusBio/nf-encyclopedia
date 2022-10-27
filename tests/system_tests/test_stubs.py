@@ -68,8 +68,8 @@ def test_aggregate(base_project, tmp_path):
 
 def test_already_converted(base_project, tmp_path):
     """Test that already converted mzML files are not converted again."""
-    mzml_dir = (tmp_path / "mzml" / "subdir")
-    mzml_dir.mkdir(parents=True)
+    mzml_dir = (tmp_path / "mzml")
+    mzml_dir.mkdir()
     mzml = mzml_dir / "a.mzML.gz"
     mzml.touch()
     old = mzml.stat()
@@ -84,7 +84,7 @@ def test_already_converted(base_project, tmp_path):
 
 def test_force_convert(base_project, tmp_path):
     """Test that we can force files to be converted again."""
-    mzml_dir = (tmp_path / "mzml" / "subdir")
+    mzml_dir = (tmp_path / "mzml" )
     mzml_dir.mkdir(parents=True)
     mzml = mzml_dir / "a.mzML.gz"
     mzml.touch()
