@@ -106,9 +106,11 @@ process ENCYCLOPEDIA_AGGREGATE {
 
     script:
     """
-    # Decompress the feture files:
+    # Decompress the feature files:
     gzip -df ${local_feature_files}
-    find * -name '*\\.mzML\\.*' -exec bash -c 'mv \$0 \${0/\\.mzML/\\.dia}' {} \\;
+    find * \\
+        -iname '*\\.mzML\\.*' \\
+        -exec bash -c 'mv \$0 \${0/\\.mz[mM][lL]/\\.dia}' {} \\;
 
     # Run EncyclopeDIA:
     ${execEncyclopedia(task.memory)} \\
