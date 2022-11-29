@@ -1,7 +1,7 @@
 ARG VERSION=1.12.34
 
-FROM mambaorg/micromamba:latest as micromamba
-FROM searlelab/encyclopedia:$VERSION
+FROM --platform=linux/amd64 mambaorg/micromamba:latest as micromamba
+FROM --platform=linux/amd64 searlelab/encyclopedia:$VERSION
 LABEL authors="wfondrie@talus.bio" \
       description="Docker image for most of nf-encyclopedia"
 
