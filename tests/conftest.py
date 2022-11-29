@@ -1,11 +1,9 @@
 """Fixtures for test"""
 import os
-import random
 from pathlib import Path
 
 import pytest
-import numpy as np
-import pandas as pd
+from .msstats_utils import _msstats_input
 
 
 @pytest.fixture
@@ -70,6 +68,7 @@ def base_project(tmp_path):
 @pytest.fixture
 def real_data(tmp_path):
     """Test using small mzML files."""
+    tmp_path = Path("a_path")
     fasta_file = Path("tests/data/small-yeast.fasta")
     dlib_file = Path("tests/data/small-yeast.dlib")
 
@@ -106,41 +105,11 @@ def msstats_input(tmp_path):
     """A simulated peptide.txt file from EncyclopeDIA with corresponding
     annotations and contrasts.
     """
-    rng = np.random.default_rng(42)
+    tmp_path = Path("/home/jspaezp/talus_git/nf-encyclopedia/b_path")
 
-    alpha = list("AB")
-    peps = list("ABCDEFGHIJKLMNOP")
-    prots = list("AAAAAAAABBBBBBBB")
-    stems = list("WXYZ")
-    quants = rng.normal(0, 1, size=(len(peps), len(stems))) ** 2 * 1e5
+    peps = list("ABCDEFGHIJKLMNOP") # Peptide Names
+    prots = list("AAAAAAAABBBBBBBB")  # Protein Names
+    stems = list("WXYZ") # Raw file names
+    conditions = list("CCDD") # Conditions to use
+    return _msstats_input(tmp_path=tmp_path, peps = peps, prots = prots, stems = stems, conditions = conditions)
 
-    mzml = [s + ".mzML" for s in stems]
-    raw = ["s3://stuff/blah/" + s + ".raw" for s in stems]
-
-    # The peptides.txt file:
-    quant_df = pd.DataFrame(quants, columns=mzml)
-    meta_df = pd.DataFrame(
-        {"Peptide": peps, "Protein": prots, "numFragments": 1}
-    )
-
-    peptide_df = pd.concat([quant_df, meta_df], axis=1)
-    peptide_file = tmp_path / "encyclopedia.peptides.txt"
-    peptide_df.to_csv(peptide_file, sep="\t", index=False)
-
-    protein_df = pd.DataFrame({"Protein": ["A", "B"]})
-    protein_file = tmp_path / "encyclopedia.proteins.txt"
-    protein_df.to_csv(protein_file, sep="\t", index=False)
-
-    # The annotation file:
-    n_group = int(len(raw) // 2)
-    input_df = pd.DataFrame({"file": raw, "chrlib": False, "group": "default"})
-    input_df["condition"] = ["C"] * n_group + ["D"] * (len(raw) - n_group)
-    input_file = tmp_path / "input.csv"
-    input_df.to_csv(input_file, index=False)
-
-    # contrasts:
-    contrast_df = pd.DataFrame([(-1, 1)], columns=["C", "D"], index=["test"])
-    contrast_file = tmp_path / "contrasts.csv"
-    contrast_df.to_csv(contrast_file)
-
-    return peptide_file, protein_file, input_file, contrast_file

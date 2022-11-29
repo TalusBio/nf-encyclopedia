@@ -6,6 +6,8 @@ from pathlib import Path
 import pytest
 import pandas as pd
 
+from ..msstats_utils import _msstats_input
+
 OUTPUTS = [
     Path("msstats/msstats.input.txt"),
     Path("msstats/msstats.processed.rda"),
@@ -136,6 +138,27 @@ def test_input_with_bioreplicate(script, msstats_input):
     subprocess.run(args, check=True)
     input_df = pd.read_table("msstats/msstats.input.txt")
     assert (input_df["BioReplicate"] == 1).all()
+
+
+def test_msstats_with_non_r_names(tmp_path, script):
+    peps = list("ABCDEFGHIJKLMNOP") # Peptide Names
+    prots = list("AAAAAAAABBBBBBBB")  # Protein Names
+    stems = list("WXYZ") # Raw file names
+    conditions = ["c one", "c one", "1c two", "1c two"] # Conditions to use
+
+    peptide_file, protein_file, input_file, contrast_file = _msstats_input(tmp_path=tmp_path, peps=peps, prots=prots, stems=stems, conditions=conditions)
+    args = [
+        script,
+        peptide_file,
+        protein_file,
+        input_file,
+        contrast_file,
+        "equalizeMedians",
+        "true",
+    ]
+
+    subprocess.run(args, check=True)
+    _file_created(*OUTPUTS, exists=True)
 
 
 def _file_created(*args, exists=True):
