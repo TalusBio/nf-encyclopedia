@@ -105,7 +105,6 @@ def msstats_input(tmp_path):
     """A simulated peptide.txt file from EncyclopeDIA with corresponding
     annotations and contrasts.
     """
-    tmp_path = Path("/home/jspaezp/talus_git/nf-encyclopedia/b_path")
 
     peps = list("ABCDEFGHIJKLMNOP") # Peptide Names
     prots = list("AAAAAAAABBBBBBBB")  # Protein Names

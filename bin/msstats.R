@@ -57,6 +57,7 @@ annotate <- function(peptide_df, annot_csv) {
     mutate(file = str_replace(basename(file),"\\.[^\\.]*?[\\.gz]*$", "")) %>%
     fill_column(condition, "unknown") %>%
     fill_column(bioreplicate, file) %>%
+    mutate(condition=make.names(condition, unique=FALSE)) %>%
     rename(Run = file,
            Condition = condition,
            BioReplicate = bioreplicate) %>%
