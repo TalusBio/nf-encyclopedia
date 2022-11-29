@@ -116,7 +116,7 @@ main <- function() {
   quants <- quantification(processed, use_log_file = FALSE)
   write.table(quants,
               "results/msstats.proteins.txt",
-              row.names = TRUE,
+              row.names = FALSE,
               quote = FALSE,
               sep = "\t")
 
