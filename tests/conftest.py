@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 
 import pytest
+
 from .msstats_utils import _msstats_input
 
 
@@ -48,18 +49,28 @@ def base_project(tmp_path):
 
     # Config:
     config = [
-        "-profile", "standard",
+        "-profile",
+        "standard",
         "-without-docker",
         "-stub-run",
-        "-w", str(tmp_path / "work"),
-        "--result_dir", str(tmp_path / "results"),
-        "--mzml_dir", str(tmp_path / "mzml"),
-        "--report_dir", str(tmp_path / "reports"),
-        "--fasta", str(fasta_file),
-        "--dlib", str(dlib_file),
-        "--input", str(ms_files_csv),
-        "--max_memory", f"4.GB",
-        "--max_cpus", "1",
+        "-w",
+        str(tmp_path / "work"),
+        "--result_dir",
+        str(tmp_path / "results"),
+        "--mzml_dir",
+        str(tmp_path / "mzml"),
+        "--report_dir",
+        str(tmp_path / "reports"),
+        "--fasta",
+        str(fasta_file),
+        "--dlib",
+        str(dlib_file),
+        "--input",
+        str(ms_files_csv),
+        "--max_memory",
+        "4.GB",
+        "--max_cpus",
+        "1",
     ]
 
     return config, ms_files_csv, ms_files_csv_short
@@ -68,7 +79,6 @@ def base_project(tmp_path):
 @pytest.fixture
 def real_data(tmp_path):
     """Test using small mzML files."""
-    tmp_path = Path("a_path")
     fasta_file = Path("tests/data/small-yeast.fasta")
     dlib_file = Path("tests/data/small-yeast.dlib")
 
@@ -85,16 +95,26 @@ def real_data(tmp_path):
 
     # Config:
     config = [
-        "-w", str(tmp_path / "work"),
-        "-c", "conf/test.config",
-        "--result_dir", str(tmp_path / "results"),
-        "--mzml_dir", str(tmp_path / "mzml"),
-        "--report_dir", str(tmp_path / "reports"),
-        "--fasta", str(fasta_file),
-        "--dlib", str(dlib_file),
-        "--input", str(ms_files_csv),
-        "--max_cpus", str(n_cpus),
-        "--encyclopedia.local.args", "-frag HCD",
+        "-w",
+        str(tmp_path / "work"),
+        "-c",
+        "conf/test.config",
+        "--result_dir",
+        str(tmp_path / "results"),
+        "--mzml_dir",
+        str(tmp_path / "mzml"),
+        "--report_dir",
+        str(tmp_path / "reports"),
+        "--fasta",
+        str(fasta_file),
+        "--dlib",
+        str(dlib_file),
+        "--input",
+        str(ms_files_csv),
+        "--max_cpus",
+        str(n_cpus),
+        "--encyclopedia.local.args",
+        "-frag HCD",
     ]
 
     return config, ms_files_csv
@@ -106,9 +126,10 @@ def msstats_input(tmp_path):
     annotations and contrasts.
     """
 
-    peps = list("ABCDEFGHIJKLMNOP") # Peptide Names
+    peps = list("ABCDEFGHIJKLMNOP")  # Peptide Names
     prots = list("AAAAAAAABBBBBBBB")  # Protein Names
-    stems = list("WXYZ") # Raw file names
-    conditions = list("CCDD") # Conditions to use
-    return _msstats_input(tmp_path=tmp_path, peps = peps, prots = prots, stems = stems, conditions = conditions)
-
+    stems = list("WXYZ")  # Raw file names
+    conditions = list("CCDD")  # Conditions to use
+    return _msstats_input(
+        tmp_path=tmp_path, peps=peps, prots=prots, stems=stems, conditions=conditions
+    )

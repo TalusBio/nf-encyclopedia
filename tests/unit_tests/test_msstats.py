@@ -1,10 +1,9 @@
 """Test the MSstats script"""
-import logging
 import subprocess
 from pathlib import Path
 
-import pytest
 import pandas as pd
+import pytest
 
 from ..msstats_utils import _msstats_input
 
@@ -141,12 +140,14 @@ def test_input_with_bioreplicate(script, msstats_input):
 
 
 def test_msstats_with_non_r_names(tmp_path, script):
-    peps = list("ABCDEFGHIJKLMNOP") # Peptide Names
+    peps = list("ABCDEFGHIJKLMNOP")  # Peptide Names
     prots = list("AAAAAAAABBBBBBBB")  # Protein Names
-    stems = list("WXYZ") # Raw file names
-    conditions = ["c one", "c one", "1c two", "1c two"] # Conditions to use
+    stems = list("WXYZ")  # Raw file names
+    conditions = ["c one", "c one", "1c two", "1c two"]  # Conditions to use
 
-    peptide_file, protein_file, input_file, contrast_file = _msstats_input(tmp_path=tmp_path, peps=peps, prots=prots, stems=stems, conditions=conditions)
+    peptide_file, protein_file, input_file, contrast_file = _msstats_input(
+        tmp_path=tmp_path, peps=peps, prots=prots, stems=stems, conditions=conditions
+    )
     args = [
         script,
         peptide_file,

@@ -1,7 +1,8 @@
-
 from __future__ import annotations
+
 import numpy as np
 import pandas as pd
+
 
 def _msstats_input(tmp_path, peps: list[str], prots, stems, conditions):
     """
@@ -15,9 +16,7 @@ def _msstats_input(tmp_path, peps: list[str], prots, stems, conditions):
 
     # The peptides.txt file:
     quant_df = pd.DataFrame(quants, columns=mzml)
-    meta_df = pd.DataFrame(
-        {"Peptide": peps, "Protein": prots, "numFragments": 1}
-    )
+    meta_df = pd.DataFrame({"Peptide": peps, "Protein": prots, "numFragments": 1})
 
     peptide_df = pd.concat([quant_df, meta_df], axis=1)
     peptide_file = tmp_path / "encyclopedia.peptides.txt"
@@ -29,7 +28,7 @@ def _msstats_input(tmp_path, peps: list[str], prots, stems, conditions):
 
     # The annotation file:
     input_df = pd.DataFrame({"file": raw, "chrlib": False, "group": "default"})
-    input_df["condition"] = conditions 
+    input_df["condition"] = conditions
     input_file = tmp_path / "input.csv"
     input_df.to_csv(input_file, index=False)
 
@@ -39,7 +38,9 @@ def _msstats_input(tmp_path, peps: list[str], prots, stems, conditions):
     sample_contrast[0] = -1
     sample_contrast[1] = 1
     sample_contrast = tuple(sample_contrast)
-    contrast_df = pd.DataFrame([sample_contrast], columns=uniq_conditions, index=["test"])
+    contrast_df = pd.DataFrame(
+        [sample_contrast], columns=uniq_conditions, index=["test"]
+    )
     contrast_file = tmp_path / "contrasts.csv"
     contrast_df.to_csv(contrast_file)
 
