@@ -57,13 +57,23 @@ annotate <- function(peptide_df, annot_csv) {
     mutate(file = str_replace(basename(file),"\\.[^\\.]*?[\\.gz]*$", "")) %>%
     fill_column(condition, "unknown") %>%
     fill_column(bioreplicate, file) %>%
-    mutate(condition=make.names(condition, unique=FALSE)) %>%
     rename(Run = file,
            Condition = condition,
            BioReplicate = bioreplicate) %>%
     select(c("Run", "Condition", "BioReplicate"))
 
-  return(left_join(peptide_df, annot_df, by="Run"))
+  condition_aliases <- annot_df$Condition
+  annot_df$Condition <- make.names(condition_aliases, unique=FALSE)
+
+  condition_aliases <- unique(condition_aliases)
+  names(condition_aliases) <- make.names(condition_aliases)
+
+  out <- list(
+    df = left_join(peptide_df, annot_df, by="Run"),
+    aliases = condition_aliases
+  )
+
+  return(out)
 }
 
 
@@ -94,6 +104,9 @@ main <- function() {
   peptide_df <- encyclopediaToMsstats(peptides_txt, proteins_txt) %>%
     annotate(input_csv)
 
+  condition_aliases <- peptide_df[["aliases"]]
+  peptide_df <- peptide_df[["df"]]
+
   write.table(peptide_df,
               file = "msstats/msstats.input.txt",
               sep = "\t",
@@ -115,11 +128,25 @@ main <- function() {
 
   # Get quantified proteins:
   quants <- quantification(processed, use_log_file = FALSE)
-  write.table(quants,
+
+  # Convert the dummy variable names to the original ones
+  quantnames <- colnames(quants)
+  for (x in names(condition_aliases)) {
+    quantnames <- gsub(paste0("^", x, "_"),
+                       paste0(condition_aliases[[x]], "_"),
+                       quantnames)
+  }
+  out_quants <- quants
+  colnames(out_quants) <- quantnames
+
+  write.table(out_quants,
               "results/msstats.proteins.txt",
               row.names = TRUE,
               quote = FALSE,
               sep = "\t")
+
+  # Remove the temporary table for memmory reasons
+  rm(out_quants)
 
   # Perform hypothesis tests:
   if(contrasts != "NO_FILE") {

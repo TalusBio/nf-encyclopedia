@@ -161,6 +161,13 @@ def test_msstats_with_non_r_names(tmp_path, script):
     subprocess.run(args, check=True)
     _file_created(*OUTPUTS, exists=True)
 
+    with open("results/msstats.proteins.txt", "r") as f:
+        header = next(iter(f))
+
+    # Tests that the conditin names are kept in the final output
+    for c in set(conditions):
+        assert c in header, f"'{c}' not in '{header}'"
+
 
 def _file_created(*args, exists=True):
     """Test whether one or more files exist."""
