@@ -19,9 +19,11 @@ or conda:
 conda install pytest
 ```
 
-Once installed, tests can be run from the root directory of the workflow. These tests use the process stubs to test the workflow logic, but do not test the commands for the tools themselves. Run them with:
+Once installed, tests can be run from the root directory of the workflow.
+Run them with:
 
 ``` sh
+docker pull ghcr.io/talusbio/nf-encyclopedia:latest
 pytest
 ```
 
