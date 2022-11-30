@@ -7,15 +7,11 @@ See the [nf-encyclopedia documentation](https://TalusBio.github.io/nf-encycloped
 
 ## Development
 ### Running Tests
-We use the [pytest](https://docs.pytest.org/en/7.0.x/contents.html) Python package to run our tests. It can be installed either with either pip:
-
-```sh
-pip install pytest
-```
-
-or conda:
+We use the [pytest](https://docs.pytest.org/en/7.0.x/contents.html) Python package to run our tests. It can be installed using conda:
 
 ``` sh
+conda env create --name nf_encyclopedia --file=environment.yml
+conda activate nf_encyclopedia
 conda install pytest
 ```
 
