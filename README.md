@@ -7,21 +7,19 @@ See the [nf-encyclopedia documentation](https://TalusBio.github.io/nf-encycloped
 
 ## Development
 ### Running Tests
-We use the [pytest](https://docs.pytest.org/en/7.0.x/contents.html) Python package to run our tests. It can be installed either with either pip:
-
-```sh
-pip install pytest
-```
-
-or conda:
+We use the [pytest](https://docs.pytest.org/en/7.0.x/contents.html) Python package to run our tests. It can be installed using conda:
 
 ``` sh
+conda env create --name nf_encyclopedia --file=environment.yml
+conda activate nf_encyclopedia
 conda install pytest
 ```
 
-Once installed, tests can be run from the root directory of the workflow. These tests use the process stubs to test the workflow logic, but do not test the commands for the tools themselves. Run them with:
+Once installed, tests can be run from the root directory of the workflow.
+Run them with:
 
 ``` sh
+docker pull ghcr.io/talusbio/nf-encyclopedia:latest
 pytest
 ```
 
