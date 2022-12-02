@@ -141,7 +141,7 @@ main <- function() {
 
   write.table(out_quants,
               "results/msstats.proteins.txt",
-              row.names = TRUE,
+              row.names = FALSE,
               quote = FALSE,
               sep = "\t")
 
