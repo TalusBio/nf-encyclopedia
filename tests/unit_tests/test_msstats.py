@@ -1,10 +1,11 @@
 """Test the MSstats script"""
-import logging
 import subprocess
 from pathlib import Path
 
-import pytest
 import pandas as pd
+import pytest
+
+from ..msstats_utils import _msstats_input
 
 OUTPUTS = [
     Path("msstats/msstats.input.txt"),
@@ -136,6 +137,36 @@ def test_input_with_bioreplicate(script, msstats_input):
     subprocess.run(args, check=True)
     input_df = pd.read_table("msstats/msstats.input.txt")
     assert (input_df["BioReplicate"] == 1).all()
+
+
+def test_msstats_with_non_r_names(tmp_path, script):
+    peps = list("ABCDEFGHIJKLMNOP")  # Peptide Names
+    prots = list("AAAAAAAABBBBBBBB")  # Protein Names
+    stems = list("WXYZ")  # Raw file names
+    conditions = ["c one", "c one", "1c two", "1c two"]  # Conditions to use
+
+    peptide_file, protein_file, input_file, contrast_file = _msstats_input(
+        tmp_path=tmp_path, peps=peps, prots=prots, stems=stems, conditions=conditions
+    )
+    args = [
+        script,
+        peptide_file,
+        protein_file,
+        input_file,
+        contrast_file,
+        "equalizeMedians",
+        "true",
+    ]
+
+    subprocess.run(args, check=True)
+    _file_created(*OUTPUTS, exists=True)
+
+    with open("results/msstats.proteins.txt", "r") as f:
+        header = next(iter(f))
+
+    # Tests that the conditin names are kept in the final output
+    for c in set(conditions):
+        assert c in header, f"'{c}' not in '{header}'"
 
 
 def _file_created(*args, exists=True):
