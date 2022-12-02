@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed issue where the docker image would not build in M1 macs.
 - Excel compatibility error due to row names in msstats ouput.
+- Issue where the pipeline would break if non-valid R names are given.
 
 ## [1.0.0] - 2022-10-03
 ### Changed
