@@ -16,6 +16,24 @@ OUTPUTS = [
 ]
 
 
+def test_joins(msstats_input, script):
+    """Test that the joins are made correctly"""
+    peptide_file, protein_file, annot_file, _ = msstats_input
+    args = [
+        script,
+        peptide_file,
+        protein_file,
+        annot_file,
+        "NO_FILE",
+        "equalizeMedians",
+        "false",
+    ]
+
+    subprocess.run(args, check=True)
+    df = pd.read_table(OUTPUTS[2])
+    assert set(df["Protein"]) == set("AB")
+
+
 def test_reports(msstats_input, script):
     """Test without reports"""
     peptide_file, protein_file, annot_file, contrast_file = msstats_input

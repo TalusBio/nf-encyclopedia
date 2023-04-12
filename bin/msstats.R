@@ -10,18 +10,23 @@ library(MSstats, warn.conflicts = FALSE)
 # Convert EncyclopeDIA results to a format for MSstats
 encyclopediaToMsstats <- function(peptides_txt, proteins_txt) {
   id_vars <- c("Peptide", "Protein", "numFragments")
-  proteins <- read.table(proteins_txt,
+  prot2pep <- read.table(proteins_txt,
                          sep = "\t",
                          header = TRUE,
                          stringsAsFactors = TRUE,
-                         check.names = FALSE)
+                         check.names = FALSE) %>%
+    select(Protein, PeptideSequences) %>%
+    mutate(Peptide = str_split(PeptideSequences, ";")) %>%
+    select(Protein, Peptide) %>%
+    unnest(Peptide)
 
   df <- read.table(peptides_txt,
                    sep = "\t",
                    header = TRUE,
                    stringsAsFactors = FALSE,
                    check.names = FALSE) %>%
-    inner_join(proteins["Protein"], by = "Protein") %>%
+    select(-Protein) %>%
+    inner_join(prot2pep, by = "Peptide") %>%
     pivot_longer(names(.)[!names(.) %in% id_vars],
                  names_to = "run",
                  values_to = "intensity") %>%

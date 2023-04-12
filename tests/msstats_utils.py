@@ -1,4 +1,5 @@
 from __future__ import annotations
+from collections import defaultdict
 
 import numpy as np
 import pandas as pd
@@ -10,19 +11,26 @@ def _msstats_input(tmp_path, peps: list[str], prots, stems, conditions):
     """
     rng = np.random.default_rng(42)
     quants = rng.normal(0, 1, size=(len(peps), len(stems))) ** 2 * 1e5
-
     mzml = [s + ".mzML" for s in stems]
     raw = ["s3://stuff/blah/" + s + ".raw" for s in stems]
 
+    # Prepare protein-to-peptide mapping:
+    prot2pep = defaultdict(list)
+    for prot, pep in zip(prots, peps):
+        prot2pep[prot].append(pep)
+
+    prot2pep = {prot: ";".join(pep) for prot, pep in prot2pep.items()}
+
     # The peptides.txt file:
     quant_df = pd.DataFrame(quants, columns=mzml)
-    meta_df = pd.DataFrame({"Peptide": peps, "Protein": prots, "numFragments": 1})
-
+    meta_df = pd.DataFrame({"Peptide": peps, "Protein": "X", "numFragments": 1})
     peptide_df = pd.concat([quant_df, meta_df], axis=1)
     peptide_file = tmp_path / "encyclopedia.peptides.txt"
     peptide_df.to_csv(peptide_file, sep="\t", index=False)
 
+    # The proteins.txt file:
     protein_df = pd.DataFrame({"Protein": list(set(prots))})
+    protein_df["PeptideSequences"] = protein_df["Protein"].replace(prot2pep)
     protein_file = tmp_path / "encyclopedia.proteins.txt"
     protein_df.to_csv(protein_file, sep="\t", index=False)
 
