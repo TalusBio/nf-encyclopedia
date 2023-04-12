@@ -121,7 +121,7 @@ main <- function() {
   contrasts <- args[4] # 'NO_FILE' if missing.
   normalization <- args[5]
   reports <- as.logical(args[6])
-
+  print(reports)
   # Create the result folders if needed:
   dir.create("msstats", showWarnings = FALSE)
   dir.create("results", showWarnings = FALSE)
@@ -145,6 +145,7 @@ main <- function() {
   # Read into an MSstats format:
   raw <- SkylinetoMSstatsFormat(peptide_df,
                                 filter_with_Qvalue = FALSE,
+                                removeProtein_with1Peptide = FALSE,
                                 censoredInt = "0",
                                 use_log_file = FALSE)
 
