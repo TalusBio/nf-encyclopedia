@@ -122,6 +122,10 @@ main <- function() {
   normalization <- args[5]
   reports <- as.logical(args[6])
 
+  # Create the result folders if needed:
+  dir.create("msstats", showWarnings = FALSE)
+  dir.create("results", showWarnings = FALSE)
+
   # Parse the normalization:
   if(tolower(normalization) == "none") normalization <- FALSE
 
