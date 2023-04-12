@@ -10,18 +10,28 @@ library(MSstats, warn.conflicts = FALSE)
 # Convert EncyclopeDIA results to a format for MSstats
 encyclopediaToMsstats <- function(peptides_txt, proteins_txt) {
   id_vars <- c("Peptide", "Protein", "numFragments")
-  proteins <- read.table(proteins_txt,
+  prot2pep <- read.table(proteins_txt,
                          sep = "\t",
                          header = TRUE,
                          stringsAsFactors = TRUE,
-                         check.names = FALSE)
+                         check.names = FALSE) %>%
+    select(Protein, PeptideSequences) %>%
+    mutate(Peptide = str_split(PeptideSequences, ";")) %>%
+    select(Protein, Peptide) %>%
+    unnest(Peptide)
 
   df <- read.table(peptides_txt,
                    sep = "\t",
                    header = TRUE,
                    stringsAsFactors = FALSE,
                    check.names = FALSE) %>%
-    inner_join(proteins["Protein"], by = "Protein") %>%
+    select(-Protein)
+
+  orig_rows <- nrow(df)
+
+  df <- df %>%
+    inner_join(prot2pep, by = "Peptide") %>%
+    check_join(orig_rows, 0.75) %>%
     pivot_longer(names(.)[!names(.) %in% id_vars],
                  names_to = "run",
                  values_to = "intensity") %>%
@@ -87,6 +97,21 @@ fill_column <- function(df, column, backup) {
 }
 
 
+# Check for too many missing values after the join.
+# Args:
+# - df (data.frame): the joined data
+# - orig_rows (int): the number or rows in the original data.
+# - thold (float): The threshold for thowing an error.
+check_join <- function(df, orig_rows, thold) {
+  present <- nrow(df) / orig_rows
+  if (present < thold) {
+    thold <- as.integer(thold*100)
+    stop(paste0("<",thold, "% of peptides have associated protein."))
+  }
+  return(df)
+}
+
+
 # The main function
 main <- function() {
   args <- commandArgs(trailingOnly = TRUE)
@@ -96,6 +121,10 @@ main <- function() {
   contrasts <- args[4] # 'NO_FILE' if missing.
   normalization <- args[5]
   reports <- as.logical(args[6])
+  print(reports)
+  # Create the result folders if needed:
+  dir.create("msstats", showWarnings = FALSE)
+  dir.create("results", showWarnings = FALSE)
 
   # Parse the normalization:
   if(tolower(normalization) == "none") normalization <- FALSE
@@ -116,6 +145,7 @@ main <- function() {
   # Read into an MSstats format:
   raw <- SkylinetoMSstatsFormat(peptide_df,
                                 filter_with_Qvalue = FALSE,
+                                removeProtein_with1Peptide = FALSE,
                                 censoredInt = "0",
                                 use_log_file = FALSE)
 

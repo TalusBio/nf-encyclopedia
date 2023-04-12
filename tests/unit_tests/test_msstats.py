@@ -16,6 +16,40 @@ OUTPUTS = [
 ]
 
 
+def test_joins(msstats_input, script):
+    """Test that the joins are made correctly"""
+    peptide_file, protein_file, annot_file, _ = msstats_input
+    args = [
+        script,
+        peptide_file,
+        protein_file,
+        annot_file,
+        "NO_FILE",
+        "equalizeMedians",
+        "false",
+    ]
+
+    subprocess.run(args, check=True)
+    df = pd.read_table(OUTPUTS[2])
+    assert set(df["Protein"]) == set("AB")
+
+    # Test the failure case.
+    rows_to_add = {"Peptide": list("QRSTUVWXYZ"), "Protein": "Y"}
+    (
+        pd.read_table(peptide_file)
+        .merge(pd.DataFrame(rows_to_add), how="outer")
+        .fillna(0)
+        .to_csv(peptide_file, sep="\t", index=False)
+    )
+
+    err = subprocess.run(
+        args,
+        capture_output=True,
+        text=True,
+    )
+    assert "% of peptides have associated protein." in err.stderr
+
+
 def test_reports(msstats_input, script):
     """Test without reports"""
     peptide_file, protein_file, annot_file, contrast_file = msstats_input
