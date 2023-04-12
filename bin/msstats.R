@@ -25,8 +25,13 @@ encyclopediaToMsstats <- function(peptides_txt, proteins_txt) {
                    header = TRUE,
                    stringsAsFactors = FALSE,
                    check.names = FALSE) %>%
-    select(-Protein) %>%
+    select(-Protein)
+
+  orig_rows <- nrow(df)
+
+  df <- df %>%
     inner_join(prot2pep, by = "Peptide") %>%
+    check_join(orig_rows, 0.75) %>%
     pivot_longer(names(.)[!names(.) %in% id_vars],
                  names_to = "run",
                  values_to = "intensity") %>%
@@ -87,6 +92,21 @@ fill_column <- function(df, column, backup) {
   var_name <- englue("{{column}}")
   if (!(var_name %in% names(df))) {
     df <- mutate(df, "{{ column }}" := {{ backup }})
+  }
+  return(df)
+}
+
+
+# Check for too many missing values after the join.
+# Args:
+# - df (data.frame): the joined data
+# - orig_rows (int): the number or rows in the original data.
+# - thold (float): The threshold for thowing an error.
+check_join <- function(df, orig_rows, thold) {
+  present <- nrow(df) / orig_rows
+  if (present < thold) {
+    thold <- as.integer(thold*100)
+    stop(paste0("<",thold, "% of peptides have associated protein."))
   }
   return(df)
 }
