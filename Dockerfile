@@ -1,7 +1,18 @@
-ARG VERSION=1.12.34
-
 FROM --platform=linux/amd64 mambaorg/micromamba:latest as micromamba
-FROM --platform=linux/amd64 searlelab/encyclopedia:$VERSION
+# First Stage of the build, gets the jar for encyclopedia
+FROM --platform=linux/amd64 openjdk:8-jre
+ARG VERSION=2.12.30
+ENV VERSION ${VERSION}
+
+RUN apt-get update && \
+    apt-get -y upgrade && \ 
+    apt-get -y install libgomp1 && \
+    apt-get clean
+
+WORKDIR /code
+RUN wget https://bitbucket.org/searleb/encyclopedia/downloads/encyclopedia-${VERSION}-executable.jar
+WORKDIR /app
+
 LABEL authors="wfondrie@talus.bio" \
       description="Docker image for most of nf-encyclopedia"
 
