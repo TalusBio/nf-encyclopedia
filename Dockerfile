@@ -1,7 +1,7 @@
 FROM --platform=linux/amd64 mambaorg/micromamba:latest as micromamba
 # First Stage of the build, gets the jar for encyclopedia
 FROM --platform=linux/amd64 openjdk:8-jre
-ARG VERSION=1.12.34
+ARG VERSION=2.12.30
 ENV VERSION ${VERSION}
 
 RUN apt-get update && \
