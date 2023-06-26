@@ -3,7 +3,7 @@
 nextflow.enable.dsl = 2
 
 // Subworkflows
-include { CONVERT_TO_MZML } from "./subworkflows/msconvert"
+include { CONVERT_TO_MZML } from "./subworkflows/convert"
 include {
     BUILD_CHROMATOGRAM_LIBRARY;
     PERFORM_QUANT;

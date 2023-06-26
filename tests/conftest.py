@@ -14,18 +14,31 @@ def base_project(tmp_path):
     raw_dir = tmp_path / "subdir"
     raw_dir.mkdir()
     raw_files = [raw_dir / f"{f}.raw" for f in "abcdefghijklm"]
+    dot_d_files = [raw_dir / f"{f}.d.tar" for f in "opqrs"]
     for raw_file in raw_files:
+        raw_file.touch()
+    for raw_file in dot_d_files:
         raw_file.touch()
 
     mzml_file = raw_dir / "n.mzML.gz"
     mzml_file.touch()
     raw_files.append(mzml_file)
+    raw_files.extend(dot_d_files)
 
     chrlibs = ["true"] * 6 + ["false"] * 8
-    groups = "xyz" * 4 + "z" * 2
+    chrlibs.extend(["false"] * len(dot_d_files))
+    groups = "xyz" * 4 + "z" * 2 + "" * 8 + "w" * len(dot_d_files)
 
     # create an input csv
     ms_files = ["file,chrlib,group"]
+
+    # This assertion makes sure we are defining the
+    # csv correctly and does not get prematurely terminated
+    # since zip does not check that all arguments are the same
+    # length.
+    assert len(raw_files) == len(chrlibs)
+    assert len(raw_files) == len(groups)
+
     for row in zip(raw_files, chrlibs, groups):
         row = list(row)
         row[0] = str(row[0])
