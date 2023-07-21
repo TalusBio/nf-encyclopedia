@@ -5,6 +5,7 @@ process ADD_IMS_INFO {
     container 'ghcr.io/talusbio/flimsay:v0.2.0'
 
     input:
+        val group
         path blib
 
     output:
@@ -12,7 +13,7 @@ process ADD_IMS_INFO {
 
     script:
     """
-    flimsay fill_blib ${blib} blib.ims.blib 
+    flimsay fill_blib ${blib} blib.ims.blib
     """
 
     stub:

@@ -47,7 +47,7 @@ process SKYLINE_IMPORT_DATA {
 
     input:
         path skyline_zipfile
-        path raw_file
+        each path(raw_file)
 
     output:
         path("*.skyd"), emit: skyd_file
@@ -89,7 +89,7 @@ process SKYLINE_MERGE_RESULTS {
         path("skyline-merge.log"), emit: log
 
     script:
-    // import_files_params = "--import-file=${(mzml_files as List).collect{ "/tmp/" + file(it).name }.join(' --import-file=')}"
+    import_files_params = "--import-file=${(mzml_files as List).collect{ "/tmp/" + file(it).name }.join(' --import-file=')}"
     """
     unzip ${skyline_zipfile}
 
@@ -105,8 +105,6 @@ process SKYLINE_MERGE_RESULTS {
 
     stub:
     """
-    echo "${skyline_zipfile}"
-    echo "${*.skyd}"
     touch skyline-merge.log
     touch final.sky.zip
     """

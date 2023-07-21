@@ -131,14 +131,20 @@ workflow {
         // lib -> blib
         PERFORM_AGGREGATE_QUANT(quant_results.local, dlib, fasta)
         | set { enc_results }
-        
-        ADD_IMS_INFO(enc_results.blib)
+
+        quant_results.local
+        | map { it[0] }
+        | set { groups }
+
+        ADD_IMS_INFO(groups, enc_results.blib)
         | set { blib }
 
         skyline_template = file(params.skyline_template, checkIfExists: true)
         SKYLINE_ADD_LIB(skyline_template, blib, fasta)
         | set { skyline_template_zipfile }
 
+        println raw_quant_files
+        raw_quant_files.view()
         SKYLINE_IMPORT_DATA(
             skyline_template_zipfile.skyline_zipfile,
             raw_quant_files,
@@ -147,9 +153,7 @@ workflow {
 
         raw_quant_files = raw_quant_files.collect()
 
-        skyline_import_results.skyd_file.view()
         skyd_files = skyline_import_results.skyd_file.collect()
-
         skyd_files.view()
 
         SKYLINE_MERGE_RESULTS(
