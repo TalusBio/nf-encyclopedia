@@ -1,5 +1,5 @@
 process SKYLINE_ADD_LIB {
-    publishDir "${params.result_dir}/skyline/add-lib", failOnError: true, mode: 'copy'
+    publishDir "${params.result_dir}/skyline/", failOnError: true, mode: 'copy'
     label 'process_medium'
     label 'error_retry'
     container 'quay.io/protio/pwiz-skyline-i-agree-to-the-vendor-licenses:3.0.23187-2243781'
@@ -39,7 +39,7 @@ process SKYLINE_ADD_LIB {
 }
 
 process SKYLINE_IMPORT_DATA {
-    publishDir "${params.result_dir}/skyline/import-spectra", failOnError: true, mode: 'copy'
+    publishDir "${params.result_dir}/skyline/", failOnError: true, mode: 'copy'
     label 'process_medium'
     label 'process_high_memory'
     label 'error_retry'
@@ -74,7 +74,7 @@ process SKYLINE_IMPORT_DATA {
 }
 
 process SKYLINE_MERGE_RESULTS {
-    publishDir "${params.result_dir}/skyline/import-spectra", failOnError: true, mode: 'copy'
+    publishDir "${params.result_dir}/skyline/", failOnError: true, mode: 'copy'
     label 'process_high'
     label 'error_retry'
     container 'quay.io/protio/pwiz-skyline-i-agree-to-the-vendor-licenses:3.0.23187-2243781'

@@ -143,8 +143,7 @@ workflow {
         SKYLINE_ADD_LIB(skyline_template, blib, fasta)
         | set { skyline_template_zipfile }
 
-        println raw_quant_files
-        raw_quant_files.view()
+        // This will generate a skyd for every raw data file
         SKYLINE_IMPORT_DATA(
             skyline_template_zipfile.skyline_zipfile,
             raw_quant_files,
@@ -152,16 +151,16 @@ workflow {
         | set { skyline_import_results }
 
         raw_quant_files = raw_quant_files.collect()
-
         skyd_files = skyline_import_results.skyd_file.collect()
-        skyd_files.view()
 
         SKYLINE_MERGE_RESULTS(
             skyline_template_zipfile.skyline_zipfile,
             skyd_files,
             raw_quant_files,
         )
+        | set { skyline_merge_results }
 
+        skyline_merge_results.final_skyline_zipfile.view()
 
     } else {
         quant_results | set{ enc_results }
