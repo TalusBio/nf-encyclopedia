@@ -97,7 +97,10 @@ workflow PERFORM_QUANT {
                 fasta,
                 params.encyclopedia.quant_suffix,
                 true  // Align RTs
-            ).quant
+            )
+            | set { agg_outs }
+            
+            agg_outs.quant
             | set { global_files }
         }
 
@@ -136,9 +139,18 @@ workflow PERFORM_AGGREGATE_QUANT {
             fasta,
             params.encyclopedia.quant_suffix,
             true  // Align RTs
-        ).quant
+        ) 
+        | set { agg_results }
+        
+        agg_results.quant
         | set { global_files }
+
+        // Lib is ['aggregated', .elib, .blib, .log, summary.csv]
+        agg_results.lib
+        | map {it[1]}
+        | set { blib }
 
     emit:
         global = global_files
+        blib = blib
 }

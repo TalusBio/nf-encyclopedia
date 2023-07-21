@@ -47,6 +47,9 @@ def base_project(tmp_path):
     ms_files_csv = tmp_path / "ms_files.csv"
     with ms_files_csv.open("w+") as fhndl:
         fhndl.write("\n".join(ms_files) + "\n")
+    
+    # print the file
+    print(ms_files_csv.read_text())
 
     ms_files_csv_short = tmp_path / "ms_files_short.csv"
     with ms_files_csv_short.open("w+") as fhndl:

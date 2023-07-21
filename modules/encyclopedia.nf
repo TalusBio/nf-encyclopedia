@@ -23,7 +23,7 @@ def stem(suffix) {
 process ENCYCLOPEDIA_SEARCH {
     publishDir "${params.result_dir}/${group}/elib", pattern: '*.elib', failOnError: true
     publishDir "${params.result_dir}/${group}/logs", pattern: '*.log', failOnError: true
-    label 'process_medium'
+    label 'process_high'
 
     input:
         tuple val(group), path(mzml_gz_file)
@@ -70,6 +70,7 @@ process ENCYCLOPEDIA_SEARCH {
 
 process ENCYCLOPEDIA_AGGREGATE {
     publishDir "${params.result_dir}/${group}/elib", pattern: '*.elib', failOnError: true
+    publishDir "${params.result_dir}/${group}/blib", pattern: '*.blib', failOnError: true
     publishDir "${params.result_dir}/${group}/logs", pattern: '*.log', failOnError: true
     publishDir "${params.result_dir}/${group}/results", pattern: '*.txt', failOnError: true
     publishDir "${params.result_dir}/${group}/reports", pattern: '*.csv', failOnError: true
@@ -92,6 +93,7 @@ process ENCYCLOPEDIA_AGGREGATE {
         tuple(
             val(group),
             path("${stem(output_suffix)}.elib"),
+            path("${stem(output_suffix)}.blib"),
             path("${stem(output_suffix)}.global.log"),
             path("${output_suffix}_detection_summary.csv"),
             emit: "lib"
@@ -117,6 +119,7 @@ process ENCYCLOPEDIA_AGGREGATE {
         -i ./ \\
         -f ${fasta_file} \\
         -l ${library_file} \\
+        -blib true \\
         ${params.encyclopedia.args} \\
         ${params.encyclopedia.global.args} \\
         -a ${align} \\
@@ -140,6 +143,7 @@ process ENCYCLOPEDIA_AGGREGATE {
     stub:
     """
     touch ${stem(output_suffix)}.elib
+    touch ${stem(output_suffix)}.blib
 
     if [ "${align}" = true ]; then
         touch ${stem(output_suffix)}.peptides.txt
