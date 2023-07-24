@@ -88,6 +88,7 @@ workflow PERFORM_QUANT {
         if ( local_only ) {
         Channel.empty() | set { global_files }
         Channel.empty() | set { msstats_files }
+        Channel.empty() | set { global_blib }
         } else {
         // Do the global analysis
         // Output is [group, peptides_txt, proteins_txt]
