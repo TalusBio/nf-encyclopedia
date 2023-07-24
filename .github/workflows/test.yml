@@ -39,7 +39,7 @@ jobs:
 
     - name: Run Unit Tests
       run: |
-        # REMOTE=/app/nf-encyclopedia
+        REMOTE=/app/nf-encyclopedia
         docker run -v $(pwd):${REMOTE} nf-encyclopedia:latest \
           pytest tests/unit_tests # -w ${REMOTE}
 

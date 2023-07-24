@@ -41,7 +41,7 @@ workflow BUILD_CHROMATOGRAM_LIBRARY {
             params.encyclopedia.chrlib_suffix,
             false  // Don't align RTs
         ).lib
-        | map { it -> tuple it[0], it[1] }
+        | map { eait -> tuple eait[0], eait[1] }
         | set { output_elib }
 
     emit:
@@ -61,9 +61,9 @@ workflow PERFORM_QUANT {
         // output is [group, mzml_gz_file, elib]
         quant_files
         | transpose()
-        | multiMap { it ->
-            mzml: tuple it[0], it[1]
-            elib: it[2]
+        | multiMap { qit ->
+        mzml: tuple qit[0], qit[1]
+        elib: qit[2]
         }
         | set { ungrouped_files }
 
@@ -86,12 +86,12 @@ workflow PERFORM_QUANT {
 
         // Only run group-wise global if needed.
         if ( local_only ) {
-            Channel.empty() | set { global_files }
-            Channel.empty() | set { msstats_files }
+        Channel.empty() | set { global_files }
+        Channel.empty() | set { msstats_files }
         } else {
-            // Do the global analysis
-            // Output is [group, peptides_txt, proteins_txt]
-            ENCYCLOPEDIA_AGGREGATE(
+        // Do the global analysis
+        // Output is [group, peptides_txt, proteins_txt]
+        ENCYCLOPEDIA_AGGREGATE(
                 local_files,
                 dlib,
                 fasta,
@@ -100,7 +100,7 @@ workflow PERFORM_QUANT {
             )
             | set { agg_outs }
             
-            agg_outs.quant
+        agg_outs.quant
             | set { global_files }
         }
 
@@ -139,15 +139,15 @@ workflow PERFORM_AGGREGATE_QUANT {
             fasta,
             params.encyclopedia.quant_suffix,
             true  // Align RTs
-        ) 
+        )
         | set { agg_results }
-        
+
         agg_results.quant
         | set { global_files }
 
         // Lib is ['aggregated', .elib, .blib, .log, summary.csv]
         agg_results.lib
-        | map {it[1]}
+        | map { libe -> libe[1] }
         | set { blib }
 
     emit:
