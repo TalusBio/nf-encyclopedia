@@ -99,7 +99,10 @@ workflow PERFORM_QUANT {
                 true  // Align RTs
             )
             | set { agg_outs }
-            
+
+        agg_outs.lib |
+            map { libe -> libe[1] } |
+            set { global_blib }
         agg_outs.quant
             | set { global_files }
         }
@@ -107,6 +110,7 @@ workflow PERFORM_QUANT {
     emit:
         local = local_files
         global = global_files
+        blib = global_blib
 }
 
 

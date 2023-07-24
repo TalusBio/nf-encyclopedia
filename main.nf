@@ -55,6 +55,7 @@ workflow {
     input = file(params.input, checkIfExists: true)
     fasta = file(params.fasta, checkIfExists: true)
     dlib = file(params.dlib, checkIfExists: true)
+    skyline_empty_template = file("$baseDir/assets/template.sky.zip", checkIfExists: true)
 
     // Optional contrasts arg:
     if ( params.contrasts != null ) {
@@ -123,35 +124,35 @@ workflow {
     PERFORM_QUANT(quant_files, dlib, fasta, params.aggregate)
     | set { quant_results }
 
-        quant_results.local
-        | map { it[0] }
-        | set { groups }
+    quant_results.local
+    | map { it[0] }
+    | set { groups }
 
-        ADD_IMS_INFO(groups, enc_results.blib)
-        | set { blib }
+    // Add IMS info to the blib
+    ADD_IMS_INFO(groups, quant_results.blib)
+    | set { blib }
 
-        skyline_template = file(params.skyline_template, checkIfExists: true)
-        SKYLINE_ADD_LIB(skyline_template, blib, fasta)
-        | set { skyline_template_zipfile }
+    SKYLINE_ADD_LIB(skyline_empty_template, blib, fasta)
+    | set { skyline_template_zipfile }
 
-        // This will generate a skyd for every raw data file
-        SKYLINE_IMPORT_DATA(
-            skyline_template_zipfile.skyline_zipfile,
-            raw_quant_files,
-        )
-        | set { skyline_import_results }
+    // This will generate a skyd for every raw data file
+    SKYLINE_IMPORT_DATA(
+        skyline_template_zipfile.skyline_zipfile,
+        raw_quant_files,
+    )
+    | set { skyline_import_results }
 
-        raw_quant_files = raw_quant_files.collect()
-        skyd_files = skyline_import_results.skyd_file.collect()
+    raw_quant_files = raw_quant_files.collect()
+    skyd_files = skyline_import_results.skyd_file.collect()
 
-        SKYLINE_MERGE_RESULTS(
-            skyline_template_zipfile.skyline_zipfile,
-            skyd_files,
-            raw_quant_files,
-        )
-        | set { skyline_merge_results }
+    SKYLINE_MERGE_RESULTS(
+        skyline_template_zipfile.skyline_zipfile,
+        skyd_files,
+        raw_quant_files,
+    )
+    | set { skyline_merge_results }
 
-        skyline_merge_results.final_skyline_zipfile.view()
+    skyline_merge_results.final_skyline_zipfile.view()
 
     // Perform an aggregate analysis on all files if needed:
     if ( params.aggregate ) {
