@@ -119,11 +119,13 @@ process ENCYCLOPEDIA_AGGREGATE {
         -i ./ \\
         -f ${fasta_file} \\
         -l ${library_file} \\
-        -blib true \\
         ${params.encyclopedia.args} \\
         ${params.encyclopedia.global.args} \\
         -a ${align} \\
     | tee ${stem(output_suffix)}.global.log
+
+    ${execEncyclopedia(task.memory)} \\
+        -convert -libtoblib -i ${stem(output_suffix)}.elib
 
     # Better file names:
     if [ "${align}" = true ]; then
