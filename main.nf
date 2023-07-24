@@ -123,15 +123,6 @@ workflow {
     PERFORM_QUANT(quant_files, dlib, fasta, params.aggregate)
     | set { quant_results }
 
-    // Perform an aggregate analysis on all files if needed:
-    if ( params.aggregate ) {
-        // Aggregate quantitative runs with EncyclopeDIA.
-        // The output has one channel:
-        // global -> [agg_name, peptides_txt, proteins_txt] or null
-        // lib -> blib
-        PERFORM_AGGREGATE_QUANT(quant_results.local, dlib, fasta)
-        | set { enc_results }
-
         quant_results.local
         | map { it[0] }
         | set { groups }
@@ -161,6 +152,15 @@ workflow {
         | set { skyline_merge_results }
 
         skyline_merge_results.final_skyline_zipfile.view()
+
+    // Perform an aggregate analysis on all files if needed:
+    if ( params.aggregate ) {
+        // Aggregate quantitative runs with EncyclopeDIA.
+        // The output has one channel:
+        // global -> [agg_name, peptides_txt, proteins_txt] or null
+        // lib -> blib
+        PERFORM_AGGREGATE_QUANT(quant_results.local, dlib, fasta)
+        | set { enc_results }
 
     } else {
         quant_results | set{ enc_results }
