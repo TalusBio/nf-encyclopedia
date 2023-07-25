@@ -19,13 +19,13 @@ process SKYLINE_ADD_LIB {
 
     wine SkylineCmd \
         --in="${skyline_template_zipfile.baseName}" \
-        --log-file=skyline_add_library.log \
         --import-fasta="${fasta}" \
         --add-library-path="${blib}" \
         --out="results.sky" \
         --save \
         --share-zip="results.sky.zip" \
-        --share-type="complete"
+        --share-type="complete" \
+        2>&1 | tee skyline_add_library.log \
     """
 
     stub:
