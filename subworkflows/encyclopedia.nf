@@ -62,8 +62,8 @@ workflow PERFORM_QUANT {
         quant_files
         | transpose()
         | multiMap { qit ->
-        mzml: tuple qit[0], qit[1]
-        elib: qit[2]
+            mzml: tuple qit[0], qit[1]
+            elib: qit[2]
         }
         | set { ungrouped_files }
 
@@ -86,26 +86,26 @@ workflow PERFORM_QUANT {
 
         // Only run group-wise global if needed.
         if ( local_only ) {
-        Channel.empty() | set { global_files }
-        Channel.empty() | set { msstats_files }
-        Channel.empty() | set { global_blib }
+            Channel.empty() | set { global_files }
+            Channel.empty() | set { msstats_files }
+            Channel.empty() | set { global_blib }
         } else {
-        // Do the global analysis
-        // Output is [group, peptides_txt, proteins_txt]
-        ENCYCLOPEDIA_AGGREGATE(
-                local_files,
-                dlib,
-                fasta,
-                params.encyclopedia.quant_suffix,
-                true  // Align RTs
-            )
-            | set { agg_outs }
+            // Do the global analysis
+            // Output is [group, peptides_txt, proteins_txt]
+            ENCYCLOPEDIA_AGGREGATE(
+                    local_files,
+                    dlib,
+                    fasta,
+                    params.encyclopedia.quant_suffix,
+                    true  // Align RTs
+                )
+                | set { agg_outs }
 
-        agg_outs.lib |
-            map { libe -> libe[1] } |
-            set { global_blib }
-        agg_outs.quant
-            | set { global_files }
+            agg_outs.lib |
+                map { libe -> libe[1] } |
+                set { global_blib }
+            agg_outs.quant
+                | set { global_files }
         }
 
     emit:

@@ -2,7 +2,7 @@
 process ADD_IMS_INFO {
     publishDir "${params.result_dir}/${group}/blib", pattern: '*.ims.blib', failOnError: true
     label 'process_medium'
-    container 'ghcr.io/talusbio/flimsay:v0.2.0'
+    container 'ghcr.io/talusbio/flimsay:v0.4.0'
 
     input:
         val group
