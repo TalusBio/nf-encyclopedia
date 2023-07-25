@@ -95,9 +95,18 @@ process SKYLINE_MERGE_RESULTS {
         path("skyline-merge.log"), emit: log
 
     script:
-    import_files_params = "--import-file=${(mzml_files as List).collect{ "/tmp/" + file(it).name }.join(' --import-file=')}"
     """
     unzip ${skyline_zipfile}
+    for f in *.tar.d ]] ; do
+        tar -xvf ${f}
+    done
+
+    local_files=$(ls *.raw *.mzml *.mzML)
+    import_files_params=""
+    for f in $local_files ; do
+        import_files_params=" ${import_files_params} --import-file=${f}"
+    done
+
 
     wine SkylineCmd \
         --in="${skyline_zipfile.baseName}" \
