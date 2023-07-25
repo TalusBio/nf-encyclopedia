@@ -15,6 +15,9 @@ OUTPUTS = [
     Path("QCPlot.pdf"),
 ]
 
+"""
+Note that the script fixture is defined at the bottom of this file.
+"""
 
 def test_joins(msstats_input, script):
     """Test that the joins are made correctly"""
@@ -217,7 +220,8 @@ def script(monkeypatch, tmp_path):
     """Set the working directory"""
     (tmp_path / "msstats").mkdir(exist_ok=True)
     (tmp_path / "results").mkdir(exist_ok=True)
-    script_path = Path("bin/msstats.R").resolve()
+    script_location = Path(__file__).parent / "../../bin"
+    script_path = (script_location / "msstats.R").resolve()
     monkeypatch.syspath_prepend(script_path)
     monkeypatch.chdir(tmp_path)
     return script_path
