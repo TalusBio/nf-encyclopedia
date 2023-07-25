@@ -91,7 +91,10 @@ workflow PERFORM_QUANT {
             Channel.empty() | set { global_blib }
         } else {
             // Do the global analysis
-            // Output is [group, peptides_txt, proteins_txt]
+            // Output is [
+            //     lib: [group, elib, blib, log, summary.csv]
+            //     quant: [group, peptides_txt, proteins_txt]
+            // ]
             ENCYCLOPEDIA_AGGREGATE(
                     local_files,
                     dlib,
@@ -102,7 +105,7 @@ workflow PERFORM_QUANT {
                 | set { agg_outs }
 
             agg_outs.lib |
-                map { libe -> libe[1] } |
+                map { libe -> libe[2] } |
                 set { global_blib }
             agg_outs.quant
                 | set { global_files }
