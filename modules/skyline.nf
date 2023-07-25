@@ -60,8 +60,8 @@ process SKYLINE_IMPORT_DATA {
     wine SkylineCmd \
         --in="${skyline_zipfile.baseName}" \
         --import-no-join \
-        --log-file="${raw_file.baseName}.log" \
         --import-file="${raw_file}" \
+        2>&1 | tee  "${raw_file.baseName}.log"
     """
 
     stub:
@@ -95,12 +95,12 @@ process SKYLINE_MERGE_RESULTS {
 
     wine SkylineCmd \
         --in="${skyline_zipfile.baseName}" \
-        --log-file="skyline-merge.log" \
         ${import_files_params} \
         --out="final.sky" \
         --save \
         --share-zip="final.sky.zip" \
-        --share-type="complete"
+        --share-type="complete" \
+        2>&1 | tee  "skyline-merge.log"
     """
 
     stub:
