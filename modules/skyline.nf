@@ -56,7 +56,7 @@ process SKYLINE_IMPORT_DATA {
     script:
     """
     unzip ${skyline_zipfile}
-    if [[ ${raw_file} == *.tar.d ]] ; then
+    if [[ ${raw_file} == *.d.tar ]] ; then
         tar -xvf ${raw_file}
         raw_file=\$(ls *.d)
     else
