@@ -58,7 +58,7 @@ process SKYLINE_IMPORT_DATA {
     unzip ${skyline_zipfile}
     if [[ ${raw_file} == *.d.tar ]] ; then
         tar -xvf ${raw_file}
-        raw_file=\$(ls *.d)
+        local_rawfile=\$(ls *.d)
     else
         local_rawfile=${raw_file}
     fi
