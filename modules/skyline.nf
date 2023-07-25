@@ -58,7 +58,7 @@ process SKYLINE_IMPORT_DATA {
     unzip ${skyline_zipfile}
     if [[ ${raw_file} == *.tar.d ]] ; then
         tar -xvf ${raw_file}
-        raw_file=$(ls *.d)
+        raw_file=\$(ls *.d)
     else
         local_rawfile=${raw_file}
     fi
@@ -66,7 +66,7 @@ process SKYLINE_IMPORT_DATA {
     wine SkylineCmd \
         --in="${skyline_zipfile.baseName}" \
         --import-no-join \
-        --import-file="${local_rawfile}" \
+        --import-file="\${local_rawfile}" \
         2>&1 | tee  "${raw_file.baseName}.log"
     """
 
@@ -98,19 +98,19 @@ process SKYLINE_MERGE_RESULTS {
     """
     unzip ${skyline_zipfile}
     for f in *.tar.d ]] ; do
-        tar -xvf ${f}
+        tar -xvf \${f}
     done
 
-    local_files=$(ls *.raw *.mzml *.mzML)
+    local_files=\$(ls *.raw *.mzml *.mzML)
     import_files_params=""
-    for f in $local_files ; do
-        import_files_params=" ${import_files_params} --import-file=${f}"
+    for f in \$local_files ; do
+        import_files_params=" \${import_files_params} --import-file=\${f}"
     done
 
 
     wine SkylineCmd \
         --in="${skyline_zipfile.baseName}" \
-        ${import_files_params} \
+        \${import_files_params} \
         --out="final.sky" \
         --save \
         --share-zip="final.sky.zip" \
