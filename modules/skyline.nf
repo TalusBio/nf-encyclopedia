@@ -56,11 +56,17 @@ process SKYLINE_IMPORT_DATA {
     script:
     """
     unzip ${skyline_zipfile}
+    if [[ ${raw_file} == *.tar.d ]] ; then
+        tar -xvf ${raw_file}
+        raw_file=$(ls *.d)
+    else
+        local_rawfile=${raw_file}
+    fi
 
     wine SkylineCmd \
         --in="${skyline_zipfile.baseName}" \
         --import-no-join \
-        --import-file="${raw_file}" \
+        --import-file="${local_rawfile}" \
         2>&1 | tee  "${raw_file.baseName}.log"
     """
 
