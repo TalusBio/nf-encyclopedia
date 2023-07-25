@@ -132,7 +132,7 @@ workflow {
     ADD_IMS_INFO(groups, quant_results.blib)
     | set { blib }
 
-    SKYLINE_ADD_LIB(skyline_empty_template, blib, fasta)
+    SKYLINE_ADD_LIB(skyline_empty_template, fasta, blib)
     | set { skyline_template_zipfile }
 
     // This will generate a skyd for every raw data file
