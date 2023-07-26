@@ -58,7 +58,7 @@ process SKYLINE_IMPORT_DATA {
     unzip ${skyline_zipfile}
     if [[ ${raw_file} == *.d.tar ]] ; then
         tar -xvf ${raw_file}
-        local_rawfile=\$(ls *.d)
+        local_rawfile=\$(find \${PWD} -d -name "*.d")
     else
         local_rawfile=${raw_file}
     fi
@@ -101,9 +101,8 @@ process SKYLINE_MERGE_RESULTS {
         tar -xvf \${f}
     done
 
-    local_files=\$(ls *.raw *.mzml *.mzML)
     import_files_params=""
-    for f in \$local_files ; do
+    for f in *.{d,mzml,mzML} ; do
         import_files_params=" \${import_files_params} --import-file=\${f}"
     done
 
