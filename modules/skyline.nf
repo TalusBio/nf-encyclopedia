@@ -80,6 +80,7 @@ process SKYLINE_IMPORT_DATA {
         --in="${skyline_zipfile.baseName}" \
         --import-no-join \
         --import-file="\${local_rawfile}" \
+        \${import_extra_params} \
         2>&1 | tee  "${raw_file.baseName}.log"
     """
 
@@ -160,6 +161,7 @@ process SKYLINE_MERGE_RESULTS {
         --reintegrate-model-name="reintegration_res" \
         --reintegrate-create-model \
         --full-scan-filter-tolerance=2 \
+        $\{import_extra_params} \
         2>&1 | tee  "skyline-merge.log"
 
     echo "Directory status >>>>"
