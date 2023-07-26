@@ -36,6 +36,7 @@ process SKYLINE_ADD_LIB {
         --associate-proteins-group-proteins \
         --full-scan-product-res=10.0 \
         --full-scan-product-analyzer=centroided \
+        --full-scan-rt-filter-tolerance=2 \
         2>&1 | tee skyline_add_library.log \
     """
 
@@ -161,7 +162,6 @@ process SKYLINE_MERGE_RESULTS {
         --share-type="complete" \
         --reintegrate-model-name="reintegration_res" \
         --reintegrate-create-model \
-        --full-scan-filter-tolerance=2 \
         \${import_extra_params} \
         2>&1 | tee  "skyline-merge.log"
 
