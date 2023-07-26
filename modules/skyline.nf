@@ -28,7 +28,7 @@ process SKYLINE_ADD_LIB {
         --tran-precursor-ion-charges="2, 3 ,4" \
         --tran-product-ion-charges="1,2" \
         --tran-product-ion-types="b, y, p" \
-        --tran-use-dia-exclusion \
+        --tran-use-dia-window-exclusion \
         --library-pick-product-ions="all_plus" \
         --tran-product-start-ion="ion 2" \
         --tran-product-end-ion="last ion - 2" \
