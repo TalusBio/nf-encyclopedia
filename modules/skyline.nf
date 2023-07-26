@@ -96,6 +96,12 @@ process SKYLINE_MERGE_RESULTS {
 
     script:
     """
+
+    echo ${raw_files}
+
+    echo "Directory status >>>>"
+    ls -lctha # For debugging ...
+
     unzip ${skyline_zipfile}
     for f in *.d.tar ; do
         tar -xvf \${f}
@@ -106,6 +112,8 @@ process SKYLINE_MERGE_RESULTS {
         import_files_params=" \${import_files_params} --import-file=\${f}"
     done
 
+    echo "Import file params >>>"
+    echo \${import_files_params}
 
     wine SkylineCmd \
         --in="${skyline_zipfile.baseName}" \
