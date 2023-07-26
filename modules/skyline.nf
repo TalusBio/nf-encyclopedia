@@ -32,7 +32,8 @@ process SKYLINE_ADD_LIB {
         --library-pick-product-ions="all_plus" \
         --tran-product-start-ion="ion 2" \
         --tran-product-end-ion="last ion - 2" \
-        --associate-protein-group-proteins \
+        --associate-proteins-minimal-protein-list \
+        --associate-proteins-group-proteins \
         --full-scan-product-res=10.0 \
         --full-scan-product-analyzer=centroided \
         --full-scan-acquisition-method="DIA" \
