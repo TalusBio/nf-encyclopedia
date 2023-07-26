@@ -88,7 +88,7 @@ process SKYLINE_MERGE_RESULTS {
     input:
         path skyline_zipfile
         path '*.skyd'
-        val raw_files
+        path raw_files
 
     output:
         path("final.sky.zip"), emit: final_skyline_zipfile

@@ -142,13 +142,10 @@ workflow {
     )
     | set { skyline_import_results }
 
-    raw_quant_files = raw_quant_files.collect()
-    skyd_files = skyline_import_results.skyd_file.collect()
-
     SKYLINE_MERGE_RESULTS(
         skyline_template_zipfile.skyline_zipfile,
-        skyd_files,
-        raw_quant_files,
+        skyd_files.collect(),
+        raw_quant_files.collect(),
     )
     | set { skyline_merge_results }
 
