@@ -97,19 +97,37 @@ process SKYLINE_MERGE_RESULTS {
     script:
     """
 
+    echo "Input Raw files"
     echo ${raw_files}
 
     echo "Directory status >>>>"
     ls -lctha # For debugging ...
 
+    echo "Unzipping skyline template file"
     unzip ${skyline_zipfile}
-    for f in *.d.tar ; do
-        tar -xvf \${f}
-    done
 
     import_files_params=""
-    for f in *.{d,mzml,mzML} ; do
-        import_files_params=" \${import_files_params} --import-file=\${f}"
+
+    if [[ \$(find \${PWD} -type d -name "*.d") ]] ; then
+        for f in *.d.tar ; do
+            echo "Decompressing \${f}"
+            tar -xvf \${f}
+        done
+
+        for f in *.d ; do
+            import_files_params=" \${import_files_params} --import-file=\${f}"
+        done
+    else
+    fi
+
+    echo "Import file params >>>"
+    echo \${import_files_params}
+
+    for ftype in raw mzml mzML; do
+        echo ">>> Looking for \${ftype} files"
+        for f in \$(find \${PWD} -type d -name "*.\${ftype}"); do
+            import_files_params=" \${import_files_params} --import-file=\${f}"
+        done
     done
 
     echo "Import file params >>>"
