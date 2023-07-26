@@ -161,7 +161,7 @@ process SKYLINE_MERGE_RESULTS {
         --reintegrate-model-name="reintegration_res" \
         --reintegrate-create-model \
         --full-scan-filter-tolerance=2 \
-        $\{import_extra_params} \
+        \${import_extra_params} \
         2>&1 | tee  "skyline-merge.log"
 
     echo "Directory status >>>>"
