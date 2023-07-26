@@ -97,7 +97,7 @@ process SKYLINE_MERGE_RESULTS {
     script:
     """
     unzip ${skyline_zipfile}
-    for f in *.tar.d ]] ; do
+    for f in *.d.tar ; do
         tar -xvf \${f}
     done
 
