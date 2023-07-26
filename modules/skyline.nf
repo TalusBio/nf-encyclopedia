@@ -36,7 +36,6 @@ process SKYLINE_ADD_LIB {
         --associate-proteins-group-proteins \
         --full-scan-product-res=10.0 \
         --full-scan-product-analyzer=centroided \
-        --full-scan-acquisition-method="DIA" \
         2>&1 | tee skyline_add_library.log \
     """
 
@@ -81,6 +80,7 @@ process SKYLINE_IMPORT_DATA {
         --in="${skyline_zipfile.baseName}" \
         --import-no-join \
         --import-file="\${local_rawfile}" \
+        --full-scan-acquisition-method="DIA" \
         \${import_extra_params} \
         2>&1 | tee  "${raw_file.baseName}.log"
     """
