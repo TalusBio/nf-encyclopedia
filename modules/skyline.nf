@@ -25,6 +25,17 @@ process SKYLINE_ADD_LIB {
         --save \
         --share-zip="results.sky.zip" \
         --share-type="complete" \
+        --tran-precursor-ion-charges="2, 3 ,4" \
+        --tran-product-ion-charges="1,2" \
+        --tran-product-ion-types="b, y, p" \
+        --tran-use-dia-exclusion \
+        --library-pick-product-ions="all_plus" \
+        --tran-product-start-ion="ion 2" \
+        --tran-product-end-ion="last ion - 2" \
+        --associate-protein-group-proteins \
+        --full-scan-product-res=10.0 \
+        --full-scan-product-analyzer=centroided \
+        --full-scan-acquisition-method="DIA" \
         2>&1 | tee skyline_add_library.log \
     """
 
@@ -59,8 +70,10 @@ process SKYLINE_IMPORT_DATA {
     if [[ ${raw_file} == *.d.tar ]] ; then
         tar -xvf ${raw_file}
         local_rawfile=\$(find \${PWD} -d -name "*.d")
+        import_extra_params=" --ims-library-res=30 --full-scan-isolation-scheme=\${local_rawfile}"
     else
         local_rawfile=${raw_file}
+        import_extra_params=" --full-scan-isolation-scheme=\${local_rawfile}"
     fi
 
     wine SkylineCmd \
@@ -96,7 +109,6 @@ process SKYLINE_MERGE_RESULTS {
 
     script:
     """
-
     echo "Input Raw files"
     echo ${raw_files}
 
@@ -107,6 +119,7 @@ process SKYLINE_MERGE_RESULTS {
     unzip ${skyline_zipfile}
 
     import_files_params=""
+    import_extra_params=""
 
     if [[ \$(find \${PWD} -type f -name "*.d.tar") ]] ; then
         for f in *.d.tar ; do
@@ -120,6 +133,7 @@ process SKYLINE_MERGE_RESULTS {
     if [[ \$(find \${PWD} -type d -name "*.d") ]] ; then
         for f in *.d ; do
             import_files_params=" \${import_files_params} --import-file=\${f}"
+            import_extra_params=" --ims-library-res=30 --full-scan-isolation-scheme=\${f}"
         done
     fi
 
@@ -128,7 +142,7 @@ process SKYLINE_MERGE_RESULTS {
 
     for ftype in raw mzml mzML; do
         echo ">>> Looking for \${ftype} files"
-        for f in \$(find \${PWD} -type d -name "*.\${ftype}"); do
+        for f in \$(find \${PWD} -type f -name "*.\${ftype}"); do
             import_files_params=" \${import_files_params} --import-file=\${f}"
         done
     done
@@ -143,7 +157,13 @@ process SKYLINE_MERGE_RESULTS {
         --save \
         --share-zip="final.sky.zip" \
         --share-type="complete" \
+        --reintegrate-model-name="reintegration_res" \
+        --reintegrate-create-model \
+        --full-scan-filter-tolerance=2 \
         2>&1 | tee  "skyline-merge.log"
+
+    echo "Directory status >>>>"
+    ls -lctha # For debugging ...
     """
 
     stub:
