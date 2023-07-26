@@ -108,16 +108,19 @@ process SKYLINE_MERGE_RESULTS {
 
     import_files_params=""
 
-    if [[ \$(find \${PWD} -type d -name "*.d") ]] ; then
+    if [[ \$(find \${PWD} -type f -name "*.d.tar") ]] ; then
         for f in *.d.tar ; do
             echo "Decompressing \${f}"
             tar -xvf \${f}
         done
+    else
+        echo "No compressed .d files found"
+    fi
 
+    if [[ \$(find \${PWD} -type d -name "*.d") ]] ; then
         for f in *.d ; do
             import_files_params=" \${import_files_params} --import-file=\${f}"
         done
-    else
     fi
 
     echo "Import file params >>>"
