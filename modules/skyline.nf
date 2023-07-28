@@ -1,5 +1,5 @@
 
-// Code modified from 
+// Code modified from https://github.com/mriffle/nf-teirex-dia/blob/main/modules/skyline.nf
 
 process SKYLINE_ADD_LIB {
     publishDir "${params.result_dir}/skyline/", failOnError: true, mode: 'copy'
@@ -41,6 +41,9 @@ process SKYLINE_ADD_LIB {
         --full-scan-product-analyzer=centroided \
         --full-scan-rt-filter-tolerance=2 \
         --ims-library-res=30 \
+        --decoys-add=shuffle \
+        --timestamp \
+        --memstamp \
         2>&1 | tee skyline_add_library.log \
     """
 
@@ -86,6 +89,8 @@ process SKYLINE_IMPORT_DATA {
         --import-no-join \
         --import-file="\${local_rawfile}" \
         --full-scan-acquisition-method="DIA" \
+        --timestamp \
+        --memstamp \
         \${import_extra_params} \
         2>&1 | tee  "${raw_file.baseName}.log"
     """
@@ -166,6 +171,8 @@ process SKYLINE_MERGE_RESULTS {
         --share-type="complete" \
         --reintegrate-model-name="reintegration_res" \
         --reintegrate-create-model \
+        --timestamp \
+        --memstamp \
         \${import_extra_params} \
         2>&1 | tee  "skyline-merge.log"
 
