@@ -8,9 +8,9 @@ dependencies:
   - pytest
   - numpy
   - pandas
-  - bioconductor-msstats=4.2.0
-  - r-rlang
-  - r-dplyr
-  - r-tidyr
-  - r-magrittr
-  - r-stringr
+  - bioconda::bioconductor-msstats
+  - conda-forge::r-rlang
+  - conda-forge::r-dplyr
+  - conda-forge::r-tidyr
+  - r::r-magrittr
+  - r::r-stringr

@@ -3,7 +3,7 @@
 nextflow.enable.dsl = 2
 
 // Subworkflows
-include { CONVERT_TO_MZML } from "./subworkflows/msconvert"
+include { CONVERT_TO_MZML } from "./subworkflows/convert"
 include {
     BUILD_CHROMATOGRAM_LIBRARY;
     PERFORM_QUANT;
@@ -12,6 +12,12 @@ include {
 
 // Modules
 include { MSSTATS } from "./modules/msstats"
+include { ADD_IMS_INFO } from "./modules/ims"
+include { 
+    SKYLINE_ADD_LIB;
+    SKYLINE_IMPORT_DATA;
+    SKYLINE_MERGE_RESULTS
+} from "./modules/skyline"
 
 
 //
@@ -49,6 +55,7 @@ workflow {
     input = file(params.input, checkIfExists: true)
     fasta = file(params.fasta, checkIfExists: true)
     dlib = file(params.dlib, checkIfExists: true)
+    skyline_empty_template = file("$baseDir/assets/template.sky.zip", checkIfExists: true)
 
     // Optional contrasts arg:
     if ( params.contrasts != null ) {
@@ -73,6 +80,16 @@ workflow {
     if ( !ms_files.runs ) {
         error "No MS data files were provided. Nothing to do."
     }
+
+    // Raw Mass Spec files (raw including .raw or .d/.tar)
+    // These files will be used later to quant using skyline.
+    // This also filter out files that are chromatogram libraries
+    ms_files.runs
+    | join(ms_files.meta)
+    | filter { !it[1] }
+    | map { it[0] }
+    | filter( ~/^.*((.raw)|(.d.tar))$/ )
+    | set { raw_quant_files }
 
     // Convert raw files to gzipped mzML and group them by experiment.
     // The chrlib and quant channels take the following form:
@@ -107,13 +124,42 @@ workflow {
     PERFORM_QUANT(quant_files, dlib, fasta, params.aggregate)
     | set { quant_results }
 
+    quant_results.local
+    | map { it[0] }
+    | set { groups }
+
+    // Add IMS info to the blib
+    ADD_IMS_INFO(groups, quant_results.blib)
+    | set { blib }
+
+    SKYLINE_ADD_LIB(skyline_empty_template, fasta, blib)
+    | set { skyline_template_zipfile }
+
+    // This will generate a skyd for every raw data file
+    SKYLINE_IMPORT_DATA(
+        skyline_template_zipfile.skyline_zipfile,
+        raw_quant_files,
+    )
+    | set { skyline_import_results }
+
+    SKYLINE_MERGE_RESULTS(
+        skyline_template_zipfile.skyline_zipfile,
+        skyline_import_results.skyd_file.collect(),
+        raw_quant_files.collect(),
+    )
+    | set { skyline_merge_results }
+
+    skyline_merge_results.final_skyline_zipfile.view()
+
     // Perform an aggregate analysis on all files if needed:
     if ( params.aggregate ) {
         // Aggregate quantitative runs with EncyclopeDIA.
         // The output has one channel:
-        // global -> [agg_name, peptides, proteins] or null
+        // global -> [agg_name, peptides_txt, proteins_txt] or null
+        // lib -> blib
         PERFORM_AGGREGATE_QUANT(quant_results.local, dlib, fasta)
         | set { enc_results }
+
     } else {
         quant_results | set{ enc_results }
     }
@@ -122,6 +168,8 @@ workflow {
     if ( params.msstats.enabled ) {
         MSSTATS(enc_results.global, input, contrasts)
     }
+
+    // 
 }
 
 

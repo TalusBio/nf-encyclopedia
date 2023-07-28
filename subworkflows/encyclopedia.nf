@@ -41,7 +41,7 @@ workflow BUILD_CHROMATOGRAM_LIBRARY {
             params.encyclopedia.chrlib_suffix,
             false  // Don't align RTs
         ).lib
-        | map { it -> tuple it[0], it[1] }
+        | map { eait -> tuple eait[0], eait[1] }
         | set { output_elib }
 
     emit:
@@ -61,9 +61,9 @@ workflow PERFORM_QUANT {
         // output is [group, mzml_gz_file, elib]
         quant_files
         | transpose()
-        | multiMap { it ->
-            mzml: tuple it[0], it[1]
-            elib: it[2]
+        | multiMap { qit ->
+            mzml: tuple qit[0], qit[1]
+            elib: qit[2]
         }
         | set { ungrouped_files }
 
@@ -88,22 +88,33 @@ workflow PERFORM_QUANT {
         if ( local_only ) {
             Channel.empty() | set { global_files }
             Channel.empty() | set { msstats_files }
+            Channel.empty() | set { global_blib }
         } else {
             // Do the global analysis
-            // Output is [group, peptides_txt, proteins_txt]
+            // Output is [
+            //     lib: [group, elib, blib, log, summary.csv]
+            //     quant: [group, peptides_txt, proteins_txt]
+            // ]
             ENCYCLOPEDIA_AGGREGATE(
-                local_files,
-                dlib,
-                fasta,
-                params.encyclopedia.quant_suffix,
-                true  // Align RTs
-            ).quant
-            | set { global_files }
+                    local_files,
+                    dlib,
+                    fasta,
+                    params.encyclopedia.quant_suffix,
+                    true  // Align RTs
+                )
+                | set { agg_outs }
+
+            agg_outs.lib |
+                map { libe -> libe[2] } |
+                set { global_blib }
+            agg_outs.quant
+                | set { global_files }
         }
 
     emit:
         local = local_files
         global = global_files
+        blib = global_blib
 }
 
 
@@ -136,9 +147,18 @@ workflow PERFORM_AGGREGATE_QUANT {
             fasta,
             params.encyclopedia.quant_suffix,
             true  // Align RTs
-        ).quant
+        )
+        | set { agg_results }
+
+        agg_results.quant
         | set { global_files }
+
+        // Lib is ['aggregated', .elib, .blib, .log, summary.csv]
+        agg_results.lib
+        | map { libe -> libe[1] }
+        | set { blib }
 
     emit:
         global = global_files
+        blib = blib
 }

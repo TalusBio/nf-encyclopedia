@@ -9,6 +9,7 @@ def test_no_groups(base_project, tmp_path):
     config, input_csv, _ = base_project
     pd.read_csv(input_csv).drop(columns="group").to_csv(input_csv, index=False)
     cmd = ["nextflow", "run", "main.nf"] + config
+    print(cmd)
     subprocess.run(cmd, check=True)
     base = tmp_path / "results"
 
@@ -19,6 +20,7 @@ def test_no_aggregate(base_project, tmp_path):
     """Test the workflow logic for per experiment workflows"""
     config, *_ = base_project
     cmd = ["nextflow", "run", "main.nf"] + config
+    print(cmd)
     subprocess.run(cmd, check=True)
     base = tmp_path / "results"
     expected = [
@@ -45,16 +47,22 @@ def test_aggregate(base_project, tmp_path):
     """Test workflow logic for global analyses."""
     config, *_ = base_project
 
+    template_file = tmp_path / "template.sky.zip"
+    template_file.touch()
+
     cmd = [
         "nextflow",
         "run",
         "main.nf",
         "--aggregate",
         "true",
+        "--skyline_template",
+        str(template_file),
     ]
 
     cmd += config
 
+    print(cmd)
     subprocess.run(cmd, check=True)
     base = tmp_path / "results"
     not_expected = [
@@ -80,6 +88,7 @@ def test_already_converted(base_project, tmp_path):
 
     config, *_ = base_project
     cmd = ["nextflow", "run", "main.nf"] + config
+    print(cmd)
     subprocess.run(cmd, check=True)
 
     assert old == mzml.stat()
@@ -96,6 +105,7 @@ def test_force_convert(base_project, tmp_path):
 
     config, *_ = base_project
     cmd = ["nextflow", "run", "main.nf", "--msconvert.force", "true"] + config
+    print(cmd)
     subprocess.run(cmd, check=True)
 
     assert old != mzml.stat()

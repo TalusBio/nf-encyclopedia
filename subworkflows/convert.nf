@@ -1,5 +1,6 @@
-include { MSCONVERT } from "../modules/msconvert.nf"
 
+
+include { MSCONVERT; TDF2MZML } from "../modules/convert"
 
 workflow CONVERT_TO_MZML {
     take:
@@ -21,7 +22,17 @@ workflow CONVERT_TO_MZML {
     }
     | set { staging }
 
-    MSCONVERT(staging.mzml_absent)
+    staging.mzml_absent
+    | branch {
+        is_tdf: it[0].toLowerCase().endsWith(".d.tar")
+        return it
+        is_raw: true
+        return it
+    }
+    |set { to_convert }
+
+    MSCONVERT(to_convert.is_raw)
+    | concat(TDF2MZML(to_convert.is_tdf))
     | concat(staging.is_mzml)
     | concat(staging.mzml_present)
     | set { results }
