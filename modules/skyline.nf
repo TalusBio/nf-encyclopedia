@@ -1,3 +1,6 @@
+
+// Code modified from 
+
 process SKYLINE_ADD_LIB {
     publishDir "${params.result_dir}/skyline/", failOnError: true, mode: 'copy'
     label 'process_medium'
@@ -37,6 +40,7 @@ process SKYLINE_ADD_LIB {
         --full-scan-product-res=10.0 \
         --full-scan-product-analyzer=centroided \
         --full-scan-rt-filter-tolerance=2 \
+        --ims-library-res=30 \
         2>&1 | tee skyline_add_library.log \
     """
 
@@ -71,7 +75,7 @@ process SKYLINE_IMPORT_DATA {
     if [[ ${raw_file} == *.d.tar ]] ; then
         tar -xvf ${raw_file}
         local_rawfile=\$(find \${PWD} -d -name "*.d")
-        import_extra_params=" --ims-library-res=30 --full-scan-isolation-scheme=\${local_rawfile}"
+        import_extra_params="  --full-scan-isolation-scheme=\${local_rawfile}"
     else
         local_rawfile=${raw_file}
         import_extra_params=" --full-scan-isolation-scheme=\${local_rawfile}"
@@ -136,7 +140,7 @@ process SKYLINE_MERGE_RESULTS {
     if [[ \$(find \${PWD} -type d -name "*.d") ]] ; then
         for f in *.d ; do
             import_files_params=" \${import_files_params} --import-file=\${f}"
-            import_extra_params=" --ims-library-res=30 --full-scan-isolation-scheme=\${f}"
+            import_extra_params=" --full-scan-isolation-scheme=\${f}"
         done
     fi
 
