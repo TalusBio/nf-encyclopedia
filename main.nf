@@ -32,6 +32,16 @@ def email() {
 
 
 //
+// Used for Slack notifications
+//
+def slack() {
+    if (params.hook_url) {
+        TalusTemplate.IM_notification(workflow, params, projectDir)
+    }
+}
+
+
+//
 // Use the DLIB when the ELIB is unavailable.
 //
 def replace_missing_elib(elib) {
@@ -133,4 +143,7 @@ workflow dummy {
 }
 
 // Email notifications:
-workflow.onComplete { email() }
+workflow.onComplete {
+    email()
+    slack()
+}
